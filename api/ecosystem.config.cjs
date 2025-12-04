@@ -16,10 +16,10 @@ const portDetails = {
 module.exports = {
     apps: [
         {
-            name: apiName[appenv] || "ims-qas-api",
+            name: apiName[appenv] || "deedmanagement-qas-api",
             script: "index.js",
             env: {
-                PORT: portDetails[appenv] || 5027,
+                PORT: portDetails[appenv] || 5032,
                 NODE_ENV: env || "dev",
                 APP_ENV: appenv || "quality",
             }

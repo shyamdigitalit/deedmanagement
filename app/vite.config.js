@@ -12,8 +12,8 @@ export default defineConfig(({ mode }) => {
   const appenv = env.VITE_APP_ENV || 'quality'
 
   const portDetails = {
-    quality: Number(env.VITE_APP_PORT_QAS) || 3017,
-    production: Number(env.VITE_APP_PORT_PRD) || 3016,
+    quality: Number(env.VITE_APP_PORT_QAS) || 3032,
+    production: Number(env.VITE_APP_PORT_PRD) || 3031,
   }
 
   return {
