@@ -21,10 +21,10 @@ const apienv = process.env.NODE_ENV || 'dev';
 const appenv = process.env.APP_ENV || 'quality';
 
 const portDetails = {
-  quality: process.env.PORT_QAS || 5027,
-  production: process.env.PORT_PRD || 5026,
+  quality: process.env.PORT_QAS || 5032,
+  production: process.env.PORT_PRD || 5031,
 }
-const port = portDetails[appenv] || 5027;
+const port = portDetails[appenv] || 5032;
 
 const allowedOrigins = {
   dev: {
@@ -36,7 +36,7 @@ const allowedOrigins = {
     production: [process.env.APP_URL_LIVP]
   }
 }
-const origins = allowedOrigins[apienv][appenv] || ['http://localhost:3027'];
+const origins = allowedOrigins[apienv][appenv] || ['http://localhost:3032'];
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
