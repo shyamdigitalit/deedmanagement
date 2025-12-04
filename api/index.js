@@ -10,7 +10,6 @@ import cookieParser from 'cookie-parser';
 import mongoConn from './db/dbcon.js';
 import authRoutes from './routes/authRoute.js';
 import routes from './routes/route.js';
-import { setupJobs } from './utilities/jobscheduler/jobScheduler.js';
 // Load environment variables from .env file
 dotenv.config({ quiet: true });
 
@@ -79,7 +78,7 @@ else {
   app.use('/api', routes);
   // }
 
-  if (appenv === 'production') {
+  if (apienv === 'live') {
     // static frontend
     const distPath = path.join(__dirname, '..', 'app', 'dist');
     console.log("Serving frontend from:", distPath);
@@ -90,32 +89,9 @@ else {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
-  // // static frontend
-  // const distPath = path.join(__dirname, '..', 'app', 'dist');
-  // console.log("Serving frontend from:", distPath);
-  // app.use(express.static(distPath));
-
-  // // frontend routes
-  // app.get(/^\/(?!api).*/, (req, res) => {
-  //   res.sendFile(path.join(distPath, 'index.html'));
-  // });
-
+  
   (async () => {
     await mongoConn();
-
-    // // start Agenda in only worker #1 (avoid multiple workers handling the same jobs)
-    if (cluster.worker && cluster.worker.id === 1) {
-      console.log(`Worker ${process.pid} is starting Agenda jobs`);
-      await setupJobs(); // start agenda AFTER job is defined
-      
-      process.on("SIGINT", async () => {
-        console.log("🧹 Gracefully shutting down...");
-        await agenda.stop();
-        process.exit(0);
-      });
-    } else {
-      console.log(`Worker ${process.pid} will NOT start Agenda jobs (only worker #1 will)`);
-    }
     
     // No host param → cluster shares the TCP handle
     app.listen(port, () => {
