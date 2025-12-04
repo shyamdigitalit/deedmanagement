@@ -3,9 +3,9 @@ import { basicAuth, jwtHybrdProtect } from '../middlewares/authMiddleware.js';
 const router = express.Router();
 import fileUpload from '../middlewares/fileUpload.js';
 
-import polcyopController from '../controllers/insurancemodules/polcyopController.js';
-import claimController from '../controllers/insurancemodules/claimController.js';
-import settlmntController from '../controllers/insurancemodules/settlmntController.js';
+// import polcyopController from '../controllers/insurancemodules/polcyopController.js';
+// import claimController from '../controllers/insurancemodules/claimController.js';
+// import settlmntController from '../controllers/insurancemodules/settlmntController.js';
 
 import acctypController from '../controllers/masters/accsetups/acctypController.js';
 import cmpnyController from '../controllers/masters/admin/cmpnyController.js';
@@ -35,20 +35,20 @@ createRoute('get', '/chckstat', (_, res) => res.json({ message: 'Server is Onlin
 
 // POST
 const postRoutes = [
-    { path: '/polcyop/create',
-        handlers: [
-            jwtHybrdProtect,
-            // fileUpload.array("files", 20),
-            fileUpload.fields([
-                { name: "nfaForQuotation", maxCount: 10 },
-                { name: "nfaForPayment", maxCount: 10 },
-                { name: "otherDocs", maxCount: 10 },
-            ]),
-            polcyopController.create
-        ]
-    },
-    { path: '/claim/create', handlers: [ jwtHybrdProtect, fileUpload.fields([ { name: "otherDocs", maxCount: 10 } ]), claimController.create ]},
-    { path: '/settlmnt/create', handlers: [ jwtHybrdProtect, fileUpload.fields([ { name: "otherDocs", maxCount: 10 } ]), settlmntController.create ]},
+    // { path: '/polcyop/create',
+    //     handlers: [
+    //         jwtHybrdProtect,
+    //         // fileUpload.array("files", 20),
+    //         fileUpload.fields([
+    //             { name: "nfaForQuotation", maxCount: 10 },
+    //             { name: "nfaForPayment", maxCount: 10 },
+    //             { name: "otherDocs", maxCount: 10 },
+    //         ]),
+    //         polcyopController.create
+    //     ]
+    // },
+    // { path: '/claim/create', handlers: [ jwtHybrdProtect, fileUpload.fields([ { name: "otherDocs", maxCount: 10 } ]), claimController.create ]},
+    // { path: '/settlmnt/create', handlers: [ jwtHybrdProtect, fileUpload.fields([ { name: "otherDocs", maxCount: 10 } ]), settlmntController.create ]},
     { path: '/acctyp/create', handlers: [jwtHybrdProtect, fileUpload.none(), acctypController.create] },
     { path: '/cmpny/create', handlers: [jwtHybrdProtect, fileUpload.none(), cmpnyController.create] },
     { path: '/unt/create', handlers: [jwtHybrdProtect, fileUpload.none(), untController.create] },
@@ -65,10 +65,10 @@ postRoutes.forEach(route => createRoute('post', route.path, ...route.handlers));
 
 // GET
 const getRoutes = [
-    { path: '/polcyop/fetch', handlers: [basicAuth, polcyopController.read] },
-    { path: '/claim/fetch', handlers: [basicAuth, claimController.read] },
-    { path: '/claim/groupbypolcy/fetch', handlers: [basicAuth, claimController.readOnPolcy] },
-    { path: '/settlmnt/fetch', handlers: [basicAuth, settlmntController.read] },
+    // { path: '/polcyop/fetch', handlers: [basicAuth, polcyopController.read] },
+    // { path: '/claim/fetch', handlers: [basicAuth, claimController.read] },
+    // { path: '/claim/groupbypolcy/fetch', handlers: [basicAuth, claimController.readOnPolcy] },
+    // { path: '/settlmnt/fetch', handlers: [basicAuth, settlmntController.read] },
     { path: '/acctyp/fetch', handlers: [jwtHybrdProtect, acctypController.read] },
     { path: '/acctyp/fetchby/:id', handlers: [jwtHybrdProtect, acctypController.readById] },
     { path: '/acctyp/fetchuppr', handlers: [jwtHybrdProtect, acctypController.readLowrHierarchy] },
@@ -91,22 +91,22 @@ getRoutes.forEach(route => createRoute('get', route.path, ...route.handlers));
 
 // PUT
 const putRoutes = [
-    { path: '/polcyop/update',
-        handlers: [
-            jwtHybrdProtect,
-            fileUpload.fields([
-                { name: "nfaForQuotation", maxCount: 10 },
-                { name: "nfaForPayment", maxCount: 10 },
-                { name: "otherDocs", maxCount: 10 },
-            ]),
-            polcyopController.update
-        ]
-    },
-    { path: '/polcyop/status/update', handlers: [ jwtHybrdProtect, fileUpload.none(), polcyopController.statusUpdate ] },
-    { path: '/claim/update', handlers: [ jwtHybrdProtect, fileUpload.fields([ { name: "otherDocs", maxCount: 10 } ]), claimController.update ] },
-    { path: '/claim/status/update', handlers: [ jwtHybrdProtect, claimController.statusUpdate ] },
-    { path: '/settlmnt/update', handlers: [ jwtHybrdProtect, fileUpload.fields([ { name: "otherDocs", maxCount: 10 } ]), settlmntController.update ] },
-    { path: '/settlmnt/status/update', handlers: [ jwtHybrdProtect, settlmntController.statusUpdate ] },
+    // { path: '/polcyop/update',
+    //     handlers: [
+    //         jwtHybrdProtect,
+    //         fileUpload.fields([
+    //             { name: "nfaForQuotation", maxCount: 10 },
+    //             { name: "nfaForPayment", maxCount: 10 },
+    //             { name: "otherDocs", maxCount: 10 },
+    //         ]),
+    //         polcyopController.update
+    //     ]
+    // },
+    // { path: '/polcyop/status/update', handlers: [ jwtHybrdProtect, fileUpload.none(), polcyopController.statusUpdate ] },
+    // { path: '/claim/update', handlers: [ jwtHybrdProtect, fileUpload.fields([ { name: "otherDocs", maxCount: 10 } ]), claimController.update ] },
+    // { path: '/claim/status/update', handlers: [ jwtHybrdProtect, claimController.statusUpdate ] },
+    // { path: '/settlmnt/update', handlers: [ jwtHybrdProtect, fileUpload.fields([ { name: "otherDocs", maxCount: 10 } ]), settlmntController.update ] },
+    // { path: '/settlmnt/status/update', handlers: [ jwtHybrdProtect, settlmntController.statusUpdate ] },
     { path: '/acctyp/update', handlers: [jwtHybrdProtect, fileUpload.none(), acctypController.update] },
     { path: '/cmpny/update', handlers: [jwtHybrdProtect, fileUpload.none(), cmpnyController.update] },
     { path: '/unt/update', handlers: [jwtHybrdProtect, fileUpload.none(), untController.update] },
@@ -122,9 +122,9 @@ putRoutes.forEach(route => createRoute('put', route.path, ...route.handlers));
 
 // DELETE
 const deleteRoutes = [
-    { path: '/polcyop/delete', handlers: [jwtHybrdProtect, polcyopController.remove] },
-    { path: '/claim/delete', handlers: [jwtHybrdProtect, claimController.remove] },
-    { path: '/settlmnt/delete', handlers: [jwtHybrdProtect, settlmntController.remove] },
+    // { path: '/polcyop/delete', handlers: [jwtHybrdProtect, polcyopController.remove] },
+    // { path: '/claim/delete', handlers: [jwtHybrdProtect, claimController.remove] },
+    // { path: '/settlmnt/delete', handlers: [jwtHybrdProtect, settlmntController.remove] },
     { path: '/acctyp/delete', handlers: [jwtHybrdProtect, acctypController.remove] },
     { path: '/dynapprvl/delete/:id', handlers: [jwtHybrdProtect, dynapprvlController.remove] },
     { path: '/cmpny/delete', handlers: [jwtHybrdProtect, cmpnyController.remove] },

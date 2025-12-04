@@ -7,8 +7,8 @@ const appenv = process.env.APP_ENV || 'quality';
 const env = process.env.NODE_ENV || 'dev';
 
 const dbnm = appenv === 'production'
-    ? (env === 'live' ? (console.log('Live (Production Server)'), 'imsprddb') : (console.log('Dev (Production Server)'), 'imsdb'))
-    : (env === 'live' ? (console.log('Live (Quality Server)'), 'imsqasdb') : (console.log('Dev (Quality Server)'), 'imsdb'));
+    ? (env === 'live' ? (console.log('Live (Production Server)'), 'deedmanagementprddb') : (console.log('Dev (Production Server)'), 'deedmanagementdb'))
+    : (env === 'live' ? (console.log('Live (Quality Server)'), 'deedmanagementqasdb') : (console.log('Dev (Quality Server)'), 'deedmanagementdb'));
 
 
 mongoose.set('strictQuery', false); // Disable strict query mode
