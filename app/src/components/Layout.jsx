@@ -144,20 +144,19 @@ export default function MiniDrawer() {
   return (
     <Box sx={{ display: 'flex' }}>
       {/* <CssBaseline /> */}
-      {!isAuthenticated && <>
-        <div style={{ position: "fixed", left: 0, top: 0, width: "100%", zIndex: 100 }} >
-            <Suspense fallback={<Loader />}> <Header /> </Suspense>
-        </div>
-        <Drawer className="sidebar-container" variant="permanent" open={open}>
+      {!location.pathname.startsWith("/login") && <div style={{ position: "fixed", left: 0, top: 0, width: "100%", zIndex: 100 }} >
+          <Suspense fallback={<Loader />}> <Header /> </Suspense>
+      </div>}
+      {isAuthenticated && <>
+        {/* <Drawer className="sidebar-container" variant="permanent" open={open} style={{
+          margin: "2rem"
+        }}>
           <DrawerHeader style={{padding: "0 15px"}} >
             {open && <div style={{textAlign: "left", width: "100%", padding: "3rem auto", display: "flex", justifyContent: "start", alignItems: "center"}}>
               <img src="/shyamlogo.png" width={100} alt="" />
-              {/* <DoubleArrow /> */}
-              {/* <img src="./SMARTPARCHI.png" width={70} alt="" /> */}
             </div>}
 
             {open ? <>
-              {/* <img className="logo" src={Logo} width={100} alt="" style={{position: "absolute", left: 20}} /> */}
               <IconButton onClick={handleDrawerClose}>
                 {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
               </IconButton>
@@ -206,9 +205,9 @@ export default function MiniDrawer() {
             <DropdownMenu type={"sidebar"} title="Me" icon={<Avatar sx={{ width: 50, height: 50 }}> <small style={{fontSize: "0.7rem"}}>{userSymbol}</small> </Avatar>} menuItems={sessionMenuData} />
           </List>
 
-        </Drawer>
+        </Drawer> */}
       </>}
-      <div style={{ marginTop: "4rem", flexGrow: 1, overflowX: "auto" }} >
+      <div style={isAuthenticated ? { marginTop: "5rem", flexGrow: 1, overflowX: "auto" } : {}} >
         <Outlet /> 
       </div>
     </Box>

@@ -8,6 +8,7 @@ import {
   ListItemIcon,
   ListItemText,
   Paper,
+  Button,
 } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
@@ -85,19 +86,15 @@ const DropdownMenu = ({ path, type, title, icon, menuItems }) => {
           </ListItemButton>
         </Link>
       ) : (
-        <IconButton
-          size="small"
+        <Button
+          variant="outlined"
+          size="medium"
           id={`button-${title}`}
           onClick={handleClick}
-          sx={{
-            padding: 0,
-            margin: "-3px 0 0 0",
-            backgroundColor: 'transparent',
-            '&:hover': { backgroundColor: 'transparent' },
-          }}
+          sx={{gap:1}}
         >
-          {icon}
-        </IconButton>
+          {icon} <strong>{title}</strong>
+        </Button>
       )}
       {/* <Tooltip title={title} arrow>
       </Tooltip> */}
@@ -172,7 +169,8 @@ const DropdownMenu = ({ path, type, title, icon, menuItems }) => {
           style={{
             position: 'fixed',
             // top: (submenuData.anchor.top - (submenuData.children?.length * 36)) + (menuItems.length - (hoveredIndex)) * 36, // 36px = approx height of one MenuItem
-            top: (submenuData.anchor.top - (submenuData.children?.length * 36)) + 36, // 36px = approx height of one MenuItem
+            // top: (submenuData.anchor.top - (submenuData.children?.length * 36)) + 36, // 36px = approx height of one MenuItem
+            top: (submenuData.anchor.top), // 36px = approx height of one MenuItem
             left: submenuData.anchor.left,
             zIndex: 1302,
             minWidth: 220,

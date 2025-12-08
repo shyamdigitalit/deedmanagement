@@ -1,12 +1,11 @@
 import '../styles/Login.css'
-import { Button, Checkbox, FormControlLabel, TextField } from '@mui/material'
+import { Button, Checkbox, FormControlLabel, TextField, InputAdornment, IconButton } from '@mui/material'
 import { useState } from 'react';
-import { DoubleArrow, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { showSnackbar } from '../redux/slices/snackbar';
-
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -27,44 +26,59 @@ const Login = () => {
     try {
       const result = await dispatch(login(credentials));
       if (result.meta.requestStatus === 'fulfilled') {
-        dispatch(showSnackbar({ message: "Logged In Successfully", severity: 'success', }));
+        dispatch(showSnackbar({ message: "Logged In Successfully", severity: 'success' }));
         navigate('/');
-      }else {
-        dispatch(showSnackbar({ message: result.payload, severity: 'error', }));
+      } else {
+        dispatch(showSnackbar({ message: result.payload, severity: 'error' }));
       }
     } catch (error) {
       console.error(error)
     }
   }
 
-
   return (
     <section className="login-container">
-      <div className="wrapper"></div>
-      <div></div>
-      {/* <div className="image-container">
-        <img src="/login.gif" width={"100%"} alt="" />
-      </div> */}
+      
+      {/* LEFT GRID */}
+      <div className="left-side">
+        <h1 className="brand-title">Welcome Back!</h1>
+        <p className="brand-subtitle">Securely manage your smart deed system</p>
+
+        {/* <img src="/login.gif" className="left-image" alt="login visual" /> */}
+      </div>
+
+      {/* RIGHT GRID - LOGIN FORM */}
       <div className="login-form">
-        <div style={{display: "flex", justifyContent: "start", alignItems: "center", marginBottom: "1rem"}}>
-          {/* <img src="./shyamlogo.png" width={120} alt="" />
-          <DoubleArrow /> */}
-          <img src="./SMARTPARCHI.png" width={80} alt="" />
+
+        <div style={{ marginBottom: "1rem" }}>
+          <img src="./shyamlogo.png" width={130} alt="" />
         </div>
+
         <h1 className="login-title">Authentication</h1>
-        <TextField className="text-field" label="Email Id / Username" variant="filled" fullWidth
+
+        <TextField 
+          className="text-field" 
+          label="Email / Username" 
+          variant="filled" 
+          fullWidth
           name="acc_uname"
           value={credentials.acc_uname}
           onChange={handlechange}
         />
 
-        <TextField className="text-field" label="Password" variant="filled" fullWidth
+        <TextField
+          className="text-field"
+          label="Password"
+          variant="filled"
+          fullWidth
           type={showPassword ? 'text' : 'password'}
           InputProps={{
             endAdornment: (
-              <div onClick={handleTogglePasswordVisibility} style={{marginBottom: "-10px", cursor: "pointer"}}>
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </div>
+              <InputAdornment position="end">
+                <IconButton onClick={handleTogglePasswordVisibility} edge="end">
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
             ),
           }}
           name="acc_pass"
@@ -72,19 +86,22 @@ const Login = () => {
           onChange={handlechange}
         />
 
-
         <FormControlLabel checked control={<Checkbox />} label="Remember Me" />
 
-        <div>
-          <a className="forgot-password" href="">Forgot Password ?</a>
-        </div>
+        {/* <a className="forgot-password" href="">Forgot Password?</a> */}
 
-        <Button size="large" variant="contained" style={{borderRadius: "25px"}} disabled={loading} onClick={handlesubmit}>Login</Button>
-        
+        <Button
+          size="large"
+          variant="contained"
+          style={{ borderRadius: "25px" }}
+          disabled={loading}
+          onClick={handlesubmit}
+        >
+          Login
+        </Button>
       </div>
     </section>
-    
   )
 }
 
-export default Login
+export default Login;

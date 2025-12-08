@@ -38,8 +38,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/home" replace /> },
       { path: '/login', element: <Login /> },
-      { path: '/home', element: <Home /> },
-      { path: '/deed', element: <Deed /> },
+      { path: '/home', element:  <Home />  },
+      { path: '/deed', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },
       // { path: '/rmtc/form', element: <ProtectedRoute><AddEditRMTC /></ProtectedRoute> },
       // { path: '/hand-spectro-analysis-report', element: <ProtectedRoute><HandSpectroReport /></ProtectedRoute> },
       // { path: '/hand-spectro-analysis-report/form', element: <ProtectedRoute><AddEditHandSpectroReport /></ProtectedRoute> },

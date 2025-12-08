@@ -6,12 +6,12 @@ import moment from "moment";
 export const DEED_COLUMNS = [
     // { field: 'id', headerName: 'ID', width: 90 },
     // { field: 'logbookName', headerName: 'Logbook Name', width: 150 },
-    { field: 'tcNo', headerName: 'TC Number', width: 250 },
-    { field: 'gpNo', headerName: 'Gate Pass', width: 150 },
-    { field: 'poNo', headerName: 'PO', width: 100 },
-    { field: 'grnNo', headerName: 'GRN', width: 80 },
-    { field: 'shift', headerName: 'Shift', width: 100, renderCell: (params) => params.row?.shift?.shft_name },
-    { field: 'material', headerName: 'Material', width: 180, renderCell: (params) => params.row?.material?.matrl_name},
+    { field: 'tcNo', headerName: 'Deed Number', width: 150 },
+    { field: 'gpNo', headerName: 'Plot Number', width: 150 },
+    { field: 'poNo', headerName: 'Name of Seller', width: 150 },
+    { field: 'grnNo', headerName: 'Name of Purchaser', width: 180 },
+    // { field: 'shift', headerName: 'Shift', width: 100, renderCell: (params) => params.row?.shift?.shft_name },
+    // { field: 'material', headerName: 'Material', width: 180, renderCell: (params) => params.row?.material?.matrl_name},
     { field: 'createdAtITC', headerName: 'Created At', width: 180, renderCell: (params) => moment(params.value, 'DD-MM-YYYY hh:mm').format('DD-MM-YYYY hh:mm A')},
     { field: 'updatedAtITC', headerName: 'Updated At', width: 180, renderCell: params => moment(params.value, 'DD-MM-YYYY hh:mm').format('DD-MM-YYYY hh:mm A') },
     
