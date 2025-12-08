@@ -69,12 +69,12 @@ export default function Deed() {
   return (
     <section className="inspection-entry-form">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "start", gap: "2rem", marginBottom: "1rem" }}>
-          <Typography className="title" color="primary">
+          {/* <Typography className="title" color="primary">
               <Description color="primary" style={{ fontSize: "3rem", margin: "-10px 0" }} /> Deed
-          </Typography>
+          </Typography> */}
           <Link to={"form"}>
-            <Button variant="contained" size="large" className="button-css">
-                Add New <AddIcon style={{ margin: "-1px 0 0 2px", fontSize: 17, fontWeight: 600 }} />
+            <Button variant="outlined" size="large" className="button-css">
+                <AddIcon style={{ margin: "-1px 0 0 2px", fontSize: 25, fontWeight: 600 }} />
             </Button>
           </Link>
         </div>

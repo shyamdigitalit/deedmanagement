@@ -1,25 +1,44 @@
 // src/theme.js
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
   palette: {
+    mode: "light", // or "dark" if you want dark theme
     primary: {
-      light: '#6ec6ff',
-      main:  '#d25d78',
-      dark:  '#005b9f',
-      contrastText: '#fff',
+      main: "#000000",      // Black
+      light: "#4d4d4d",     // Gray (lighter)
+      dark: "#000000",      // Pure black
+      contrastText: "#ffffff", // White text
     },
-    // You can also override secondary, error, background, etc.
     secondary: {
-      main: '#d81b60',
+      main: "#808080", // Neutral gray
+      light: "#b3b3b3",
+      dark: "#4d4d4d",
+      contrastText: "#ffffff",
     },
     background: {
-      default: '#f5f5f5',
+      default: "#ffffff", // White background
+      paper: "#f5f5f5",   // Light gray paper
+    },
+    text: {
+      primary: "#000000",   // Black text
+      secondary: "#4d4d4d", // Dark gray text
+      disabled: "#9e9e9e",
     },
   },
-  // (Optional) You can override typography, spacing, components, etc.
+
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  },
+
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 6,
+        },
+      },
+    },
   },
 });
 

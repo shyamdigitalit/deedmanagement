@@ -14,11 +14,16 @@
         gap: 10px;
 
     }    
-    .button-css { 
-        font-size: 14px;
-        padding: 8px 20px 7px 25px;
-        /* border-radius: 8px; */
-        font-weight: 600 
+    .button-css {
+        border-radius: 999px;
+        text-transform: "none";
+        padding-left: 3;
+        padding-right: 3;
+        padding-top: 0.8;
+        padding-bottom: 0.8;
+        border-color: "#e2e8f0";
+        color: "#0f172a";
+        font-weight: 600;
     }
 
     
