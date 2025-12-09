@@ -207,7 +207,7 @@ export default function MiniDrawer() {
 
         </Drawer> */}
       </>}
-      <div style={isAuthenticated ? { marginTop: "5rem", flexGrow: 1, overflowX: "auto" } : {}} >
+      <div style={isAuthenticated && !location.pathname.includes("/home") ? { marginTop: "5rem", flexGrow: 1, overflowX: "auto" } : {}} >
         <Outlet /> 
       </div>
     </Box>
