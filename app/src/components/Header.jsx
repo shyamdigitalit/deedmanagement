@@ -54,22 +54,24 @@ export default function Header() {
     <AppBar
       position="static"
       elevation={0}
-      sx={{ bgcolor: "transparent", boxShadow: "none", py: 1, px: 4 }}
+      sx={{
+        // backdropFilter: "blur(12px)",
+        background: "transparent",
+        // boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+        px: 3,
+      }}
     >
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
-        
-        {/* Logo */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton size="small" sx={{ bgcolor: '#0f172a', color: '#fff' }}>
-            <RocketLaunchIcon fontSize="small" />
-          </IconButton>
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 700, color: "#0f172a", fontSize: 20 }}
-          >
-            Deed Management
-          </Typography>
-        </Box>
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between", py: 1 }}>
+
+        {/* ---------------------- LOGO ---------------------- */}
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <img src="./shyamlogo.png" width={70} alt="logo" />
+            <Typography variant="h6" sx={{ fontWeight: 800, color: "#0f172a" }}>
+              Deed Management
+            </Typography>
+          </Box>
+        </Link>
 
         {/* Center Menu */}
         <Box
@@ -84,62 +86,71 @@ export default function Header() {
             sx={{
               display: "flex",
               gap: 1.2,
-              background: "#eee",
-              maxHeight: "40px",
+              background: "white",
               padding: "1px 40px",
               borderRadius: "10px",
-              boxShadow: "0 5px 10px rgba(2,6,23,0.06)",
+              boxShadow: "2px 2px 8px rgba(2,6,23,0.06)",
               backdropFilter: "blur(6px)",
               border: "1px solid rgba(15,23,42,0.06)",
               overflow: "visible",
             }}
           >
             {SIDE_MENU.map((item, i) => {
-              const active = location.pathname.startsWith(item.path) ? true : false;
+              const active = location.pathname.startsWith(item.path);
+
               return (
                 <Link key={i} to={item.path}>
                   <Box
                     sx={{
                       position: "relative",
-                      padding: "12px 10px",
+                      padding: "12px 16px",
                       borderRadius: "12px",
                       fontSize: "14px",
                       cursor: "pointer",
                       fontWeight: 700,
-                      transition: "all 0.28s cubic-bezier(.2,.9,.2,1)",
                       display: "flex",
                       alignItems: "center",
                       gap: 1,
+                      transition: "all 0.35s cubic-bezier(.25,.8,.25,1)",
 
+                      /** TEXT + COLOR */
                       bgcolor: active ? "#0f172a" : "transparent",
                       color: active ? "#fff" : "#334155",
 
-                      transform:
-                        active
-                          ? "translateY(10px) scale(1.08)"
-                          : "translateY(0) scale(1)",
-                      boxShadow:
-                        active ? "0 5px 10px rgba(2,6,23,0.22)" : "none",
-                      zIndex: active ? 5 : 1,
-                      border:
-                        active
-                          ? "1px solid rgba(255,255,255,0.06)"
-                          : "1px solid transparent",
+                      /** LEFT–RIGHT SLIDE EFFECT */
+                      transform: active ? "translateX(6px) scale(1.06)" : "translateX(0)",
 
+                      /** GLOW SHADOW */
+                      boxShadow: active ? "0 4px 12px rgba(15,23,42,0.25)" : "none",
+                      zIndex: active ? 5 : 1,
+
+                      /** BORDER */
+                      border: active
+                        ? "1px solid rgba(255,255,255,0.15)"
+                        : "1px solid transparent",
+
+                      /** HOVER EFFECT */
+                      "&:hover": {
+                        transform: active
+                          ? "translateX(6px) scale(1.06)"
+                          : "translateX(3px) scale(1.02)",
+                        background: active ? "#0f172a" : "rgba(15,23,42,0.08)",
+                      },
+
+                      /** SHADOW BELOW ACTIVE TAB */
                       "&::after": {
                         content: '""',
                         position: "absolute",
-                        bottom: -10,
+                        bottom: -6,
                         left: "50%",
                         transform: "translateX(-50%)",
-                        width: "72%",
-                        height: 12,
+                        width: "70%",
+                        height: 10,
                         borderRadius: "50%",
-                        filter: "blur(10px)",
-                        background:
-                          active === i ? "rgba(2,6,23,0.18)" : "transparent",
-                        opacity: active === i ? 1 : 0,
-                        transition: "all 0.28s ease",
+                        filter: "blur(12px)",
+                        background: active ? "rgba(15,23,42,0.25)" : "transparent",
+                        opacity: active ? 1 : 0,
+                        transition: "all 0.3s ease",
                         pointerEvents: "none",
                       },
                     }}
@@ -147,10 +158,11 @@ export default function Header() {
                     {item.title}
                   </Box>
                 </Link>
-              )
+              );
             })}
           </Box>
         </Box>
+
 
         {/* Right Section */}
         <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
@@ -194,7 +206,7 @@ export default function Header() {
             
               <DropdownMenu title="Configuration" icon={<AdminPanelSettings className="icn" />} menuItems={ADMIN_MENU} />
               {/* Profile Icon */}
-              <Button variant="outlined"
+              <Button
                 onClick={handleOpenMenu}
                 sx={{
                   // bgcolor: "#0f172a",
@@ -207,7 +219,7 @@ export default function Header() {
                   gap: 1
                 }}
               >
-                <AccountCircleIcon /> 
+                <AccountCircleIcon style={{width: 30, height: 30}} /> 
                 <strong>Accounts</strong>
               </Button>
 
@@ -235,13 +247,15 @@ export default function Header() {
                     <strong>{user?.acc_typ?.typname}</strong>
                   </div>
                 </MenuItem>
-                <MenuItem sx={{ gap: 1 }}>
-                  <DashboardIcon fontSize="small" /> Dashboard
-                </MenuItem>
+                <Link to="/accounts">
+                  <MenuItem sx={{ gap: 1 }}>
+                    <AccountCircleIcon fontSize="small" /> Accounts
+                  </MenuItem>
+                </Link>
 
-                <MenuItem sx={{ gap: 1 }}>
+                {/* <MenuItem sx={{ gap: 1 }}>
                   <SettingsIcon fontSize="small" /> Settings
-                </MenuItem>
+                </MenuItem> */}
 
                 <Divider sx={{ my: 1 }} />
 

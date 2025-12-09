@@ -3,7 +3,6 @@ import '../styles/Main.css'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import ProtectedRoute from '../auth/AuthGuard'
 import Loader from '../components/loader'
-import Deed from '../pages/Deed'
 // import BilletChemistry from '../pages/Unit1/Billet Chemistry'
 // import AddEditBilletChemistry from '../pages/Unit1/Billet Chemistry/form'
 
@@ -29,6 +28,10 @@ const Material = lazy(() => import('../pages/Masters/Material'));
 const Shift = lazy(() => import('../pages/Masters/Shift'));
 
 
+const Deed = lazy(() => import('../pages/Deed'));
+const AddEditDeed = lazy(() => import('../pages/Deed/form'));
+
+
 
 const router = createBrowserRouter([
   {
@@ -40,7 +43,9 @@ const router = createBrowserRouter([
       { path: '/login', element: <Login /> },
       { path: '/home', element:  <Home />  },
       { path: '/deed', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },
-      // { path: '/rmtc/form', element: <ProtectedRoute><AddEditRMTC /></ProtectedRoute> },
+      { path: '/plot', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },
+      { path: '/bank', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },
+      { path: '/deed/form', element: <ProtectedRoute><AddEditDeed /></ProtectedRoute> },
       // { path: '/hand-spectro-analysis-report', element: <ProtectedRoute><HandSpectroReport /></ProtectedRoute> },
       // { path: '/hand-spectro-analysis-report/form', element: <ProtectedRoute><AddEditHandSpectroReport /></ProtectedRoute> },
       // { path: '/melting-report-of-100-kg-fc', element: <ProtectedRoute><MeltingReport100KGFC /></ProtectedRoute> },
