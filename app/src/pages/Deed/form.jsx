@@ -1,42 +1,29 @@
 import "../../styles/InspectionEntryForm.css";
 
 import React, { useState } from 'react';
-import { Add, ArrowBack, Close } from "@mui/icons-material";
-import { Autocomplete, Button, Card, CardContent, Stack, TextField, Typography } from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { Button, TextField, Typography } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
-import { useFieldArray } from "react-hook-form";
 import axiosInstance from "../../config/axiosInstance";
 import { useDispatch, useSelector } from "react-redux";
 import { showSnackbar } from "../../redux/slices/snackbar";
 import { Link, useNavigate } from "react-router-dom";
+import FileUploader from "../../components/FileUploader";
 // import POGPForm from "../../components/pogpform";
-import PERIODIC_ELEMENTS from "../../utilities/periodic-elements";
-
-
-const OTHER_ELEMENTS = [ "SiO₂", "Total Moisture", "Al₂O₃", "Ash", "Fe₂O₃", "VM", "FeO", "FC", "R₂O₃", "CaF₂", "CaO", 
-    "Boric Acid", "MgO", "L₂O₃", "LOI",
-]
-
-const MERGED_ELEMENTS = [...PERIODIC_ELEMENTS, ...OTHER_ELEMENTS];
 
 const DEFAULTVALUES = {
     deedNo: "",
-    poNo: "",
-    gpNo: "",
-    grnNo: "",
-    shift: "",
-    material: "",
-    invoiceNo: "",
-    truckNo: "",
-    party: "",
-    // date: "",
-    batchNo: "",
-    billWt: "",
-    receivedWt: "",
-    sizeAnalysisReport: [],
-    wetAnalysisElement: [],
-    physicalInspectionElement: [],
-    partyTCElement: [],
+    nameOfSeller: "",
+    nameOfPurchaser: "",
+    nameOfMouza: "",
+    mutatedOrLeased: "",
+    khatianNo: "",
+    plotNo: "",
+    totalAreaOfplotNo: "",
+    totalPurchasedArea: "",
+    totalMutatedArea: "",
+    nonMutatedArea: "",
+    locationOfPurchaseLand: "",
     notes: ""
 }
 
@@ -159,7 +146,7 @@ export default function AddEditDeed() {
                         <TextField {...field} value={field.value ?? ""} label="Name Of Purchaser" 
                         variant="filled" fullWidth error={!!errors.nameOfPurchaser} />
                     )}
-                />
+                 />
                 
                 <Controller name="nameOfMouza" control={control} defaultValue={control._formValues.nameOfMouza ?? ""} 
                     rules={{ required: "Name Of Mouza is required" }}
@@ -241,24 +228,29 @@ export default function AddEditDeed() {
                 />
             </div>
 
-            <div>
-                <Typography variant="h6" style={{ margin: "1.5rem 0 0" }}>Notes</Typography>
-                {errors.notes && <p style={{ color: 'red' }}>{errors.notes.message}</p>}
+            <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "20px"}}>
+                <div>
+                    <Typography variant="h6" style={{ margin: "1.5rem 0 0" }}>Notes</Typography>
+                    {errors.notes && <p style={{ color: 'red' }}>{errors.notes.message}</p>}
 
-                <textarea
-                    {...register("notes", {
-                    required: false,
-                    maxLength: {
-                        value: 500,
-                        message: "Maximum 500 characters allowed"
-                    }
-                    })}
-                    id="notes"
-                    cols={80}
-                    rows={5}
-                    style={{padding: "10px"}}
-                ></textarea>
+                    <textarea
+                        {...register("notes", {
+                        required: false,
+                        maxLength: {
+                            value: 500,
+                            message: "Maximum 500 characters allowed"
+                        }
+                        })}
+                        id="notes"
+                        cols={80}
+                        rows={5}
+                        style={{padding: "10px"}}
+                    ></textarea>
 
+                </div>
+
+
+                <FileUploader></FileUploader>
             </div>
 
 
@@ -268,16 +260,3 @@ export default function AddEditDeed() {
     </section>
   );
 }
-
-
-const noArrowCSS = {
-    // For Chrome, Safari, Edge
-    '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
-      WebkitAppearance: 'none',
-      margin: 0,
-    },
-    // For Firefox
-    '& input[type=number]': {
-      MozAppearance: 'textfield',
-    },
-  }
