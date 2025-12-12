@@ -28,6 +28,7 @@ export default function Header() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   
+  const [scrollY, setScrollY] = React.useState(0);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const user = useSelector((state) => state.auth.user);
   const userSymbol = user?.acc_fname?.split(" ")?.map(item => item[0])?.join("");
@@ -40,6 +41,16 @@ export default function Header() {
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLogout = async () => {
     const result = await dispatch(logout());
@@ -56,8 +67,8 @@ export default function Header() {
       elevation={0}
       sx={{
         // backdropFilter: "blur(12px)",
-        background: "transparent",
-        // boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+        background: scrollY === 0 ? "transparent" : "white",
+        boxShadow: scrollY === 0 ? "none" : "0 4px 20px rgba(0,0,0,0.05)",
         px: 3,
       }}
     >
@@ -66,7 +77,7 @@ export default function Header() {
         {/* ---------------------- LOGO ---------------------- */}
         <Link to="/" style={{ textDecoration: "none" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <img src="./shyamlogo.png" width={70} alt="logo" />
+            <img src="/shyamlogo.png" width={70} alt="logo" />
             <Typography variant="h6" sx={{ fontWeight: 800, color: "#0f172a" }}>
               Deed Management
             </Typography>
