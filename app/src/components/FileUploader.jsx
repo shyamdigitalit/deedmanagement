@@ -1,7 +1,6 @@
 import React, { useRef, useState } from "react";
 
-export default function FileUploader() {
-  const [files, setFiles] = useState([]);
+export default function FileUploader({ files, setFiles }) {
   const inputRef = useRef();
 
   const allowedTypes = [

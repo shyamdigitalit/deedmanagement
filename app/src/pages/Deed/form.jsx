@@ -32,8 +32,8 @@ export default function AddEditDeed() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector(state => state.auth.user);
+    const [files, setFiles] = useState([]);
     const [approvalRemarks, setApprovalRemarks] = useState(null);
-    const [refreshPOGP, setRefreshPOGP] = useState(false);
     const { register, control, handleSubmit, reset, setValue, formState: {errors} } = useForm({
         defaultValues: DEFAULTVALUES
     });
@@ -63,12 +63,12 @@ export default function AddEditDeed() {
     
     const onSubmit = async (data) => {
         data.createdby = user._id
+        data.deedDocs = files;
         console.log(data);
         return;
         
         try {
-            const response = id ? await axiosInstance.put(`/deed/update/${id}`, data).then(res => res.data) : 
-            await axiosInstance.post("/deed/create", data).then(res => res.data);
+            const response = await axiosInstance.post(id ? `/deed/update/${id}` : "/deed/create", data).then(res => res.data);
             console.log("Response from server:", response);
             if (response.statuscode === 201) {
                 navigate('/deed');
@@ -112,7 +112,6 @@ export default function AddEditDeed() {
                     <Button variant="contained" size="large" type="submit">{id ? "UPDATE":"SAVE"}</Button>
                     {!id && <Button variant="outlined" size="large" color="warning" type="button" onClick={() => {
                         reset(DEFAULTVALUES)
-                        setRefreshPOGP(!refreshPOGP);
                     }}>Reset</Button>}
                 </div>
     
@@ -250,7 +249,7 @@ export default function AddEditDeed() {
                 </div>
 
 
-                <FileUploader></FileUploader>
+                <FileUploader files={files} setFiles={setFiles}></FileUploader>
             </div>
 
 
