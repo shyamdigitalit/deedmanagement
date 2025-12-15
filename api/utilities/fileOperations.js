@@ -26,9 +26,10 @@ export const uploadFile = async (buffer, originalname, mimetype) => {
   // 🟢 CHANGE #1: Removed duplicate check — always upload new file
   // (No more findOne query for existing file)
 
+  console.log(mimetype);
   return new Promise((resolve, reject) => {
     const uploadStream = gfs.openUploadStream(originalname, {
-      contentType: mimetype,
+      contentType: mimetype || 'application/octet-stream',
       metadata: { hash, size: buffer.length },
     });
 
@@ -43,6 +44,8 @@ export const uploadFile = async (buffer, originalname, mimetype) => {
       const fileInfo = await mongoose.connection.db
         .collection("fileuploads.files")
         .findOne({ _id: uploadStream.id });
+
+      console.log(fileInfo);
 
       // 🟢 CHANGE #2: Return consistent structure
       resolve({

@@ -1,12 +1,11 @@
 import mongoose from 'mongoose';
 import deedModel from '../../models/deedhandlers/deedModel.js';
 import { uploadFile, deleteFile } from '../../utilities/fileOperations.js';
-import moment from 'moment';
 
 const create = async (req, res) => {
     try {
         const deedPayld = req.body;
-        console.log(deedPayld);
+        // console.log(deedPayld);
         // console.log(req.files);
         const user = req.user
         
@@ -21,60 +20,64 @@ const create = async (req, res) => {
             const results = { deedDocs: [] };
             const duplicates = {};
 
-            const fileField = 'deedDocs';
-
-            const files = req.files?.[fileField] || [];
-            if (files.length > 0) {
-                results[fileField] = [];
-                duplicates[fileField] = [];
-                for (const file of files) {
-                    try {
-                        const uploadedFile = await uploadFile(
-                            file.buffer,
-                            file.originalname,
-                            file.mimetype
-                        );
-                        // console.log(uploadedFile);
-                        results[fileField].push({
-                            filId: uploadedFile?.file?._id,
-                            filName: uploadedFile?.file?.filename,
-                            filContentType: uploadedFile?.file?.contentType,
-                            filContentSize: uploadedFile?.file?.length,
-                            filUploadStatus: "Done",
-                            fileUploadedby: user?._id
-                        });
-                    } catch (err) {
-                        if (err.message.includes("Duplicate file")) {
-                            duplicates[fileField].push(file.originalname);
-                            console.log(`Duplicate Result ::`, duplicates[fileField]);
-                        } else {
-                            console.error("❌ Upload Error:", err.message);
+            const fileFields = ['deedDocs', 'S'];
+            for (const field of fileFields) {
+                const files = Array.isArray(req.files)
+                ? req.files.filter(f => f.fieldname === field)
+                : req.files?.[field] || [];
+                console.log(files);
+                if (files.length > 0) {
+                    results[field] = [];
+                    duplicates[field] = [];
+                    for (const file of files) {
+                        try {
+                            const uploadedFile = await uploadFile(
+                                file.buffer,
+                                file.originalname,
+                                file.mimetype
+                            );
+                            // console.log(uploadedFile);
+                            results[field].push({
+                                filId: uploadedFile?.file?._id,
+                                filName: uploadedFile?.file?.filename,
+                                filContentType: uploadedFile?.file?.contentType,
+                                filContentSize: uploadedFile?.file?.length,
+                                filUploadStatus: "Done",
+                                fileUploadedby: user?._id
+                            });
+                        } catch (err) {
+                            if (err.message.includes("Duplicate file")) {
+                                duplicates[field].push(file.originalname);
+                                console.log(`Duplicate Result ::`, duplicates[field]);
+                            } else {
+                                console.error("❌ Upload Error:", err.message);
+                            }
                         }
                     }
-                }
-                if (results[fileField].length > 0) {
-                    deedPayld[fileField] = results[fileField];
+                    if (results[field].length > 0) {
+                        deedPayld[field] = results[field];
+                    }
                 }
             }
 
-            if (user) {
-                Object.assign(deedPayld, {
-                    status: 'Active',
-                    approvalStatus: 'Approved',
-                    currentPendingApprovalLevel: 0,
-                    createdby: user?._id
-                });
-            }
-            const deed = await deedModel.create(deedPayld);
-            if (!deed) {
-                return res.status(422).json({ message: "Failed to add New Deed" });
-            }
-            else {
-                res.status(201).json({
-                    message: "Deed details added successfully",
-                    data: deed
-                });
-            }
+            // if (user) {
+            //     Object.assign(deedPayld, {
+            //         status: 'Active',
+            //         approvalStatus: 'Approved',
+            //         currentPendingApprovalLevel: 0,
+            //         createdby: user?._id
+            //     });
+            // }
+            // const deed = await deedModel.create(deedPayld);
+            // if (!deed) {
+            //     return res.status(422).json({ message: "Failed to add New Deed" });
+            // }
+            // else {
+            //     res.status(201).json({
+            //         message: "Deed details added successfully",
+            //         data: deed
+            //     });
+            // }
         }
     } catch (error) {
         console.error("Error creating Deed details:", error);
