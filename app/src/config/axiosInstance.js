@@ -25,9 +25,12 @@ export const setupInterceptors = (store) => {
     // ✅ Request Interceptor
     axiosInstance.interceptors.request.use(
         (config) => {
+            // ❗ DO NOT override Content-Type for FormData
+            if (!(config.data instanceof FormData)) {
             config.headers['Content-Type'] = 'application/json';
             config.headers['Accept'] = 'application/json';
             config.headers['X-Requested-With'] = 'X';
+            }
 
             if (config.url?.startsWith('/auth')) {
                 const { accessToken } = store.getState().auth; // 🔹 Get from Redux

@@ -64,11 +64,22 @@ export default function AddEditDeed() {
     const onSubmit = async (data) => {
         data.createdby = user._id
         data.deedDocs = files;
+        const formData = new FormData();
+        for (const key in data) {
+            if (key === "deedDocs") {
+                data.deedDocs.forEach((file, index) => {
+                    formData.append("deedDocs", file);
+                });
+            } else {
+                formData.append(key, data[key]);
+            }
+        }
+        
         console.log(data);
-        return;
         
         try {
-            const response = await axiosInstance.post(id ? `/deed/update/${id}` : "/deed/create", data).then(res => res.data);
+            const url = id ? `/deed/update/${id}` : "/deed/create";
+            const response = await axiosInstance[id ? "put":"post"](url, formData).then(res => res.data);
             console.log("Response from server:", response);
             if (response.statuscode === 201) {
                 navigate('/deed');
