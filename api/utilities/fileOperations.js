@@ -20,43 +20,27 @@ mongoose.connection.once("open", () => {
 export const uploadFile = async (buffer, originalname, mimetype) => {
   if (!gfs) throw new Error("GridFS not initialized");
 
-  // ✅ Generate hash (still useful for reference/metadata, but not used for duplicate blocking)
   const hash = crypto.createHash("md5").update(buffer).digest("hex");
 
-  // 🟢 CHANGE #1: Removed duplicate check — always upload new file
-  // (No more findOne query for existing file)
-
-  console.log(mimetype);
   return new Promise((resolve, reject) => {
     const uploadStream = gfs.openUploadStream(originalname, {
-      contentType: mimetype || 'application/octet-stream',
-      metadata: { hash, size: buffer.length },
+      metadata: { hash, size: buffer.length, contentType: mimetype || "application/octet-stream" },
     });
 
-    const readable = new Readable();
-    readable.push(buffer);
-    readable.push(null);
-
-    readable.pipe(uploadStream);
+    uploadStream.end(buffer); // ✅ CRITICAL FIX
 
     uploadStream.on("finish", async () => {
-      // ✅ Always get the freshly created file info by _id
       const fileInfo = await mongoose.connection.db
         .collection("fileuploads.files")
         .findOne({ _id: uploadStream.id });
 
-      console.log(fileInfo);
-
-      // 🟢 CHANGE #2: Return consistent structure
-      resolve({
-        duplicate: false, // always false now since duplicates are allowed
-        file: fileInfo,
-      });
+      resolve({ duplicate: false, file: fileInfo });
     });
 
-    uploadStream.on("error", (err) => reject(err));
+    uploadStream.on("error", reject);
   });
 };
+
 
 /* ------------------------------------------------------------------
   ✅ 2. Get all uploaded files metadata

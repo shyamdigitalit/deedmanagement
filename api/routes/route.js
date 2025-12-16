@@ -72,8 +72,8 @@ const getRoutes = [
 ];
 getRoutes.forEach(route => createRoute('get', route.path, ...route.handlers));
 
-// PUT
-const putRoutes = [
+// PATCH
+const patchRoutes = [
     { path: '/deed/update',
         handlers: [
             jwtHybrdProtect,
@@ -95,7 +95,7 @@ const putRoutes = [
     { path: '/dynapprvl/update/:id', handlers: [jwtHybrdProtect, fileUpload.none(), dynapprvlController.update] },
     { path: '/dynapprvl/statusupdt/:id', handlers: [jwtHybrdProtect, fileUpload.none(), dynapprvlController.statusUpdt] },
 ];
-putRoutes.forEach(route => createRoute('put', route.path, ...route.handlers));
+patchRoutes.forEach(route => createRoute('patch', route.path, ...route.handlers));
 
 // DELETE
 const deleteRoutes = [
