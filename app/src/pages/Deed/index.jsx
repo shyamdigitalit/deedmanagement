@@ -3,7 +3,7 @@ import "../../styles/InspectionEntryForm.css";
 import React from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import { DataGrid } from '@mui/x-data-grid';
-import { Button, Typography, Card, CardContent, LinearProgress } from '@mui/material';
+import { Button, Typography, Card, CardContent, LinearProgress, Box } from '@mui/material';
 import { Link, useLocation } from "react-router-dom";
 import { DataGridStyle } from "../../utilities/datagridStyle";
 import { Description } from "@mui/icons-material";
@@ -14,7 +14,7 @@ import { DEED_COLUMNS } from "./deed-columns";
 export default function Deed() {
 
   const location = useLocation();
-  const [rmtdcData, setDeedData] = React.useState([]);
+  const [deedData, setDeedData] = React.useState([]);
   const [loading, setLoading] = React.useState("");
 
   React.useEffect(() => {
@@ -30,16 +30,17 @@ export default function Deed() {
     
       try {
         setLoading("Loading");
-        const response = await axiosInstance.get(`/rmtc/fetch`, {
+        const response = await axiosInstance.get(`/deed/fetch`, {
           signal: controller.signal
         }).then(res => res.data)
-        if (response.statuscode === 200) {
-          setDeedData(response.data);
-          setLoading("");
-        } else {
-          console.error("Failed to fetch Deed data:", response.message);
-          setLoading("");
-        }
+        setDeedData(response.data);
+        setLoading("");
+        // console.log(response)
+        // if (response.statuscode === 200) {
+        // } else {
+        //   console.error("Failed to fetch Deed data:", response.message);
+        //   setLoading("");
+        // }
 
       } catch (error) {
         // console.log(error)
@@ -82,20 +83,18 @@ export default function Deed() {
         {/* <div style={{fontSize: "1rem", color: "#888"}}> TC NO. :  SSPL INDORE/LAB/JUNE-16/SC-00 </div> */}
 
         
-        <Card>
-            <CardContent style={{ padding: "0px" }}>
+        <Box  sx={{padding: 0, height: 400, width: '100%' }}>
 
-              {loading && (<LinearProgress />)}
-              <DataGrid showToolbar
-                sx={DataGridStyle} rows={rmtdcData} columns={DEED_COLUMNS} getRowId={row => row._id}
-                pageSizeOptions={[5, 10, 15]} checkboxSelection disableRowSelectionOnClick
-                onRowSelectionModelChange={event => setSelectedRows([...event.ids])}
-                initialState={{
-                  pagination: { paginationModel: { pageSize: 15, }, },
-                }} 
-              />
-            </CardContent>
-        </Card>
+          {loading && (<LinearProgress />)}
+          <DataGrid showToolbar
+            sx={DataGridStyle} rows={deedData} columns={DEED_COLUMNS} getRowId={row => row._id}
+            pageSizeOptions={[5, 10, 15]} checkboxSelection disableRowSelectionOnClick
+            onRowSelectionModelChange={event => setSelectedRows([...event.ids])}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 15, }, },
+            }} 
+          />
+        </Box>
     </section>
   );
 }

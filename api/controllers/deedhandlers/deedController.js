@@ -225,6 +225,7 @@ const update = async (req, res) => {
 
         // Destructure and remove file arrays from payload
         const { deedDocs: deedDocsPayld } = deedPayld;
+        console.log(deedDocsPayld);
         delete deedPayld[filefield]
 
         let apprvFlg = 0, approvalInfo = {}
@@ -337,7 +338,7 @@ const update = async (req, res) => {
                                     results[fileFieldInfo].push({
                                         filId: uploadedFile?.file?._id,
                                         filName: uploadedFile?.file?.filename,
-                                        filContentType: uploadedFile?.file?.contentType,
+                                        filContentType: uploadedFile?.file?.metadata?.contentType,
                                         filContentSize: uploadedFile?.file?.length,
                                         filUploadStatus: "Done",
                                         fileUploadedby: user?._id

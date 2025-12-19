@@ -34,23 +34,44 @@ export default function AddEditDeed() {
     const user = useSelector(state => state.auth.user);
     const [files, setFiles] = useState([]);
     const [approvalRemarks, setApprovalRemarks] = useState(null);
-    const { register, control, handleSubmit, reset, setValue, formState: {errors} } = useForm({
+    const { register, control, handleSubmit, reset, setValue, watch, formState: {errors} } = useForm({
         defaultValues: DEFAULTVALUES
     });
 
+    const totalPurchasedArea = watch("totalPurchasedArea") || 0;
+    const totalMutatedArea = watch("totalMutatedArea") || 0;
     
     const id = new URLSearchParams(window.location.search).get("_id");
     React.useEffect(() => {
         id && getDeedById(id);
     }, [id]);
 
+    
+    React.useEffect(() => {
+        
+        const nonMutatedArea = parseFloat(totalPurchasedArea) - parseFloat(totalMutatedArea);
+        setValue("nonMutatedArea", nonMutatedArea >= 0 ? nonMutatedArea : 0);
+        
+    }, [totalPurchasedArea, totalMutatedArea]);
+
 
     const getDeedById = async (id) => {
         try {
-            const result = await axiosInstance.get(`/deed/fetchby/${id}`).then(res => res.data);
-            if (result.statuscode === 200) {
-                const deedData = result.data;
-                if(result.data.approvalStatus === "Rejected") setApprovalRemarks(deedData.approvalDetails[deedData.approvalDetails.length - 1]);
+            const result = await axiosInstance.get(`/deed/fetchby/${id}`);
+            console.log(result)
+            if (result.status === 200) {
+                const deedData = result.data.data;
+                console.log(deedData)
+                setFiles(
+                    deedData?.deedDocs?.map((f) => ({
+                        id: f._id,
+                        name: f.filName,
+                        size: Number(f.filContentSize),
+                        type: f.filContentType,
+                        isExisting: true,
+                    }))
+                );
+                if(deedData.approvalStatus === "Rejected") setApprovalRemarks(deedData.approvalDetails[deedData.approvalDetails.length - 1]);
                 reset(deedData)
             } else {
                 console.error("Error fetching Deed by ID:", result.message);
@@ -63,7 +84,16 @@ export default function AddEditDeed() {
     
     const onSubmit = async (data) => {
         data.createdby = user._id
-        data.deedDocs = files;
+        data.deedDocs = files.map(f => f.file).filter(f => f !== undefined);
+        data.deedDocsExisting = JSON.stringify(files)
+        // console.log(data.deedDocs)
+        // console.log(data.deedDocsExisting)
+        // return;
+
+        if(totalMutatedArea > totalPurchasedArea) {
+            dispatch(showSnackbar({ message: "Total Mutated Area cannot be greater than Total Purchased Area", severity: 'error', duration: 2000 }));
+            return;
+        }
         const formData = new FormData();
         for (const key in data) {
             if (key === "deedDocs") {
@@ -78,12 +108,12 @@ export default function AddEditDeed() {
         console.log(data);
         
         try {
-            const url = id ? `/deed/update/${id}` : "/deed/create";
-            const response = await axiosInstance[id ? "put":"post"](url, formData).then(res => res.data);
+            const url = id ? `/deed/update?id=${id}` : "/deed/create";
+            const response = await axiosInstance[id ? "patch":"post"](url, formData)
             console.log("Response from server:", response);
-            if (response.statuscode === 201) {
+            if (response.status === 201) {
                 navigate('/deed');
-                dispatch(showSnackbar({ message: response.message, severity: 'success', duration: 2000 }));
+                dispatch(showSnackbar({ message: response.data.message, severity: 'success', duration: 2000 }));
             }
             else {
                 console.error("Error creating Deed record:", response.message);
@@ -205,7 +235,7 @@ export default function AddEditDeed() {
                 <Controller name="totalPurchasedArea" control={control} defaultValue={control._formValues.totalPurchasedArea ?? ""} 
                     rules={{ required: "Total Purchased Area is required" }}
                     render={({ field, fieldState }) => (
-                        <TextField {...field} value={field.value ?? ""} label="Total Purchased Area ( Deed )" 
+                        <TextField {...field} type="number" value={field.value ?? ""} label="Total Purchased Area ( Deed )" 
                         variant="filled" fullWidth error={!!errors.totalPurchasedArea} />
                     )}
                 />
@@ -214,7 +244,7 @@ export default function AddEditDeed() {
                 <Controller name="totalMutatedArea" control={control} defaultValue={control._formValues.totalMutatedArea ?? ""} 
                     rules={{ required: "Total Mutated Area is required" }}
                     render={({ field, fieldState }) => (
-                        <TextField {...field} value={field.value ?? ""} label="Total Mutated Area" 
+                        <TextField {...field} type="number" value={field.value ?? ""} label="Total Mutated Area" 
                         variant="filled" fullWidth error={!!errors.totalMutatedArea} />
                     )}
                 />
@@ -223,8 +253,8 @@ export default function AddEditDeed() {
                 <Controller name="nonMutatedArea" control={control} defaultValue={control._formValues.nonMutatedArea ?? ""} 
                     rules={{ required: "Non - Mutated Area is required" }}
                     render={({ field, fieldState }) => (
-                        <TextField {...field} value={field.value ?? ""} label="Non - Mutated Area" 
-                        variant="filled" fullWidth error={!!errors.nonMutatedArea} />
+                        <TextField {...field} type="number" value={field.value ?? ""} label="Non - Mutated Area" 
+                        variant="filled" fullWidth error={!!errors.nonMutatedArea} disabled />
                     )}
                 />
 

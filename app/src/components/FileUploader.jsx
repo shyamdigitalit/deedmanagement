@@ -1,7 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 
 export default function FileUploader({ files, setFiles }) {
-  const inputRef = useRef();
+  const inputRef = useRef(null);
 
   const allowedTypes = [
     "image/png",
@@ -12,16 +12,89 @@ export default function FileUploader({ files, setFiles }) {
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   ];
 
+  /* ============================
+     HANDLE NEW FILE SELECTION
+  ============================ */
   const handleFiles = (e) => {
     const selectedFiles = Array.from(e.target.files);
-    const validFiles = selectedFiles.filter((file) =>
-      allowedTypes.includes(file.type)
-    );
+
+    const validFiles = selectedFiles
+      .filter((file) => allowedTypes.includes(file.type))
+      .map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        isExisting: false,
+        file,
+      }));
+
     setFiles((prev) => [...prev, ...validFiles]);
+
+    // reset input so same file can be selected again
+    e.target.value = "";
   };
 
+  /* ============================
+     REMOVE FILE
+  ============================ */
   const removeFile = (index) => {
+    const fileToRemove = files[index];
+
+    if (fileToRemove.isExisting) {
+      // 🔥 BACKEND DELETE API CALL HERE
+      // await deleteFileById(fileToRemove.id);
+
+      console.log("Deleting existing file from backend:", fileToRemove.id);
+    }
+
     setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  /* ============================
+     FILE PREVIEW ICON
+  ============================ */
+  const renderPreview = (file) => {
+    if (file.type.startsWith("image/")) {
+      return (
+        <img
+          src={
+            file.isExisting
+              ? `/api/files/${file.id}` // 👈 backend preview URL
+              : URL.createObjectURL(file.file)
+          }
+          alt=""
+          style={{
+            width: "60px",
+            height: "60px",
+            borderRadius: "10px",
+            objectFit: "cover",
+          }}
+        />
+      );
+    }
+
+    return (
+      <div
+        style={{
+          width: "60px",
+          height: "60px",
+          borderRadius: "10px",
+          background: "#e2e8f0",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontWeight: 700,
+          color: "#475569",
+          fontSize: "13px",
+        }}
+      >
+        {file.type.includes("pdf")
+          ? "PDF"
+          : file.type.includes("spreadsheet")
+          ? "XLSX"
+          : "FILE"}
+      </div>
+    );
   };
 
   return (
@@ -37,7 +110,9 @@ export default function FileUploader({ files, setFiles }) {
         boxShadow: "0 8px 25px rgba(0,0,0,0.08)",
       }}
     >
-      {/* Upload Area */}
+      {/* ============================
+          UPLOAD AREA
+      ============================ */}
       <div
         onClick={() => inputRef.current.click()}
         style={{
@@ -59,24 +134,26 @@ export default function FileUploader({ files, setFiles }) {
           Click or Drop Files Here
         </div>
         <div style={{ fontSize: "14px", color: "#64748b", marginTop: "4px" }}>
-          Supports Images, PDF, Excel (Multiple Allowed)
+          Images, PDF, Excel • Multiple Allowed
         </div>
       </div>
 
       <input
-        type="file"
         ref={inputRef}
+        type="file"
         multiple
         accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx"
         style={{ display: "none" }}
         onChange={handleFiles}
       />
 
-      {/* File List */}
+      {/* ============================
+          FILE LIST
+      ============================ */}
       <div style={{ marginTop: "20px" }}>
         {files.map((file, index) => (
           <div
-            key={index}
+            key={file.id || index}
             style={{
               display: "flex",
               gap: "12px",
@@ -88,42 +165,9 @@ export default function FileUploader({ files, setFiles }) {
               alignItems: "center",
             }}
           >
-            {/* Preview */}
-            {file.type.startsWith("image/") ? (
-              <img
-                src={URL.createObjectURL(file)}
-                alt=""
-                style={{
-                  width: "60px",
-                  height: "60px",
-                  borderRadius: "10px",
-                  objectFit: "cover",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: "60px",
-                  height: "60px",
-                  borderRadius: "10px",
-                  background: "#e2e8f0",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  fontWeight: 700,
-                  color: "#475569",
-                  fontSize: "13px",
-                }}
-              >
-                {file.type.includes("pdf")
-                  ? "PDF"
-                  : file.type.includes("spreadsheet")
-                  ? "XLSX"
-                  : "FILE"}
-              </div>
-            )}
+            {renderPreview(file)}
 
-            {/* File Info */}
+            {/* FILE INFO */}
             <div style={{ flex: 1 }}>
               <div
                 style={{
@@ -136,10 +180,11 @@ export default function FileUploader({ files, setFiles }) {
               </div>
               <div style={{ fontSize: "12px", color: "#64748b" }}>
                 {(file.size / 1024).toFixed(1)} KB
+                {file.isExisting && " • Uploaded"}
               </div>
             </div>
 
-            {/* Remove Button */}
+            {/* REMOVE */}
             <button
               onClick={() => removeFile(index)}
               style={{
@@ -151,14 +196,7 @@ export default function FileUploader({ files, setFiles }) {
                 cursor: "pointer",
                 fontSize: "12px",
                 fontWeight: 600,
-                transition: "0.2s",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#dc2626")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "#ef4444")
-              }
             >
               Remove
             </button>
