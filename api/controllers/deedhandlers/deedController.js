@@ -46,7 +46,7 @@ const create = async (req, res) => {
                     } catch (err) {
                         if (err.message.includes("Duplicate file")) {
                             duplicates[fileField].push(file.originalname);
-                            console.log(`Duplicate Result ::`, duplicates[fileField]);
+                            // console.log(`Duplicate Result ::`, duplicates[fileField]);
                         } else {
                             console.error("❌ Upload Error:", err.message);
                         }
@@ -298,6 +298,7 @@ const update = async (req, res) => {
                         : existingFiles;
 
                 // Collect files to remove
+                console.log("Existing Files in DB:", deedRecord.deedDocs);
                 deedDocsRmv = getFilesToRemove(deedRecord.deedDocs, deedDocsPayld);
 
                 // Delete files in parallel
@@ -305,12 +306,15 @@ const update = async (req, res) => {
                     ...deedDocsRmv.map(file => deleteFile(file.filId).catch(err => console.error("❌ File Deletion Error:", err.message))),
                 ]);
 
+                console.log("Files to be removed:", deedDocsRmv);
+
                 let updtDeedRecord = await deedModel.findByIdAndUpdate(deedId, {
                     $pull: {
                         deedDocs: { filId: { $in: deedDocsRmv.map(f => f.filId) } }
                     }
                 }, { new: true });
-
+                
+                // console.log("After Removal updated record:", updtDeedRecord);
                 if (!updtDeedRecord) {
                     if (apprvFlg === 0) {
                         return res.status(404).json({ message: "Policy details update failed" });
@@ -335,6 +339,7 @@ const update = async (req, res) => {
                                         file.originalname,
                                         file.mimetype
                                     );
+                                    // console.log(uploadedFile);
                                     results[fileFieldInfo].push({
                                         filId: uploadedFile?.file?._id,
                                         filName: uploadedFile?.file?.filename,

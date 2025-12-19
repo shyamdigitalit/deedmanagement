@@ -84,13 +84,20 @@ export default function AddEditDeed() {
     
     const onSubmit = async (data) => {
         data.createdby = user._id
+        data.approvalStatus = "Pending L1 Approval";
+        data.currentPendingApprovalLevel = 1;
         data.deedDocs = files.map(f => f.file).filter(f => f !== undefined);
-        data.deedDocsExisting = JSON.stringify(files)
+        data.deedDocsExisting = JSON.stringify(files.map((f) => ({
+            filId: f.id,
+            filName: f.name,
+            filContentType: f.type,
+            filContentSize: f.size
+        })))
         // console.log(data.deedDocs)
         // console.log(data.deedDocsExisting)
         // return;
 
-        if(totalMutatedArea > totalPurchasedArea) {
+        if(parseFloat(totalMutatedArea) > parseFloat(totalPurchasedArea)) {
             dispatch(showSnackbar({ message: "Total Mutated Area cannot be greater than Total Purchased Area", severity: 'error', duration: 2000 }));
             return;
         }

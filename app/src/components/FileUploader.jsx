@@ -54,7 +54,7 @@ export default function FileUploader({ files, setFiles }) {
      FILE PREVIEW ICON
   ============================ */
   const renderPreview = (file) => {
-    if (file.type.startsWith("image/")) {
+    if (file?.type?.startsWith("image/")) {
       return (
         <img
           src={
@@ -88,9 +88,9 @@ export default function FileUploader({ files, setFiles }) {
           fontSize: "13px",
         }}
       >
-        {file.type.includes("pdf")
+        {file?.type?.includes("pdf")
           ? "PDF"
-          : file.type.includes("spreadsheet")
+          : file?.type?.includes("spreadsheet")
           ? "XLSX"
           : "FILE"}
       </div>
