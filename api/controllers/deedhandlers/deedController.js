@@ -225,7 +225,7 @@ const update = async (req, res) => {
 
         // Destructure and remove file arrays from payload
         const { deedDocs: deedDocsPayld } = deedPayld;
-        console.log(deedDocsPayld);
+        // console.log(deedDocsPayld);
         delete deedPayld[filefield]
 
         let apprvFlg = 0, approvalInfo = {}
@@ -291,6 +291,7 @@ const update = async (req, res) => {
             }
 
             if (deedRecord && deedRecord !== null) {
+                // console.log("New Payload:", deedDocsPayld);
                 // Helper to get files to remove
                 const getFilesToRemove = (existingFiles, payloadFiles) =>
                     payloadFiles?.length > 0
@@ -298,15 +299,14 @@ const update = async (req, res) => {
                         : existingFiles;
 
                 // Collect files to remove
-                console.log("Existing Files in DB:", deedRecord.deedDocs);
+                // console.log("Existing Files in DB:", deedRecord.deedDocs);
                 deedDocsRmv = getFilesToRemove(deedRecord.deedDocs, deedDocsPayld);
+                // console.log("Files to be removed:", deedDocsRmv);
 
                 // Delete files in parallel
                 await Promise.allSettled([
                     ...deedDocsRmv.map(file => deleteFile(file.filId).catch(err => console.error("❌ File Deletion Error:", err.message))),
                 ]);
-
-                console.log("Files to be removed:", deedDocsRmv);
 
                 let updtDeedRecord = await deedModel.findByIdAndUpdate(deedId, {
                     $pull: {
