@@ -64,7 +64,7 @@ export default function AddEditDeed() {
                 console.log(deedData)
                 setFiles(
                     deedData?.deedDocs?.map((f) => ({
-                        id: f._id,
+                        id: f.filId,
                         name: f.filName,
                         size: Number(f.filContentSize),
                         type: f.filContentType,
