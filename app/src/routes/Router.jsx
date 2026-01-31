@@ -41,7 +41,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/home" replace /> },
       { path: '/login', element: <Login /> },
-      { path: '/home', element:  <Home />  },
+      { path: '/home', element: <ProtectedRoute> <Home /> </ProtectedRoute>  },
       { path: '/deed', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },
       { path: '/plot', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },
       { path: '/bank', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },

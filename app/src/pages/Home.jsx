@@ -6,7 +6,7 @@ export default function WelcomePage() {
     <>
       <style>{`
         .welcome-wrapper {
-          min-height: 100vh;
+          // min-height: 100vh;
           display: grid;
           grid-template-columns: 1fr 1fr;
           padding: 20px 70px 0 70px;
@@ -30,7 +30,7 @@ export default function WelcomePage() {
         }
 
         .title span {
-          color: #4f46e5;
+          color: #FF7A18;
         }
 
         .subtitle {
@@ -56,7 +56,7 @@ export default function WelcomePage() {
         }
 
         .buttons .start-btn {
-          background: #4f46e5;
+          background: #FF7A18;
           box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
         }
 

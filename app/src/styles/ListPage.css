@@ -1,0 +1,32 @@
+.module-container {
+    
+    .stats-cards {
+        .MuiCard-root {
+            background-color: #fffdf5;
+            border: 2px solid #fed7aa;
+        }
+        .right-icon {
+            width: 42;
+            height: 42;
+            border-radius: "12px";   
+            display: "flex";
+            align-items: "center";
+            justify-content: "center";
+            font-size: 22;
+        }
+    }
+
+    .datagrid-card.MuiCard-root {
+        border: 2px solid #f1f1f1;
+        
+    }
+    .datagrid-card {
+        .MuiDataGrid-columnHeader {
+            background-color: #f4f6fa;
+        }
+        .MuiDataGrid-columnHeaderTitle {
+            font-weight: 600;
+            color: #58595a;
+        }
+    }
+}

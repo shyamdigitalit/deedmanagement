@@ -114,7 +114,7 @@ export default function MiniDrawer() {
     // console.log(result);
     if (result.meta.requestStatus === 'fulfilled') {
       dispatch(showSnackbar({ message: "Logged Out Successfully", severity: 'info', }));
-      navigate('/');
+      navigate('/login');
     }
   }
 
@@ -144,13 +144,11 @@ export default function MiniDrawer() {
   return (
     <Box sx={{ display: 'flex' }}>
       {/* <CssBaseline /> */}
-      {!location.pathname.startsWith("/login") && <div style={{ position: "fixed", left: 0, top: 0, width: "100%", zIndex: 100 }} >
+      {/* {!location.pathname.startsWith("/login") && <div style={{ position: "fixed", left: 0, top: 0, width: "100%", zIndex: 100 }} >
           <Suspense fallback={<Loader />}> <Header /> </Suspense>
-      </div>}
+      </div>} */}
       {isAuthenticated && <>
-        {/* <Drawer className="sidebar-container" variant="permanent" open={open} style={{
-          margin: "2rem"
-        }}>
+        <Drawer className={`sidebar-container ${open && " opened"}`} variant="permanent" open={open}>
           <DrawerHeader style={{padding: "0 15px"}} >
             {open && <div style={{textAlign: "left", width: "100%", padding: "3rem auto", display: "flex", justifyContent: "start", alignItems: "center"}}>
               <img src="/shyamlogo.png" width={100} alt="" />
@@ -158,7 +156,7 @@ export default function MiniDrawer() {
 
             {open ? <>
               <IconButton onClick={handleDrawerClose}>
-                {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                {theme.direction === 'rtl' ? <ChevronRightIcon style={{color: "#c7c7c7"}} /> : <ChevronLeftIcon />}
               </IconButton>
             </> : <IconButton onClick={handleDrawerOpen} style={{backgroundColor: 'darkslategrey', color: 'white', fontSize: '18px'}}>
               <HiOutlineViewGrid />
@@ -167,9 +165,9 @@ export default function MiniDrawer() {
           </DrawerHeader>
           
 
-          <Divider />
+          {/* <Divider /> */}
           
-          <List style={{ height: "calc(100% - 64px)", overflowY: "auto", paddingTop: "30px" }} className="sidebar-list">
+          <List style={{ height: "calc(100% - 64px)", overflow: "hidden", paddingTop: "30px" }} className="sidebar-list">
             {SIDE_MENU.map((item, index) => open ? (
               <React.Fragment key={index}>
                 <Link to={item.children ? "#" : (item.path)}>
@@ -202,13 +200,15 @@ export default function MiniDrawer() {
           <List className="sidebar-bottom" style={{marginTop: "auto", marginBottom: "1rem"}}>
             <DropdownMenu type={"sidebar"} title="Accounts" path={"/accounts"} icon={<Person className="icn" />} menuItems={[]} />
             <DropdownMenu type={"sidebar"} title="Configuration" icon={<AdminPanelSettingsIcon className="icn" />} menuItems={ADMIN_MENU} />
-            <DropdownMenu type={"sidebar"} title="Me" icon={<Avatar sx={{ width: 50, height: 50 }}> <small style={{fontSize: "0.7rem"}}>{userSymbol}</small> </Avatar>} menuItems={sessionMenuData} />
+            <DropdownMenu type={"sidebar"} title="Me" icon={<Avatar sx={{ width: 35, height: 35 }}> <small style={{fontSize: "0.7rem"}}>{userSymbol}</small> </Avatar>} menuItems={sessionMenuData} />
           </List>
 
-        </Drawer> */}
+        </Drawer>
       </>}
-      <div style={isAuthenticated && !location.pathname.includes("/home") ? { marginTop: "5rem", flexGrow: 1, overflowX: "auto" } : {}} >
-        <Outlet /> 
+      <div style={isAuthenticated ? { flexGrow: 1, overflowX: "auto", backgroundColor: "#021b2b" } : {}} >
+        <div style={{backgroundColor: "white", margin: "1rem 1rem 1rem 0", borderRadius: "15px", height: "calc(100vh - 32px)", overflow: "auto"}}>
+          <Outlet /> 
+        </div>
       </div>
     </Box>
   );

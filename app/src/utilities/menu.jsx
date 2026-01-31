@@ -1,5 +1,5 @@
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import { AccountBalance, Approval, ContentPasteSearch, CorporateFare, Dashboard, Description, FlakySharp, FmdGood, Handyman, LocationOff, LocationOn, Settings, Shield } from '@mui/icons-material';
+import { AccountBalance, Approval, ContentPasteSearch, CorporateFare, Dashboard, Description, FlakySharp, FmdGood, Handyman, Home, LocationOff, LocationOn, Settings, Shield } from '@mui/icons-material';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
@@ -16,9 +16,10 @@ import DomainIcon from '@mui/icons-material/Domain';
 
 export const SIDE_MENU = [
     // { title: 'Form Builder', icon: <Handyman className='icn' />, path: '/' },
-    { title: 'Deed Wise', path: "/deed", icon: <Description className='icn' /> },
-    { title: 'Plot Wise', path: "/plot", icon: <FmdGood className='icn' /> },
-    { title: 'Deed Bank', path: "/bank", icon: <AccountBalance className='icn' /> },
+    { title: 'Home', path: "/home", icon: <Home className='sidebar-icon' /> },
+    { title: 'Deed Wise', path: "/deed", icon: <Description className='sidebar-icon' /> },
+    { title: 'Plot Wise', path: "/plot", icon: <FmdGood className='sidebar-icon' /> },
+    { title: 'Deed Bank', path: "/bank", icon: <AccountBalance className='sidebar-icon' /> },
     
 ];
 

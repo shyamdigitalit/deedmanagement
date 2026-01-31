@@ -23,6 +23,7 @@ return (
             onClose={handleClose}
             severity={severity}
             sx={{
+                marginBottom: 2.5,
                 width: '100%',
                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.25)',
                 backgroundColor: severity === 'success' ? '#4caf50' : severity === 'error' ? '#f44336' : severity === 'warning' ? '#ff9800' : '#2196f3',

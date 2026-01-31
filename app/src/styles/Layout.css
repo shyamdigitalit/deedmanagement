@@ -1,3 +1,40 @@
+.sidebar-container {
+    .MuiPaper-root.MuiPaper-elevation {
+        border-color: #021b2b;
+        background-color: #021b2b;
+        color: #c7c7c7;
+    }
+
+    .MuiSvgIcon-root {
+        color: #c7c7c7;
+    }
+}
+
+.sidebar-container.opened {
+
+
+    .sidebar-list {
+        
+        .MuiButtonBase-root.MuiListItemButton-root {
+            margin: 0 25px 0 12px;
+            padding: 4px 12px;
+        }  
+        .MuiButtonBase-root.MuiListItemButton-root.Mui-selected {
+            background-color: #342a22;
+            color: #fe6800;
+            border-radius: 5px;
+        }
+        .Mui-selected .MuiSvgIcon-root {
+            color: #fe6800;
+        }
+
+        .MuiListItemIcon-root {
+            margin-right: -18px;
+        }
+    
+    }
+}
+
 .sidebar-bottom {
 
     .MuiAvatar-root.MuiAvatar-circular {
