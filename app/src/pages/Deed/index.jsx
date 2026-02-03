@@ -1,36 +1,27 @@
 import "../../styles/ListPage.css";
 
 import React from "react";
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Chip,
-  TextField,
-  MenuItem,
-  LinearProgress,
-} from "@mui/material";
+import { Box, Button, Card, CardContent, Typography, Grid, TextField, MenuItem, LinearProgress, } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { DataGrid } from "@mui/x-data-grid";
-import { Link } from "react-router-dom";
 import axiosInstance from "../../config/axiosInstance";
 import { Description, HourglassTop, Map, Verified } from "@mui/icons-material";
 import MUIDialog from "../../components/MUIDialog";
 import AddEditDeed from "./AddEditDeed";
+import { DEED_COLUMNS } from "./deed-columns";
 
 export default function Deed() {
   const [deedData, setDeedData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const [selectedDeed, setSelectedDeed] = React.useState(null);
 
   const handleClickOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
+    fetchDeeds();
   };
 
   React.useEffect(() => {
@@ -50,37 +41,19 @@ export default function Deed() {
     }
   };
 
-  const columns = [
-    { field: "deedNo", headerName: "Deed No", flex: 1 },
-    { field: "plotNo", headerName: "Plot No", flex: 1 },
-    { field: "nameOfSeller", headerName: "Seller", flex: 1 },
-    { field: "nameOfPurchaser", headerName: "Purchaser", flex: 1.5 },
-    { field: "totalPurchasedArea", headerName: "Purchased Area", flex: 1 },
-    {
-      field: "status",
-      headerName: "Status",
-      flex: 1,
-      renderCell: ({ value }) => {
-        const color =
-          value === "Active"
-            ? "success"
-            : value === "Open"
-            ? "secondary"
-            : value === "Rejected"
-            ? "error"
-            : "default";
-
-        return <Chip size="small" label={value} color={color} />;
-      },
-    },
-    { field: "creationdt", headerName: "Deed Date", flex: 1 },
-  ];
+  const onEdit = (row) => {
+    // console.log(row)
+    setSelectedDeed(row)
+    handleClickOpen();
+  }
 
   return (
     <Box className="module-container" p={3}>
+
       <MUIDialog open={open} handleClose={handleClose} 
       icon={<Description sx={{ color: '#fff', fontSize: 22 }} />} title={"Add New Deed"} description={"Enter legal and land aquisition details"}
-      content={<AddEditDeed />}></MUIDialog>
+      content={<AddEditDeed selectedDeed={selectedDeed} handleClose={handleClose}  />}></MUIDialog>
+
       {/* Header */}
       <Box display="flex" justifyContent="space-between" mb={3}>
         <Box>
@@ -92,26 +65,11 @@ export default function Deed() {
           </Typography>
         </Box>
 
-        <Button className="add-button" onClick={() => setOpen(true)}
-          sx={{
-            backgroundColor: "#FF7A00",
-            color: "#fff",
-            borderRadius: "10px",
-            textTransform: "none",
-            fontWeight: 600,
-            fontSize: "14px",
-            padding: "8px 14px",
-            minHeight: "36px",
-            boxShadow: "none",
-            "&:hover": {
-              backgroundColor: "#E86E00",
-              boxShadow: "none",
-            },
-          }}
-        >
-          <AddIcon />
-          Add Deed
-        </Button>
+        <Button className="add-button" onClick={() => {
+          setSelectedDeed(null)
+          setOpen(true)
+        }}>
+          <AddIcon /> Add Deed </Button>
         {/* <Link to="form">
 
         </Link> */}
@@ -151,12 +109,7 @@ export default function Deed() {
       {/* Deed List */}
       <Card className="datagrid-card" sx={{ borderRadius: 3 }}>
         <CardContent>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={2}
-          >
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} >
             <Typography variant="h6" fontWeight={600}>
               Deed List
             </Typography>
@@ -181,12 +134,8 @@ export default function Deed() {
           {loading && <LinearProgress />}
 
           <Box height={450}>
-            <DataGrid
-              rows={deedData}
-              columns={columns}
-              getRowId={(row) => row._id}
-              pageSizeOptions={[5, 10, 15]}
-              disableRowSelectionOnClick
+            <DataGrid rows={deedData} columns={DEED_COLUMNS({ onEdit })} getRowId={(row) => row._id}
+              pageSizeOptions={[5, 10, 15]} disableRowSelectionOnClick
               sx={{
                 border: "none",
                 "& .MuiDataGrid-columnHeaders": {

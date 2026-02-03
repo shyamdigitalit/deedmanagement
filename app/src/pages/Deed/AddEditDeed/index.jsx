@@ -1,10 +1,10 @@
 import * as styles from "./../../../styles/formStyle"
 
 import React, { useEffect, useState } from "react";
-import { Box, Button, Step, StepLabel, Stepper, TextField, Typography, } from "@mui/material";
-import { ArrowBack } from "@mui/icons-material";
-import { Controller, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Box, Button, Typography, } from "@mui/material";
+import { CheckCircleOutline, LocationOnOutlined, PersonOutline } from "@mui/icons-material";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import axiosInstance from "../../../config/axiosInstance";
@@ -13,12 +13,11 @@ import FileUploader from "../../../components/FileUploader";
 import StepTwo from "./steps/StepTwo";
 import StepOne from "./steps/stepOne";
 import DEFAULTVALUES from "./default-values";
-import CustomConnector from "./stepper/custom-connector";
-import CustomStepIcon from "./stepper/custom-step-icon";
-import CustomStepper from "./stepper";
+import CustomStepper from "../../../components/stepper";
+import { stepOneFieldsArray, stepTwoFieldsArray } from "./deed-fields";
 
 
-export default function AddEditDeed() {
+export default function AddEditDeed({ selectedDeed, handleClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
@@ -32,7 +31,8 @@ export default function AddEditDeed() {
   const totalPurchasedArea = watch("totalPurchasedArea") || 0;
   const totalMutatedArea = watch("totalMutatedArea") || 0;
 
-  const id = new URLSearchParams(window.location.search).get("_id");
+  // const id = new URLSearchParams(window.location.search).get("_id");
+  const id = selectedDeed?._id;
 
   /* ===========================
      EFFECTS
@@ -89,8 +89,8 @@ export default function AddEditDeed() {
 
   const handleNext = async () => {
     let fields = [];
-    // if (activeStep === 0) fields = stepOneFields;
-    // if (activeStep === 1) fields = stepTwoFields
+    if (activeStep === 0) fields = stepOneFieldsArray.map(e => e.name);
+    if (activeStep === 1) fields = stepTwoFieldsArray.map(e => e.name);
 
     const isValid = await trigger(fields);
     if (!isValid) return;
@@ -147,7 +147,7 @@ export default function AddEditDeed() {
 
       if (response.status === 201) {
         dispatch( showSnackbar({ message: response.data.message, severity: "success", }) );
-        navigate("/deed");
+        handleClose();
       }
     } catch (error) {
       dispatch( showSnackbar({ message: error.message, severity: "error", }) );
@@ -161,15 +161,8 @@ export default function AddEditDeed() {
   return (
     <section style={{position: "relative"}}>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* <Stepper activeStep={activeStep} sx={{ mx: 5, my: 2 }}>
-            {steps.map((label) => (
-            <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-            </Step>
-            ))}
-        </Stepper> */}
-        <CustomStepper activeStep={activeStep} />
+      <form>
+        <CustomStepper steps={steps} activeStep={activeStep} />
         
         
         {/* {activeStep} */}
@@ -184,7 +177,7 @@ export default function AddEditDeed() {
             {activeStep === 2 && (
                 <Box>
                     <Typography variant="h6" mb={1}> Notes </Typography>
-                    <textarea {...register("notes")} rows={5} style={{ width: "100%", padding: 10 }} />
+                    <textarea {...register("notes", { required: "Notes is Required"})} rows={5} style={{ width: "100%", padding: 10 }} />
                     <Box mt={3}>
                     <FileUploader files={files} setFiles={setFiles} />
                     </Box>
@@ -196,10 +189,10 @@ export default function AddEditDeed() {
         {/* FOOTER */}
         {/* FOOTER (INSIDE CONTENT) */}
         <Box sx={styles.dialogActions} >
-            <Button sx={styles.secondaryButton} type="button" onClick={handleBack}>Back</Button>
+            <Button sx={styles.secondaryButton} type="button" onClick={handleBack} disabled={activeStep < 1}>Back</Button>
 
             {activeStep === 2 ? (
-                <Button sx={styles.primaryButton} type="submit">Save Changes</Button>
+                <Button sx={styles.primaryButton} type="button" onClick={handleSubmit(onSubmit)}>Save Changes</Button>
             ) : (
                 <Button sx={styles.primaryButton} type="button" variant="contained"
                 onClick={handleNext}>Continue</Button>
@@ -209,3 +202,23 @@ export default function AddEditDeed() {
     </section>
   );
 }
+
+
+
+const steps = [
+  {
+    label: "Deed, Area & Mutation",
+    subLabel: "Step 1/3",
+    icon: <PersonOutline />,
+  },
+  {
+    label: "Land Identification",
+    subLabel: "Step 2/3",
+    icon: <LocationOnOutlined />,
+  },
+  {
+    label: "Review",
+    subLabel: "Step 3/3",
+    icon: <CheckCircleOutline />,
+  },
+];

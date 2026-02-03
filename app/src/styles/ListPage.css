@@ -1,5 +1,17 @@
 .module-container {
-    
+
+    .add-button.MuiButtonBase-root {
+        background-color: #FF7A00;
+        color: #fff;
+        border-radius: 10px;
+        text-transform: none;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 8px 14px;
+        min-height: 36px;
+        box-shadow: none;
+    }
+
     .stats-cards {
         .MuiCard-root {
             background-color: #fffdf5;

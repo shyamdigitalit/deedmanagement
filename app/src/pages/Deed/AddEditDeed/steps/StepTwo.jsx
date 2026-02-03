@@ -8,6 +8,23 @@ import {
 import { Controller } from "react-hook-form";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { stepTwoFieldsArray } from "../deed-fields";
+
+
+const renderStepTwoFields = (filter, control, errors) =>
+  stepTwoFieldsArray
+    .filter(field => field[filter])
+    .map(field => (
+      <Controller key={field.name} name={field.name} control={control} rules={field.rules}
+        render={({ field: controllerField }) => (
+          <TextField {...controllerField} label={field.label} placeholder={field.placeholder} variant="filled"
+            error={!!errors[field.name]} helperText={errors[field.name]?.message} fullWidth
+          />
+        )}
+      />
+    ));
+
+    
 
 const StepTwo = ({ control, errors }) => {
   return (
@@ -50,78 +67,14 @@ const StepTwo = ({ control, errors }) => {
         />
       </Stack>
 
-      {/* Fields */}
-      <Box
-        display="grid"
-        gridTemplateColumns="repeat(3, 1fr)"
-        gap={2}
-      >
-        <Controller
-          name="mouzaName"
-          control={control}
-          rules={{ required: "Required" }}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label="Mouza Name"
-              placeholder="Enter mouza"
-              variant="filled"
-              error={!!errors.mouzaName}
-              fullWidth
-            />
-          )}
-        />
-
-        <Controller
-          name="khatianNo"
-          control={control}
-          rules={{ required: "Required" }}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label="Khatian No"
-              placeholder="Enter khatian"
-              variant="filled"
-              error={!!errors.khatianNo}
-              fullWidth
-            />
-          )}
-        />
-
-        <Controller
-          name="plotNo"
-          control={control}
-          rules={{ required: "Required" }}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label="Plot No"
-              placeholder="Enter plot"
-              variant="filled"
-              error={!!errors.plotNo}
-              fullWidth
-            />
-          )}
-        />
+      {/* 3-column grid fields */}
+      <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={2} >
+        {renderStepTwoFields("grid", control, errors)}
       </Box>
 
-      {/* Location */}
+      {/* Full-width field */}
       <Box mt={2}>
-        <Controller
-          name="locationOfPurchaseLand"
-          control={control}
-          rules={{ required: "Required" }}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label="Location of Purchased Land"
-              placeholder="e.g., North-West corner adjacent to NH-34"
-              variant="filled"
-              error={!!errors.locationOfPurchaseLand}
-              fullWidth
-            />
-          )}
-        />
+        {renderStepTwoFields("fullWidth", control, errors)}
       </Box>
     </Box>
   );

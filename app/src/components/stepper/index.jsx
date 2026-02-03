@@ -1,30 +1,9 @@
 import { Stepper, Step, StepLabel, Typography, Box, } from "@mui/material";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 import CustomConnector from "./custom-connector";
 import CustomStepIcon from "./custom-step-icon";
 
-const steps = [
-  {
-    label: "Deed, Area & Mutation",
-    subLabel: "Step 1/3",
-    icon: <PersonOutlineIcon />,
-  },
-  {
-    label: "Land Identification",
-    subLabel: "Step 2/3",
-    icon: <LocationOnOutlinedIcon />,
-  },
-  {
-    label: "Review",
-    subLabel: "Step 3/3",
-    icon: <CheckCircleOutlineIcon />,
-  },
-];
-
-const CustomStepper = ({ activeStep,  }) => (
+const CustomStepper = ({ activeStep,  steps}) => (
     <Stepper
           activeStep={activeStep}
           alternativeLabel

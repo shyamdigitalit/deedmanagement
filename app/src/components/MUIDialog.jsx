@@ -3,9 +3,9 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typogra
 import { ArrowForward, Close } from '@mui/icons-material';
 import * as styles from './../styles/DialogStyle';
 
-const MUIDialog = ({ open, onClose, icon, title, description, content, actions, fullWidth = true, maxWidth = 'sm', }) => {
+const MUIDialog = ({ open, handleClose, icon, title, description, content, actions, fullWidth = true, maxWidth = 'sm', }) => {
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
       <DialogTitle sx={styles.dialogTitleStyles}>
         <Box sx={styles.headerWrapper}>
           <Box sx={styles.leftSection}>
@@ -17,7 +17,7 @@ const MUIDialog = ({ open, onClose, icon, title, description, content, actions, 
             </Box>
           </Box>
 
-          <IconButton onClick={onClose}>
+          <IconButton onClick={handleClose}>
             <Close />
           </IconButton>
         </Box>
