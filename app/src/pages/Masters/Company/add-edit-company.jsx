@@ -15,8 +15,8 @@ const AddEditCompany = (props) => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
-            cmpny_code: "",
-            cmpny_desc: "",
+            companyCode: "",
+            companyDesc: "",
             status: "Active",
         },
         mode: "onBlur",
@@ -24,13 +24,12 @@ const AddEditCompany = (props) => {
     });
 
     const onSubmit = async (data) => {
-        // console.log(user)
-        // console.log(data);
+       console.log("FORM SUBMITTED", data);
         data.createdby = user?._id;
         data.status = "Active";
         
         try {
-            const result = await axiosInstance.post(`/cmpny/create`, data).then(res => res.data)
+            const result = await axiosInstance.post(`/admin/cmpny/create`, data).then(res => res.data)
             
             if(result.statuscode === 201){
                 props.onClose(); // Close the drawer
@@ -58,12 +57,12 @@ const AddEditCompany = (props) => {
             </div>
             <form className="drawer-form" onSubmit={handleSubmit(onSubmit)}>
                 <div className="input-container"> 
-                    <TextField label="Company Code" variant="filled" {...register("cmpny_code", { required: "Company Code is required" })} 
-                    error={!!errors.cmpny_code} helperText={errors.cmpny_code?.message} fullWidth /> 
+                    <TextField label="Company Code" variant="filled" {...register("companyCode", { required: "Company Code is required" })} 
+                    error={!!errors.companyCode} helperText={errors.companyCode?.message} fullWidth /> 
                 </div>
                 <div className="input-container"> 
-                    <TextField  label="Company Description"  variant="filled" {...register("cmpny_desc", { required: "Company Description is required" })} 
-                    error={!!errors.cmpny_desc} helperText={errors.cmpny_desc?.message} fullWidth /> 
+                    <TextField  label="Company Description"  variant="filled" {...register("companyDesc", { required: "Company Description is required" })} 
+                    error={!!errors.companyDesc} helperText={errors.companyDesc?.message} fullWidth /> 
                 </div>
 
                 <div className="action-buttons">

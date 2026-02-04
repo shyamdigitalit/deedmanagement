@@ -51,7 +51,7 @@ export default function State() {
   const getStateList = async () => {
     try {
       setLoading(true);
-      const result = await axiosInstance.get(`/stt/fetch`).then(res => res.data)
+      const result = await axiosInstance.get(`/admin/stt/fetch`).then(res => res.data)
       
       if(result.statuscode == 200) {
         setStateList(result.data)

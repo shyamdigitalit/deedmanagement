@@ -1,5 +1,5 @@
 import "../../../styles/Drawer.css";
-import { AccountTree, Add, Close, LocationOn, Save } from '@mui/icons-material'
+import { Add, Close, LocationOn } from '@mui/icons-material'
 import { Button, FormControl, FormHelperText, IconButton, InputLabel, MenuItem, OutlinedInput, Select, TextField, Typography } from '@mui/material'
 import React from 'react'
 import { RippleEffect } from "../../../utilities/ripple";
@@ -35,7 +35,7 @@ const AddEditMaterial = (props) => {
     const getPlantList = async () => {
         try {
             const result = await axiosInstance.get(`/plnt/fetch`).then(res => res.data)
-            if(result.statuscode === 200) {
+            if (result.statuscode === 200) {
                 setPlantList(result.data);
                 return result.data;
             } else {
@@ -53,15 +53,15 @@ const AddEditMaterial = (props) => {
     const onSubmit = async (data) => {
         // console.log(user)
         // console.log(data);
-        data.matrl_plnt = data.matrl_plnt.map(item => ({plnt_inf: item}))
+        data.matrl_plnt = data.matrl_plnt.map(item => ({ plnt_inf: item }))
         data.createdby = user?._id;
         data.status = "Active";
-        
+
         try {
             const result = await axiosInstance.post(`/matrl/create`, data).then(res => res.data)
-            
-            if(result.statuscode === 201){
-                props.onClose(); // Close the drawer
+
+            if (result.statuscode === 201) {
+                props.onClose();
                 dispatch(showSnackbar({ message: result.message, severity: 'success', }));
             }
 
@@ -85,26 +85,26 @@ const AddEditMaterial = (props) => {
                 <IconButton onClick={() => props.onClose()}> <Close color="error" width={300} /> </IconButton>
             </div>
             <form className="drawer-form" onSubmit={handleSubmit(onSubmit)}>
-                <div className="input-container"> 
-                    <TextField label="Material Code" variant="filled" {...register("matrl_code", { required: "Material Code is required" })} 
-                    error={!!errors.matrl_code} helperText={errors.matrl_code?.message} fullWidth /> 
-                </div>
-                <div className="input-container"> 
-                    <TextField  label="Material Name"  variant="filled" {...register("matrl_name", { required: "Material Name is required" })} 
-                    error={!!errors.matrl_name} helperText={errors.matrl_name?.message} fullWidth /> 
-                </div>
-                
                 <div className="input-container">
-                    <TextField label="Material Description" variant="filled" {...register("matrl_desc")} 
-                    error={!!errors.matrl_desc} helperText={errors.matrl_desc?.message} fullWidth />
+                    <TextField label="Material Code" variant="filled" {...register("matrl_code", { required: "Material Code is required" })}
+                        error={!!errors.matrl_code} helperText={errors.matrl_code?.message} fullWidth />
                 </div>
                 <div className="input-container">
-                    <TextField label="Material Type" variant="filled" {...register("matrl_type", { required: "Material Type is required" })} 
-                    error={!!errors.matrl_type} helperText={errors.matrl_type?.message} fullWidth />
+                    <TextField label="Material Name" variant="filled" {...register("matrl_name", { required: "Material Name is required" })}
+                        error={!!errors.matrl_name} helperText={errors.matrl_name?.message} fullWidth />
+                </div>
+
+                <div className="input-container">
+                    <TextField label="Material Description" variant="filled" {...register("matrl_desc")}
+                        error={!!errors.matrl_desc} helperText={errors.matrl_desc?.message} fullWidth />
                 </div>
                 <div className="input-container">
-                    <TextField label="Material Group" variant="filled" {...register("matrl_grp", { required: "Material Group is required" })} 
-                    error={!!errors.matrl_grp} helperText={errors.matrl_grp?.message} fullWidth />
+                    <TextField label="Material Type" variant="filled" {...register("matrl_type", { required: "Material Type is required" })}
+                        error={!!errors.matrl_type} helperText={errors.matrl_type?.message} fullWidth />
+                </div>
+                <div className="input-container">
+                    <TextField label="Material Group" variant="filled" {...register("matrl_grp", { required: "Material Group is required" })}
+                        error={!!errors.matrl_grp} helperText={errors.matrl_grp?.message} fullWidth />
                 </div>
                 <FormControl variant="outlined" error={!!errors.matrl_plnt} fullWidth>
                     <InputLabel id="plant-label">Plant</InputLabel>
@@ -115,29 +115,29 @@ const AddEditMaterial = (props) => {
                         MenuProps={{
                             PaperProps: {
                                 style: {
-                                maxHeight: 224,
-                                width: 250,
+                                    maxHeight: 224,
+                                    width: 250,
                                 },
                             },
                         }}
                     >
                         {plantList.map((plant) => (
-                        <MenuItem key={plant._id} value={plant._id}>
-                            {plant.plnt_code} - {plant.plnt_name}
-                        </MenuItem>
+                            <MenuItem key={plant._id} value={plant._id}>
+                                {plant.plnt_code} - {plant.plnt_name}
+                            </MenuItem>
                         ))}
                     </Select>
                     <FormHelperText>{errors.matrl_plnt?.message}</FormHelperText>
                 </FormControl>
 
-                
+
 
                 <div className="action-buttons">
-                    <div style={{padding: "1rem 2rem", display: "flex", alignItems: "center", gap: "1rem"}}>
+                    <div style={{ padding: "1rem 2rem", display: "flex", alignItems: "center", gap: "1rem" }}>
                         <Button type="submit" variant="contained" size="large">
                             ADD <Add style={{ margin: "-3px 0 0 4px" }} />
                         </Button>
-                        
+
                         <div className="reset-button" onClick={handleReset}> Reset </div>
                     </div>
                 </div>

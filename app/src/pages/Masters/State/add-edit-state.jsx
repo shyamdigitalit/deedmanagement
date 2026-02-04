@@ -26,13 +26,13 @@ const AddEditState = (props) => {
     });
 
     const onSubmit = async (data) => {
-        // console.log(user)
-        // console.log(data);
+    console.log("FORM SUBMITTED", data);
+
         data.createdby = user?._id;
         data.status = "Active";
         
         try {
-            const result = await axiosInstance.post(`/stt/create`, data).then(res => res.data)
+            const result = await axiosInstance.post(`/admin/stt/create`, data).then(res => res.data)
             
             if(result.statuscode === 201){
                 props.onClose(); // Close the drawer

@@ -28,9 +28,9 @@ const TableHeaderFormat = (props) => {
         return params.api.getRowIndexRelativeToVisibleRows(params.id) + 1 + (props.currentPage * props.pageSize);
       },  
     },
-    { field: 'plnt_code', headerName: 'Plant Code', width: 100 },
-    { field: 'plnt_name', headerName: 'Plant Name', width: 180 },
-    { field: 'plnt_cmpny', headerName: 'Company', width: 100, renderCell: (params) => params.value?.cmpny_code || '' },
+    { field: 'plantCode', headerName: 'Plant Code', width: 100 },
+    { field: 'plantName', headerName: 'Plant Name', width: 180 },
+    { field: 'plnt_cmpny', headerName: 'Company', width: 100, renderCell: (params) => params.value?.companyCode || '' },
     { field: 'plnt_loc', headerName: 'Location', width: 150, renderCell: (params) => params.value?.stt_name || '' },
     { field: 'status', headerName: 'Status', width: 100 },
     { field: 'createdAtITC', headerName: 'Created At', width: 180, renderCell: (params) => moment(params.value, 'DD-MM-YYYY hh:mm').format('DD-MM-YYYY hh:mm A')},
@@ -55,7 +55,7 @@ export default function Plant() {
   const getPlantList = async () => {
     try {
       setLoading(true);
-      const result = await axiosInstance.get(`/plnt/fetch`).then(res => res.data)
+      const result = await axiosInstance.get(`/admin/plnt/fetch`).then(res => res.data)
       if(result.statuscode == 200) {
         setPlantList(result.data)
         setLoading(false);
@@ -81,7 +81,7 @@ export default function Plant() {
     <section className="inspection-entry-form">
         
         <React.Suspense fallback={<Loader />}>
-          <BulkUploadDialog url={'/plnt/import'} format={PlantBulkFormat} open={openBulk} handleClose={handleCloseBulk} />
+          <BulkUploadDialog url={'/admin/plnt/import'} format={PlantBulkFormat} open={openBulk} handleClose={handleCloseBulk} />
         </React.Suspense>
         <Drawer anchor={"right"} open={open} onClose={() => handleClose()} PaperProps={{ style: { width: 600 } }}> 
           <Suspense fallback={<Loader />}>

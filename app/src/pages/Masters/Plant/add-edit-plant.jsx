@@ -17,8 +17,8 @@ const AddEditPlant = (props) => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
-            plnt_code: "",
-            plnt_name: "",
+            plantCode: "",
+            plantName: "",
             plnt_cmpny: "",
             plnt_loc: "",
             status: "Active",
@@ -34,13 +34,12 @@ const AddEditPlant = (props) => {
 
     const getCompanyList = async () => {
         try {
-            const result = await axiosInstance.get(`/cmpny/fetch`).then(res => res.data)
-            if(result.statuscode === 200) {
-                setCompanyList(result.data);
-                return result.data;
+            const result = await axiosInstance.get(`/admin/cmpny/fetch`)
+            console.log(result)
+            if(result.status === 200) {
+                setCompanyList(result.data.data);
             } else {
                 dispatch(showSnackbar({ message: result.message, severity: 'error', duration: 2000 }));
-                return [];
             }
         } catch (error) {
             console.error("Error fetching company list:", error);
@@ -51,10 +50,9 @@ const AddEditPlant = (props) => {
 
     const getLocationList = async () => {
         try {
-            const result = await axiosInstance.get(`/stt/fetch`).then(res => res.data)
-            if(result.statuscode === 200) {
-                setLocationList(result.data);
-                return result.data;
+            const result = await axiosInstance.get(`/admin/stt/fetch`)
+            if(result.status === 200) {
+                setLocationList(result.data.data);
             } else {
                 dispatch(showSnackbar({ message: result.message, severity: 'error', duration: 2000 }));
                 return [];
@@ -74,7 +72,7 @@ const AddEditPlant = (props) => {
         data.status = "Active";
         
         try {
-            const result = await axiosInstance.post(`/plnt/create`, data).then(res => res.data)
+            const result = await axiosInstance.post(`/admin/plnt/create`, data).then(res => res.data)
             
             props.onClose(); // Close the drawer
             dispatch(showSnackbar({ message: result.message, severity: 'success', }));
@@ -102,12 +100,12 @@ const AddEditPlant = (props) => {
             </div>
             <form className="drawer-form" onSubmit={handleSubmit(onSubmit)}>
                 <div className="input-container"> 
-                    <TextField label="Plant Code" variant="filled" {...register("plnt_code", { required: "Plant Code is required" })} 
-                    error={!!errors.plnt_code} helperText={errors.plnt_code?.message} fullWidth /> 
+                    <TextField label="Plant Code" variant="filled" {...register("plantCode", { required: "Plant Code is required" })} 
+                    error={!!errors.plantCode} helperText={errors.plantCode?.message} fullWidth /> 
                 </div>
                 <div className="input-container"> 
-                    <TextField  label="Plant Name"  variant="filled" {...register("plnt_name", { required: "Plant Name is required" })} 
-                    error={!!errors.plnt_name} helperText={errors.plnt_name?.message} fullWidth /> 
+                    <TextField  label="Plant Name"  variant="filled" {...register("plantName", { required: "Plant Name is required" })} 
+                    error={!!errors.plantName} helperText={errors.plantName?.message} fullWidth /> 
                 </div>
                 <div className="input-container"> 
                     <FormControl fullWidth variant="filled" error={!!errors.plnt_cmpny}>
@@ -119,7 +117,7 @@ const AddEditPlant = (props) => {
                     >
                         {companyList.map((company) => (
                         <MenuItem key={company._id} value={company._id}>
-                            {company.cmpny_code} - {company.cmpny_desc}
+                            {company.companyCode} - {company.companyDesc}
                         </MenuItem>
                         ))}
                     </Select>

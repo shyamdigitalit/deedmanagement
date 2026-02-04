@@ -11,13 +11,13 @@ import untController from '../controllers/masters/admin/untController.js';
 import polcytypController from '../controllers/masters/insurncsetups/polcytypController.js';
 import provdrController from '../controllers/masters/insurncsetups/provdrController.js';
 import brokrController from '../controllers/masters/insurncsetups/brokrController.js';
-
+import plntController from '../controllers/masters/admin/plntController.js';
 import accController from '../controllers/accController.js';
 import funcController from '../controllers/adminmgmt/function/funcController.js';
 import dynapprvlController from '../controllers/adminmgmt/dynapproval/dynapprvlController.js';
 import fileOpController from '../controllers/fileOpController.js';
 
-
+import sttController from '../controllers/masters/admin/sttController.js';
 // Utility function to create routes
 const createRoute = (method, path, ...handlers) => {
     router.route(path)[method](...handlers);
@@ -29,7 +29,8 @@ createRoute('get', '/chckstat', (_, res) => res.json({ message: 'Server is Onlin
 
 // POST
 const postRoutes = [
-    { path: '/deed/create',
+    {
+        path: '/deed/create',
         handlers: [
             jwtHybrdProtect,
             fileUpload.fields([
@@ -39,7 +40,7 @@ const postRoutes = [
         ]
     },
     { path: '/acctyp/create', handlers: [jwtHybrdProtect, fileUpload.none(), acctypController.create] },
-    { path: '/cmpny/create', handlers: [jwtHybrdProtect, fileUpload.none(), cmpnyController.create] },
+    { path: '/admin/cmpny/create', handlers: [jwtHybrdProtect, fileUpload.none(), cmpnyController.create] },
     { path: '/unt/create', handlers: [jwtHybrdProtect, fileUpload.none(), untController.create] },
     { path: '/polcytyp/create', handlers: [jwtHybrdProtect, fileUpload.none(), polcytypController.create] },
     { path: '/provdr/create', handlers: [jwtHybrdProtect, fileUpload.none(), provdrController.create] },
@@ -47,6 +48,9 @@ const postRoutes = [
     { path: '/acc/create', handlers: [jwtHybrdProtect, fileUpload.none(), accController.create] },
     { path: '/acc/import', handlers: [basicAuth, fileUpload.none(), accController.upload] },
     { path: '/func/create', handlers: [basicAuth, fileUpload.none(), funcController.create] },
+    { path: '/admin/stt/create', handlers: [basicAuth, fileUpload.none(), sttController.create] },
+    { path: '/admin/plnt/create', handlers: [basicAuth, fileUpload.none(), plntController.create] },
+    { path: '/admin/plnt/import', handlers: [basicAuth, plntController.upload] },
     { path: '/dynapprvl/create', handlers: [jwtHybrdProtect, fileUpload.none(), dynapprvlController.create] },
 ];
 postRoutes.forEach(route => createRoute('post', route.path, ...route.handlers));
@@ -58,7 +62,7 @@ const getRoutes = [
     { path: '/acctyp/fetch', handlers: [jwtHybrdProtect, acctypController.read] },
     { path: '/acctyp/fetchby/:id', handlers: [jwtHybrdProtect, acctypController.readById] },
     { path: '/acctyp/fetchuppr', handlers: [jwtHybrdProtect, acctypController.readLowrHierarchy] },
-    { path: '/cmpny/fetch', handlers: [jwtHybrdProtect, cmpnyController.read] },
+    { path: '/admin/cmpny/fetch', handlers: [jwtHybrdProtect, cmpnyController.read] },
     { path: '/unt/fetch', handlers: [basicAuth, untController.read] },
     { path: '/polcytyp/fetch', handlers: [jwtHybrdProtect, polcytypController.read] },
     { path: '/provdr/fetch', handlers: [jwtHybrdProtect, provdrController.read] },
@@ -67,6 +71,8 @@ const getRoutes = [
     { path: '/acc/fetchby/:id', handlers: [basicAuth, accController.readById] },
     { path: '/acc/fetchuppr/:acctypid', handlers: [basicAuth, accController.readLowrHierarchy] },
     { path: '/func/fetch', handlers: [basicAuth, funcController.read] },
+    { path: '/admin/stt/fetch', handlers: [basicAuth, sttController.read] },
+    { path: '/admin/plnt/fetch', handlers: [basicAuth, plntController.read] },
     { path: '/dynapprvl/fetch', handlers: [basicAuth, dynapprvlController.read] },
     { path: '/file/download/:id', handlers: [jwtHybrdProtect, fileOpController.downloadHandler] },
     { path: '/file/downloadall', handlers: [jwtHybrdProtect, fileOpController.downloadAllHandler] }
@@ -75,7 +81,8 @@ getRoutes.forEach(route => createRoute('get', route.path, ...route.handlers));
 
 // PATCH
 const patchRoutes = [
-    { path: '/deed/update',
+    {
+        path: '/deed/update',
         handlers: [
             jwtHybrdProtect,
             fileUpload.fields([
@@ -84,7 +91,7 @@ const patchRoutes = [
             deedController.update
         ]
     },
-    { path: '/deed/status/update', handlers: [ jwtHybrdProtect, fileUpload.none(), deedController.statusUpdate ] },
+    { path: '/deed/status/update', handlers: [jwtHybrdProtect, fileUpload.none(), deedController.statusUpdate] },
     { path: '/acctyp/update', handlers: [jwtHybrdProtect, fileUpload.none(), acctypController.update] },
     { path: '/cmpny/update', handlers: [jwtHybrdProtect, fileUpload.none(), cmpnyController.update] },
     { path: '/unt/update', handlers: [jwtHybrdProtect, fileUpload.none(), untController.update] },
