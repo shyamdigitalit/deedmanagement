@@ -170,6 +170,8 @@ const create = async (req, res) => {
             deedPayld[fileField] = results[fileField];
         }
 
+        ['deedNo', 'dateOfRegistration', 'nameOfSeller', 'nameOfPurchaser',
+            'nameOfMouza', 'mutatedOrLeased', 'khatianNo']?.forEach(field => delete deedPayld[field]);
         Object.assign(deedPayld, {
             status: 'Active',
             approvalStatus: 'Approved',
@@ -245,10 +247,9 @@ const update = async (req, res) => {
         const deedPayld = req.body;
         const user = req.user;
 
-        [
-            'serial', 'id', '_id', '__v', 'deedNo', 'createdby', 'creationdt', 'creationtm',
-            'createdAt', 'updatedAt', 'createdAtITC', 'updatedAtITC'
-        ]?.forEach(field => delete deedPayld[field]);
+        ['serial', 'id', '_id', '__v', 'deedNo', 'dateOfRegistration', 'nameOfSeller',
+            'nameOfPurchaser', 'nameOfMouza', 'mutatedOrLeased', 'khatianNo',
+            'createdby', 'createdAt', 'updatedAt', 'createdAtITC', 'updatedAtITC']?.forEach(field => delete deedPayld[field]);
         Object.assign(deedPayld, { updatedby: user?._id });
 
         const filefield = 'deedDocs';
