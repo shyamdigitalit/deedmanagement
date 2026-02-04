@@ -53,6 +53,14 @@ const uploadNewFiles = async (files, fileField, userId) => {
     return results;
 };
 
+const removeFiles = async (files, fileIds) => {
+    if (!files?.length) return;
+    
+    await Promise.allSettled(
+        files.map(file => deleteFile(file.filId).catch(err => console.error("❌ File Deletion Error:", err.message)))
+    );
+};
+
 const getDeedMasterById = async (deedMasterId) => {
     try {
         const deedMaster = await deedMasterModel.findById(deedMasterId);
@@ -234,13 +242,11 @@ const update = async (req, res) => {
         const deedId = new mongoose.Types.ObjectId(req.query.id) || null;
         const deedPayld = req.body;
         const user = req.user;
-        let deedDocsRmv = [];
 
         [
             'serial', 'id', '_id', '__v', 'deedNo', 'createdby', 'creationdt', 'creationtm',
             'createdAt', 'updatedAt', 'createdAtITC', 'updatedAtITC'
         ]?.forEach(field => delete deedPayld[field]);
-
         Object.assign(deedPayld, { updatedby: user?._id });
 
         const filefield = 'deedDocs';
@@ -253,68 +259,17 @@ const update = async (req, res) => {
         const { deedDocs: deedDocsPayld } = deedPayld;
         delete deedPayld[filefield];
 
-        let apprvFlg = 0, approvalInfo = {};
-        const highestApprvlLvl = parseInt(deedPayld?.highestApprvlLvl);
-        delete deedPayld?.highestApprvlLvl;
-
-        if (deedPayld?.approvalOption && parseInt(deedPayld?.currentPendingApprovalLevel) > 0 && deedPayld?.approvalStatus !== 'Approved') {
-            if (deedPayld?.approvalOption === 'Approval') {
-                apprvFlg = 1;
-                Object.assign(approvalInfo, {
-                    approvalLevel: parseInt(deedPayld.currentPendingApprovalLevel),
-                    approvalOption: deedPayld?.approvalOption || 'Approval',
-                    approver: user?._id,
-                    approvalRemarks: deedPayld?.approvalRemarks || '',
-                });
-                if (highestApprvlLvl > parseInt(deedPayld?.currentPendingApprovalLevel)) {
-                    deedPayld.status = 'Pending';
-                    deedPayld.currentPendingApprovalLevel = parseInt(deedPayld.currentPendingApprovalLevel) + 1;
-                    deedPayld.approvalStatus = `Pending L${deedPayld.currentPendingApprovalLevel} Approval`;
-                } else if (highestApprvlLvl === parseInt(deedPayld?.currentPendingApprovalLevel)) {
-                    Object.assign(deedPayld, {
-                        status: 'Active',
-                        approvalStatus: 'Approved',
-                        currentPendingApprovalLevel: 0,
-                    });
-                }
-            } else if (deedPayld?.approvalOption === 'Rejection' && deedPayld.status === 'Pending') {
-                apprvFlg = 2;
-                Object.assign(approvalInfo, {
-                    approvalLevel: parseInt(deedPayld.currentPendingApprovalLevel),
-                    approvalOption: deedPayld?.approvalOption || 'Rejection',
-                    approver: user?._id,
-                    approvalRemarks: deedPayld?.approvalRemarks || '',
-                });
-            }
-        } else {
-            apprvFlg = 0;
-            Object.assign(deedPayld, {
-                status: 'Open',
-                approvalStatus: 'Pending L1 Approval',
-                currentPendingApprovalLevel: 1
-            });
+        let deedRecord = await deedModel.findById(deedId);
+        if (!deedRecord) {
+            return res.status(404).json({ message: "Deed details not found" });
         }
 
-        if (apprvFlg < 2) {
-            let deedRecord = await deedModel.findByIdAndUpdate(deedId, {
-                ...deedPayld,
-                ...(apprvFlg === 1 && { $push: { approvalDetails: approvalInfo } })
-            }, { new: true });
+        const deedDocsRmv = deedDocsPayld?.length > 0
+            ? deedRecord.deedDocs.filter(file => !deedDocsPayld.some(f => f.filId === file.filId))
+            : deedRecord.deedDocs;
 
-            if (!deedRecord) {
-                return res.status(404).json({ message: "Deed details not found" });
-            }
-
-            const getFilesToRemove = (existingFiles, payloadFiles) =>
-                payloadFiles?.length > 0
-                    ? existingFiles.filter(file => !payloadFiles.some(f => f.filId === file.filId))
-                    : existingFiles;
-
-            deedDocsRmv = getFilesToRemove(deedRecord.deedDocs, deedDocsPayld);
-
-            await Promise.allSettled(
-                deedDocsRmv.map(file => deleteFile(file.filId).catch(err => console.error("❌ File Deletion Error:", err.message)))
-            );
+        if (deedDocsRmv.length > 0) {
+            await removeFiles(deedDocsRmv);
 
             let updtDeedRecord = await deedModel.findByIdAndUpdate(deedId, {
                 $pull: { deedDocs: { filId: { $in: deedDocsRmv.map(f => f.filId) } } }
@@ -323,44 +278,23 @@ const update = async (req, res) => {
             if (!updtDeedRecord) {
                 return res.status(404).json({ message: "Deed details update failed" });
             }
-
-            if (req.files) {
-                const results = await uploadNewFiles(req.files, filefield, user?._id);
-                if (results[filefield].length > 0) {
-                    updtDeedRecord = await deedModel.findByIdAndUpdate(deedId, {
-                        $push: { deedDocs: { $each: results[filefield] } }
-                    }, { new: true });
-                }
-            }
-
-            if (!updtDeedRecord) {
-                return res.status(404).json({ message: "Deed details update failed" });
-            }
-
-            const deedInfo = await getAllDeedDetails({ deedNo: updtDeedRecord.deedNo });
-            const deedDetails = deedInfo[0] || updtDeedRecord;
-
-            res.status(201).json({
-                message: apprvFlg === 0 ? "Deed details updated successfully" : "Deed details changes approved successfully",
-                data: deedDetails
-            });
-        } else {
-            const deedRecord = await deedModel.findByIdAndUpdate(deedId, {
-                status: 'Open',
-                approvalStatus: 'Pending L1 Approval',
-                currentPendingApprovalLevel: 1,
-                $push: { approvalDetails: approvalInfo }
-            }, { new: true });
-
-            if (!deedRecord) {
-                return res.status(404).json({ message: "Deed details changes rejection failed" });
-            }
-
-            res.status(201).json({
-                message: "Deed details changes rejected successfully",
-                data: deedRecord
-            });
+            deedRecord = updtDeedRecord;
         }
+
+        if (req.files) {
+            const results = await uploadNewFiles(req.files, filefield, user?._id);
+            if (results[filefield].length > 0) {
+                deedRecord = await deedModel.findByIdAndUpdate(deedId, {
+                    $push: { deedDocs: { $each: results[filefield] } }
+                }, { new: true });
+            }
+        }
+
+        const deedInfo = await getAllDeedDetails({ deedNo: deedRecord.deedNo });
+        res.status(201).json({
+            message: apprvFlg === 0 ? "Deed details updated successfully" : "Deed details changes approved successfully",
+            data: deedInfo[0] || deedRecord
+        });
     } catch (error) {
         console.error("Error updating Deed details:", error);
         res.status(500).json({ message: "Internal server error" });
@@ -373,23 +307,15 @@ const statusUpdate = async (req, res) => {
         const deedPayld = req.body;
         // console.log(deedPayld);
         const user = req.user
-        
-        const deedRecord = await deedModel.findById(deedId);
-        if (!deedRecord) {
-            return res.status(404).json({ message: "Deed details not found" });
-        }
-        else {
-            const updtDeedRecord = await deedModel.findByIdAndUpdate(deedId, { status: deedPayld.status, updatedby: user?._id }, { new: true })
-            if (updtDeedRecord.modifiedCount === 0) {
-                return res.status(404).json({ message: "Deed details update failed" });
-            }
-            else {
-                res.status(201).json({
-                    message: "Deed details updated successfully",
-                    data: updtDeedRecord
-                });
-            }
-        }
+
+        const deedRecord = await complianceModel.findByIdAndUpdate(deedId,
+            { status: deedPayld.status, updatedby: user._id },
+            { new: true }
+        );
+        res.status(201).json({
+            message: "Deed details updated successfully",
+            data: deedRecord
+        });
     } catch (error) {
         console.error("Error deleting Deed details:", error);
         res.status(500).json({ message: "Internal server error" });
