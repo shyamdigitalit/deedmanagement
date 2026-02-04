@@ -7,14 +7,14 @@ import { uploadFile, deleteFile } from '../../utilities/fileOperations.js';
 // =================================================================================================================================
 // Reusable functions---------------------------------------------------------------------------------------------------------------
 
-const validateId = (id) => {
+export const validateId = (id) => {
     if (isValidObjectId(id)) {
         throw new Error("Invalid ObjectId");
     }
     return new mongoose.Types.ObjectId(id);
 }
 
-const uploadNewFiles = async (files, fileField, userId) => {
+export const uploadNewFiles = async (files, fileField, userId) => {
     const results = { [fileField]: [] };
     const duplicates = { [fileField]: [] };
 
@@ -53,7 +53,7 @@ const uploadNewFiles = async (files, fileField, userId) => {
     return results;
 };
 
-const removeFiles = async (files, fileIds) => {
+export const removeFiles = async (files, fileIds) => {
     if (!files?.length) return;
     
     await Promise.allSettled(
@@ -61,7 +61,7 @@ const removeFiles = async (files, fileIds) => {
     );
 };
 
-const getDeedMasterById = async (deedMasterId) => {
+export const getDeedMasterById = async (deedMasterId) => {
     try {
         const deedMaster = await deedMasterModel.findById(deedMasterId);
         return deedMaster;
@@ -71,7 +71,7 @@ const getDeedMasterById = async (deedMasterId) => {
     }
 };
 
-const getDeedMasterByDeedNo = async (deedNo) => {
+export const getDeedMasterByDeedNo = async (deedNo) => {
     try {
         const deedMaster = await deedMasterModel.find({ deedNo: deedNo }).sort({ createdAt: -1 });
         return deedMaster;
@@ -81,6 +81,57 @@ const getDeedMasterByDeedNo = async (deedNo) => {
         throw error;
     }
 };
+
+export const getAllDeedDetails = async (filter) => {
+    try {
+        const status = filter?.status ? String(filter?.status).trim().toLowerCase() : '';
+        const deedNo = filter?.deedNo ? String(filter?.deedNo).trim().toLowerCase() : '';
+
+        const pipeline = [
+            ...(status !== '' ? [ { $match: { status: { $regex: `^${status}$`, $options: 'i' } } } ] : []),
+            ...(deedNo !== '' ? [ { $match: { deedNo: String(deedNo).trim() } } ] : []),
+            { $lookup: { from: 'accounts', localField: 'createdby', foreignField: '_id', as: 'createdby' } },
+            { $unwind: { path: '$createdby', preserveNullAndEmptyArrays: true } },
+            { $lookup: { from: 'accounts', localField: 'updatedby', foreignField: '_id', as: 'updatedby' } },
+            { $unwind: { path: '$updatedby', preserveNullAndEmptyArrays: true } },
+
+            { $unwind: { path: '$approvalDetails', preserveNullAndEmptyArrays: true } },
+            { $lookup: { from: 'accounts', localField: 'approvalDetails.approver', foreignField: '_id', as: 'approvalDetails.approver' } },
+            { $unwind: { path: '$approvalDetails.approver', preserveNullAndEmptyArrays: true } },
+            
+            {
+                $addFields: {
+                    createdAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$createdAt', timezone: "+05:30" } },
+                    updatedAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$updatedAt', timezone: "+05:30" } }
+                }
+            },
+            {
+                $group: {
+                    _id: '$_id',
+                    doc: { $first: '$$ROOT' },
+                    approvalDetails: {
+                        $push: {
+                            $cond: [
+                                { $gt: [{ $ifNull: ['$approvalDetails.approvalLevel', null] }, null] },
+                                '$approvalDetails',
+                                '$$REMOVE'
+                            ]
+                        }
+                    }
+                }
+            },
+            { $replaceRoot: { newRoot: { $mergeObjects: ['$doc', { approvalDetails: '$approvalDetails' }] } } },
+            { $sort: { updatedAt: -1 } },
+        ]
+        const deedRecords = await deedModel.aggregate(pipeline)
+
+        return deedRecords
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+
 
 
 // ----------------------------------------------------------------------------------------------------------------------------------
@@ -138,55 +189,6 @@ const create = async (req, res) => {
     } catch (error) {
         console.error("Error creating Deed details:", error);
         res.status(500).json({ message: "Internal server error" });
-    }
-}
-
-export const getAllDeedDetails = async (filter) => {
-    try {
-        const status = filter?.status ? String(filter?.status).trim().toLowerCase() : '';
-        const deedNo = filter?.deedNo ? String(filter?.deedNo).trim().toLowerCase() : '';
-
-        const pipeline = [
-            ...(status !== '' ? [ { $match: { status: { $regex: `^${status}$`, $options: 'i' } } } ] : []),
-            ...(deedNo !== '' ? [ { $match: { deedNo: String(deedNo).trim() } } ] : []),
-            { $lookup: { from: 'accounts', localField: 'createdby', foreignField: '_id', as: 'createdby' } },
-            { $unwind: { path: '$createdby', preserveNullAndEmptyArrays: true } },
-            { $lookup: { from: 'accounts', localField: 'updatedby', foreignField: '_id', as: 'updatedby' } },
-            { $unwind: { path: '$updatedby', preserveNullAndEmptyArrays: true } },
-
-            { $unwind: { path: '$approvalDetails', preserveNullAndEmptyArrays: true } },
-            { $lookup: { from: 'accounts', localField: 'approvalDetails.approver', foreignField: '_id', as: 'approvalDetails.approver' } },
-            { $unwind: { path: '$approvalDetails.approver', preserveNullAndEmptyArrays: true } },
-            
-            {
-                $addFields: {
-                    createdAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$createdAt', timezone: "+05:30" } },
-                    updatedAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$updatedAt', timezone: "+05:30" } }
-                }
-            },
-            {
-                $group: {
-                    _id: '$_id',
-                    doc: { $first: '$$ROOT' },
-                    approvalDetails: {
-                        $push: {
-                            $cond: [
-                                { $gt: [{ $ifNull: ['$approvalDetails.approvalLevel', null] }, null] },
-                                '$approvalDetails',
-                                '$$REMOVE'
-                            ]
-                        }
-                    }
-                }
-            },
-            { $replaceRoot: { newRoot: { $mergeObjects: ['$doc', { approvalDetails: '$approvalDetails' }] } } },
-            { $sort: { updatedAt: -1 } },
-        ]
-        const deedRecords = await deedModel.aggregate(pipeline)
-
-        return deedRecords
-    } catch (error) {
-        console.error(error)
     }
 }
 
