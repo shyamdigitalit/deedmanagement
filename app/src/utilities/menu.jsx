@@ -34,7 +34,7 @@ export const ADMIN_MENU = [
         { title: 'State Master', icon: <LocationOn className='icn' />, path: '/admin/state' },
         { title: 'Company Master', icon: <CorporateFare className='icn' />, path: '/admin/company' },
         { title: 'Plant Master', icon: <FactoryIcon className='icn' />, path: '/admin/plant' },
-        { title: 'Material Master', icon: <AcUnitIcon className='icn' />, path: '/admin/material' },
+        // { title: 'Material Master', icon: <AcUnitIcon className='icn' />, path: '/admin/material' },
         // { title: 'Organization Master', icon: <BadgeIcon />, path: '/' },
         // { title: 'Privelege Management', icon: <BadgeIcon className='icn' />, path: '/' },
       ],

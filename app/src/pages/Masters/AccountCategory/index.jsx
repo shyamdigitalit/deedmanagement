@@ -50,9 +50,9 @@ export default function AccountCategory() {
   const getAccountCategoryList = async () => {
     try {
       setLoading(true);
-      const result = await axiosInstance.get(`/acccat/fetch`).then(res => res.data)
-      if(result.statuscode == 202) {
-        setAccountList(result.data)
+      const result = await axiosInstance.get(`/acccat/fetch`)
+      if(result.status == 200) {
+        setAccountList(result.data.data)
         setLoading(false);
         // dispatch(showSnackbar({ message: result.message, severity: 'info', duration: 2000}));
       }

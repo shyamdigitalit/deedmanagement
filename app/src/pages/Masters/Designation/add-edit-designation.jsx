@@ -15,9 +15,9 @@ const AddEditDesignation = (props) => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
-            desig_code: "",
-            desig_name: "",
-            desig_desc: "",
+            designationCode: "",
+            designationName: "",
+            designationDesc: "",
             status: "Active",
         },
         mode: "onBlur",
@@ -59,18 +59,18 @@ const AddEditDesignation = (props) => {
             </div>
             <form className="drawer-form" onSubmit={handleSubmit(onSubmit)}>
                 <div className="input-container"> 
-                    <TextField label="Designation Code" variant="filled" {...register("desig_code", { required: "Designation Code is required" })} 
-                    error={!!errors.desig_code} helperText={errors.desig_code?.message} fullWidth /> 
+                    <TextField label="Designation Code" variant="filled" {...register("designationCode", { required: "Designation Code is required" })} 
+                    error={!!errors.designationCode} helperText={errors.designationCode?.message} fullWidth /> 
                 </div>
                 
                 <div className="input-container"> 
-                    <TextField label="Designation Name" variant="filled" {...register("desig_name", { required: "Designation Name is required" })} 
-                    error={!!errors.desig_name} helperText={errors.desig_name?.message} fullWidth /> 
+                    <TextField label="Designation Name" variant="filled" {...register("designationName", { required: "Designation Name is required" })} 
+                    error={!!errors.designationName} helperText={errors.designationName?.message} fullWidth /> 
                 </div>
 
                 <div className="input-container"> 
-                    <TextField  label="Designation Description"  variant="filled" {...register("desig_desc", { required: "Designation Description is required" })} 
-                    error={!!errors.desig_desc} helperText={errors.desig_desc?.message} fullWidth /> 
+                    <TextField  label="Designation Description"  variant="filled" {...register("designationDesc", { required: "Designation Description is required" })} 
+                    error={!!errors.designationDesc} helperText={errors.designationDesc?.message} fullWidth /> 
                 </div>
 
                 <div className="action-buttons">

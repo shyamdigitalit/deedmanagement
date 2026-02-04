@@ -25,9 +25,9 @@ const TableHeaderFormat = (props) => {
         return params.api.getRowIndexRelativeToVisibleRows(params.id) + 1 + (props.currentPage * props.pageSize);
       },  
     },
-    { field: 'desig_code', headerName: 'Designation Code', width: 150 },
-    { field: 'desig_name', headerName: 'Designation Name', width: 150 },
-    { field: 'desig_desc', headerName: 'Designation Description', width: 200 },
+    { field: 'designationCode', headerName: 'Designation Code', width: 150 },
+    { field: 'designationName', headerName: 'Designation Name', width: 150 },
+    { field: 'designationDesc', headerName: 'Designation Description', width: 200 },
     { field: 'status', headerName: 'Status', width: 100 },
     { field: 'createdAtITC', headerName: 'Created At', width: 180, renderCell: (params) => moment(params.value, 'DD-MM-YYYY hh:mm').format('DD-MM-YYYY hh:mm A')},
     { field: 'updatedAtITC', headerName: 'Updated At', width: 180, renderCell: params => moment(params.value, 'DD-MM-YYYY hh:mm').format('DD-MM-YYYY hh:mm A') },
