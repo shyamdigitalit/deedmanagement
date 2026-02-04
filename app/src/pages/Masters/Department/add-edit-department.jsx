@@ -15,9 +15,9 @@ const AddEditDepartment = (props) => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
-            dept_code: "",
-            dept_name: "",
-            dept_desc: "",
+            departmentCode: "",
+            departmentName: "",
+            departmentDesc: "",
             status: "Active",
         },
         mode: "onBlur",
@@ -59,18 +59,18 @@ const AddEditDepartment = (props) => {
             </div>
             <form className="drawer-form" onSubmit={handleSubmit(onSubmit)}>
                 <div className="input-container"> 
-                    <TextField label="Department Code" variant="filled" {...register("dept_code", { required: "Department Code is required" })} 
-                    error={!!errors.dept_code} helperText={errors.dept_code?.message} fullWidth /> 
+                    <TextField label="Department Code" variant="filled" {...register("departmentCode", { required: "Department Code is required" })} 
+                    error={!!errors.departmentCode} helperText={errors.departmentCode?.message} fullWidth /> 
                 </div>
                 
                 <div className="input-container"> 
-                    <TextField label="Department Name" variant="filled" {...register("dept_name", { required: "Department Name is required" })} 
-                    error={!!errors.dept_name} helperText={errors.dept_name?.message} fullWidth /> 
+                    <TextField label="Department Name" variant="filled" {...register("departmentName", { required: "Department Name is required" })} 
+                    error={!!errors.departmentName} helperText={errors.departmentName?.message} fullWidth /> 
                 </div>
 
                 <div className="input-container"> 
-                    <TextField  label="Department Description"  variant="filled" {...register("dept_desc", { required: "Department Description is required" })} 
-                    error={!!errors.dept_desc} helperText={errors.dept_desc?.message} fullWidth /> 
+                    <TextField  label="Department Description"  variant="filled" {...register("departmentDesc", { required: "Department Description is required" })} 
+                    error={!!errors.departmentDesc} helperText={errors.departmentDesc?.message} fullWidth /> 
                 </div>
 
                 <div className="action-buttons">

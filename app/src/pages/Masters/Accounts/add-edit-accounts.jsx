@@ -55,7 +55,7 @@ const AddEditAccounts = (props) => {
             const [accountTypeResponse, categoryResponse, stateResponse, departmentResponse, designationResponse] = await Promise.allSettled([
                 axiosInstance.get(`/acctyp/fetchuppr`),
                 axiosInstance.get(`/acccat/fetch`),
-                axiosInstance.get(`/stt/fetch`),
+                axiosInstance.get(`/admin/stt/fetch`),
                 axiosInstance.get(`/dept/fetch`),
                 axiosInstance.get(`/desig/fetch`)
             ]);
@@ -253,7 +253,7 @@ const AddEditAccounts = (props) => {
                                         <MenuItem value=""> <em>Select</em> </MenuItem>
                                         {departmentList.map((dept) => (
                                             <MenuItem key={dept._id} value={dept._id}>
-                                                {dept.dept_name}
+                                                {dept.departmentName}
                                             </MenuItem>
                                         ))}
                                     </Select>
@@ -268,7 +268,7 @@ const AddEditAccounts = (props) => {
                                         <MenuItem value=""> <em>Select</em> </MenuItem>
                                         {designationList.map((desig) => (
                                             <MenuItem key={desig._id} value={desig._id}>
-                                                {desig.desig_name}
+                                                {desig.designationName}
                                             </MenuItem>
                                         ))}
                                     </Select>

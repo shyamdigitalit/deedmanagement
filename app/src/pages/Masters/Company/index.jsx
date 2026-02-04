@@ -49,7 +49,7 @@ export default function Company() {
   const getCompanyList = async () => {
     try {
       setLoading(true);
-      const result = await axiosInstance.get(`/cmpny/fetch`).then(res => res.data)
+      const result = await axiosInstance.get(`/admin/cmpny/fetch`).then(res => res.data)
       setCompanyList(result.data)
       setLoading(false);
       if(result.statuscode == 200) {

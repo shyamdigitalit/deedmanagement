@@ -16,8 +16,11 @@ import accController from '../controllers/accController.js';
 import funcController from '../controllers/adminmgmt/function/funcController.js';
 import dynapprvlController from '../controllers/adminmgmt/dynapproval/dynapprvlController.js';
 import fileOpController from '../controllers/fileOpController.js';
-
+import acccatController from '../controllers/masters/accsetups/acccatController.js';
 import sttController from '../controllers/masters/admin/sttController.js';
+import deptController from '../controllers/masters/accsetups/deptController.js';
+import desigController from '../controllers/masters/accsetups/desigController.js';
+
 // Utility function to create routes
 const createRoute = (method, path, ...handlers) => {
     router.route(path)[method](...handlers);
@@ -40,6 +43,9 @@ const postRoutes = [
         ]
     },
     { path: '/acctyp/create', handlers: [jwtHybrdProtect, fileUpload.none(), acctypController.create] },
+    { path: '/dept/create', handlers: [jwtHybrdProtect, fileUpload.none(), deptController.create] },
+    { path: '/desig/create', handlers: [jwtHybrdProtect, fileUpload.none(), desigController.create] },
+    { path: '/acccat/create', handlers: [jwtHybrdProtect, fileUpload.none(), acccatController.create] },
     { path: '/admin/cmpny/create', handlers: [jwtHybrdProtect, fileUpload.none(), cmpnyController.create] },
     { path: '/unt/create', handlers: [jwtHybrdProtect, fileUpload.none(), untController.create] },
     { path: '/polcytyp/create', handlers: [jwtHybrdProtect, fileUpload.none(), polcytypController.create] },
@@ -58,6 +64,10 @@ postRoutes.forEach(route => createRoute('post', route.path, ...route.handlers));
 // GET
 const getRoutes = [
     { path: '/deed/fetch', handlers: [basicAuth, deedController.read] },
+    { path: '/dept/fetch', handlers: [basicAuth, deptController.read] },
+    { path: '/desig/fetch', handlers: [basicAuth, desigController.read] },
+    { path: '/acccat/fetch', handlers: [basicAuth, acccatController.read] },
+    { path: '/deedmaster/fetchbyno', handlers: [basicAuth, deedController.readDeedMaster] },
     { path: '/deed/fetchby/:id', handlers: [basicAuth, deedController.readById] },
     { path: '/acctyp/fetch', handlers: [jwtHybrdProtect, acctypController.read] },
     { path: '/acctyp/fetchby/:id', handlers: [jwtHybrdProtect, acctypController.readById] },
