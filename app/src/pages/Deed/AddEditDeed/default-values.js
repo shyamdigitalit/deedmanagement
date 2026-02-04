@@ -11,7 +11,7 @@ const DEFAULTVALUES = {
   totalMutatedArea: "",
   nonMutatedArea: "",
   locationOfPurchaseLand: "",
-  notes: "",
+  remarks: "",
 };
 
 export default DEFAULTVALUES;

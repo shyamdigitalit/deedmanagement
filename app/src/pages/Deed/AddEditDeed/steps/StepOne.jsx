@@ -11,7 +11,7 @@ const renderFields = (section, control, errors) =>
     .map(field => (
       <Controller key={field.name} name={field.name} control={control} rules={field.rules}
         render={({ field: controllerField }) => (
-          <TextField {...controllerField} {...field} type={field.type || "text"}
+          <TextField {...controllerField} {...field} type={field.type || "text"} variant={field.variant || "outlined"}
             error={!!errors[field.name]} helperText={errors[field.name]?.message || field.helperText}
           />
         )}
@@ -48,7 +48,7 @@ const StepOne = ({ control, errors }) => {
       {/* =======================
           Area & Mutation
       ======================== */}
-      <Box sx={cardStyles}>
+      {/* <Box sx={cardStyles}>
         <Typography sx={sectionTitle}>
           <TimelineOutlinedIcon fontSize="small" color="warning" />
           Area & Mutation Details
@@ -61,7 +61,7 @@ const StepOne = ({ control, errors }) => {
         <Box sx={gridStyles}>
           {renderFields("area", control, errors)}
         </Box>
-      </Box>
+      </Box> */}
 
     </Box>
   );
