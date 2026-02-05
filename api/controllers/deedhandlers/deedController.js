@@ -53,7 +53,7 @@ export const uploadNewFiles = async (files, fileField, userId) => {
     return results;
 };
 
-export const removeFiles = async (files, fileIds) => {
+const removeFiles = async (files, fileIds) => {
     if (!files?.length) return;
     
     await Promise.allSettled(
@@ -61,7 +61,7 @@ export const removeFiles = async (files, fileIds) => {
     );
 };
 
-export const getDeedMasterById = async (deedMasterId) => {
+const getDeedMasterById = async (deedMasterId) => {
     try {
         const deedMaster = await deedMasterModel.findById(deedMasterId);
         return deedMaster;
