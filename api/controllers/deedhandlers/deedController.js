@@ -73,7 +73,7 @@ export const getDeedMasterById = async (deedMasterId) => {
 
 export const getDeedMasterByDeedNo = async (deedNo) => {
     try {
-        const deedMaster = await deedMasterModel.find({ deedNo: deedNo }).sort({ createdAt: -1 });
+        const deedMaster = await deedMasterModel.find({ deedNo: { $regex: `^${deedNo}$`, $options: 'i' } }).sort({ createdAt: -1 });
         return deedMaster;
     }
     catch (error) {
@@ -85,11 +85,9 @@ export const getDeedMasterByDeedNo = async (deedNo) => {
 export const getAllDeedDetails = async (filter) => {
     try {
         const status = filter?.status ? String(filter?.status).trim().toLowerCase() : '';
-        const deedNo = filter?.deedNo ? String(filter?.deedNo).trim().toLowerCase() : '';
 
         const pipeline = [
             ...(status !== '' ? [ { $match: { status: { $regex: `^${status}$`, $options: 'i' } } } ] : []),
-            ...(deedNo !== '' ? [ { $match: { deedNo: { $regex: `^${deedNo}$`, $options: 'i' } } } ] : []),
             { $lookup: { from: 'accounts', localField: 'createdby', foreignField: '_id', as: 'createdby' } },
             { $unwind: { path: '$createdby', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'updatedby', foreignField: '_id', as: 'updatedby' } },
