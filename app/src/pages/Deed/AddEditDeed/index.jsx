@@ -29,7 +29,10 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
   const { control, register, handleSubmit, reset, setValue, watch, trigger, formState: { errors }, } = useForm({ defaultValues: DEFAULTVALUES });
 
   const totalPurchasedArea = watch("totalPurchasedArea") || 0;
+  const purchasedLand = watch("purchasedLand") || 0;
+  const actualLandPurchasedLeased = watch("actualLandPurchasedLeased") || 0;
   const totalMutatedArea = watch("totalMutatedArea") || 0;
+  const excessMutated = watch("excessMutated") || 0;
 
   // const id = new URLSearchParams(window.location.search).get("_id");
   const id = selectedDeed?._id;
@@ -43,10 +46,13 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
   }, [id]);
 
   useEffect(() => {
-    const nonMutatedArea =
-      parseFloat(totalPurchasedArea) - parseFloat(totalMutatedArea);
+    const totalMutatedArea = parseFloat(purchasedLand) + parseFloat(actualLandPurchasedLeased);
+    setValue("totalMutatedArea", totalMutatedArea >= 0 ? totalMutatedArea : 0);
+    const nonMutatedArea = parseFloat(totalPurchasedArea) - parseFloat(totalMutatedArea);
     setValue("nonMutatedArea", nonMutatedArea >= 0 ? nonMutatedArea : 0);
-  }, [totalPurchasedArea, totalMutatedArea]);
+    const excessMutated = totalMutatedArea + nonMutatedArea
+    setValue("excessMutated", excessMutated >= 0 ? excessMutated : 0);
+  }, [totalPurchasedArea, purchasedLand, actualLandPurchasedLeased]);
 
   /* ===========================
      API
@@ -176,8 +182,8 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
             {/* STEP 3 */}
             {activeStep === 2 && (
                 <Box>
-                    <Typography variant="h6" mb={1}> Notes </Typography>
-                    <textarea {...register("notes", { required: "Notes is Required"})} rows={5} style={{ width: "100%", padding: 10 }} />
+                    <Typography variant="h6" mb={1}> Remarks </Typography>
+                    <textarea {...register("remarks", { required: "Remarks is Required"})} rows={5} style={{ width: "100%", padding: 10 }} />
                     <Box mt={3}>
                     <FileUploader files={files} setFiles={setFiles} />
                     </Box>
@@ -212,7 +218,7 @@ const steps = [
     icon: <PersonOutline />,
   },
   {
-    label: "Land Identification",
+    label: "Deed Calculation",
     subLabel: "Step 2/3",
     icon: <LocationOnOutlined />,
   },

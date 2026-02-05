@@ -7,11 +7,14 @@ const DeedSchema = new Schema({
     deedType: { type: Types.ObjectId, ref: 'DeedMaster', required: true },
     plotNo: { type: String, trim: true },
     totalAreaOfplotNo: { type: String, trim: true },
-    totalPurchasedArea: { type: String, trim: true },
+    totalPurchasedAreaOfDeed: { type: String, trim: true },
+    deedNotReceived: { type: String, trim: true },
     totalMutatedArea: { type: String, trim: true },
     nonMutatedArea: { type: String, trim: true },
-    locationOfPurchaseLand: { type: String, trim: true },
-    notes: { type: String, trim: true },
+    purchasedLand: { type: String, trim: true },
+    actualLandPurchasedLeasedOut: { type: String, trim: true },
+    mutatedKhatianNo: { type: String, trim: true },
+    remarks: { type: String, trim: true },
     deedDocs: [{
         filId: { type: String, trim: true, required: true },
         filName: { type: String, trim: true, required: true },
@@ -24,19 +27,7 @@ const DeedSchema = new Schema({
     }],
     status: { type: String, required: true, enum: ['Open', 'Active', 'Inactive'], default: 'Active' },
     createdby: { type: Types.ObjectId, ref: 'Account', required: true },
-    updatedby: { type: Types.ObjectId, ref: 'Account' },
-    creationdt: { type: String, required: true, trim: true, default: () => moment().format("DD-MM-YYYY") },
-    creationtm: { type: String, required: true, trim: true, default: () => moment().format("HH:mm:ss") },
-    approvalStatus: { type: String, required: true, default: 'Approved', trim: true },
-    currentPendingApprovalLevel: { type: Number, required: true, default: 0 }, // Current Approval Level
-    approvalDetails: [{
-        approvalLevel: { type: Number, required: true },
-        approvalOption: { type: String, required: true, enum: ['Approval', 'Rejection'], default: 'Approval' },
-        approver: { type: Types.ObjectId, ref: 'Account', required: true },
-        approvalDate: { type: String, required: true, trim: true, default: () => moment().format("DD-MM-YYYY") },
-        approvalTime: { type: String, required: true, trim: true, default: () => moment().format("HH:mm:ss") },
-        approvalRemarks: { type: String, trim: true }
-    }]
+    updatedby: { type: Types.ObjectId, ref: 'Account' }
 }, { timestamps: true })
 
 export default model('Deed', DeedSchema)
