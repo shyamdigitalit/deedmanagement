@@ -327,15 +327,24 @@ const statusUpdate = async (req, res) => {
 
 const remove = async (req, res) => {
     try {
+        let deedflg = 0;
         const deedId = new mongoose.Types.ObjectId(req.query.id) || null;
-        // console.log(deedId);
-        const deedRecord = await deedModel.findById(deedId);
-        if (!deedRecord) {
+        const deedDetails = await deedModel.findById(deedId);
+        if (!deedDetails) {
             return res.status(404).json({ message: "Deed details not found" });
         }
         else {
+            const deedType = deedDetails.deedType;
+            const deedRecord = await deedModel.find({ deedType });
+            if (deedRecord.length > 1) {
+                deedflg = 0;
+            }
+            else {
+                deedflg = 1;
+            }
+            
             const fileField = 'deedDocs';
-            const files = deedRecord[fileField] || [];
+            const files = deedDetails[fileField] || [];
             for (const file of files) {
                 try {
                     await deleteFile(file.filId);
@@ -343,14 +352,23 @@ const remove = async (req, res) => {
                     console.error("❌ File Deletion Error:", err.message);
                 }
             }
-            const deletedDeed = await deedModel.findByIdAndDelete(deedId);
-            if (!deletedDeed) {
-                return res.status(404).json({ message: "Deed details not found" });
+            const deletedDeed = await deedModel.findByIdAndDelete(deed._id);
+            if (deletedDeed && deedflg === 0) {
+                res.status(200).json({
+                    message: "All Deed details and associated files deleted successfully",
+                    data: deletedDeed
+                });
             }
-            res.status(200).json({
-                message: "Deed details and associated files deleted successfully",
-                data: deletedDeed
-            });
+            else if (deletedDeed && deedflg === 1) {
+                const deedMasterDeleted = await deedMasterModel.findByIdAndDelete(deedType);
+                res.status(200).json({
+                    message: "Deed details and associated Deed Master deleted successfully",
+                    data: deedMasterDeleted
+                });
+            }
+            else {
+                res.status(422).json({ message: "Failed to delete Deed details" });
+            }
         }
     } catch (error) {
         console.error("Error deleting Deed details:", error);
