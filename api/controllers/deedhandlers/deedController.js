@@ -89,7 +89,7 @@ export const getAllDeedDetails = async (filter) => {
 
         const pipeline = [
             ...(status !== '' ? [ { $match: { status: { $regex: `^${status}$`, $options: 'i' } } } ] : []),
-            ...(deedNo !== '' ? [ { $match: { deedNo: String(deedNo).trim() } } ] : []),
+            ...(deedNo !== '' ? [ { $match: { deedNo: { $regex: `^${deedNo}$`, $options: 'i' } } } ] : []),
             { $lookup: { from: 'accounts', localField: 'createdby', foreignField: '_id', as: 'createdby' } },
             { $unwind: { path: '$createdby', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'updatedby', foreignField: '_id', as: 'updatedby' } },
