@@ -73,7 +73,7 @@ export const getDeedMasterById = async (deedMasterId) => {
 
 export const getDeedMasterByDeedNo = async (deedNo) => {
     try {
-        const deedMaster = await deedMasterModel.find({ deedNo: { $regex: `^${deedNo}$`, $options: 'i' } }).sort({ createdAt: -1 });
+        const deedMaster = await deedMasterModel.find({ deedNo: { $regex: `^${deedNo}`, $options: 'i' } }).sort({ createdAt: -1 });
         return deedMaster;
     }
     catch (error) {

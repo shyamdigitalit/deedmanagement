@@ -65,11 +65,10 @@ postRoutes.forEach(route => createRoute('post', route.path, ...route.handlers));
 const getRoutes = [
     { path: '/deed/fetch', handlers: [basicAuth, deedController.read] },
     { path: '/deedmaster/fetchbyno', handlers: [basicAuth, deedController.readDeedMaster] },
+    { path: '/deed/fetchby/:id', handlers: [basicAuth, deedController.readById] },
     { path: '/dept/fetch', handlers: [basicAuth, deptController.read] },
     { path: '/desig/fetch', handlers: [basicAuth, desigController.read] },
     { path: '/acccat/fetch', handlers: [basicAuth, acccatController.read] },
-    { path: '/deedmaster/fetchbyno', handlers: [basicAuth, deedController.readDeedMaster] },
-    { path: '/deed/fetchby/:id', handlers: [basicAuth, deedController.readById] },
     { path: '/acctyp/fetch', handlers: [jwtHybrdProtect, acctypController.read] },
     { path: '/acctyp/fetchby/:id', handlers: [jwtHybrdProtect, acctypController.readById] },
     { path: '/acctyp/fetchuppr', handlers: [jwtHybrdProtect, acctypController.readLowrHierarchy] },
