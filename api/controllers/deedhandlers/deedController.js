@@ -151,10 +151,12 @@ const create = async (req, res) => {
                 mutatedOrLeased: deedPayld.mutatedOrLeased,
                 khatianNo: deedPayld.khatianNo
             });
-            deedPayld.deedType = validateId(deedMaster._id);
+            deedPayld.deedType = new mongoose.Types.ObjectId(deedMaster._id);
+            // deedPayld.deedType = validateId(deedMaster._id);
         }
         else {
-            deedPayld.deedType = validateId(deedPayld.deedType);
+            deedPayld.deedType = new mongoose.Types.ObjectId(deedPayld._id);
+            // deedPayld.deedType = validateId(deedPayld.deedType);
         }
 
         if (!req.files || Object.keys(req.files).length === 0) {

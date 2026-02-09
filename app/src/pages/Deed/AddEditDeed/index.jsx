@@ -11,7 +11,7 @@ import axiosInstance from "../../../config/axiosInstance";
 import { showSnackbar } from "../../../redux/slices/snackbar";
 import FileUploader from "../../../components/FileUploader";
 import StepTwo from "./steps/StepTwo";
-import StepOne from "./steps/stepOne";
+import StepOne from "./steps/StepOne";
 import DEFAULTVALUES from "./default-values";
 import CustomStepper from "../../../components/stepper";
 import { stepOneFieldsArray, stepTwoFieldsArray } from "./deed-fields";
@@ -174,7 +174,7 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
         {/* {activeStep} */}
         <Box sx={{ p: 6, pt: 2, height: "calc(100vh - 430px)", overflowY: "auto" }}>
             {/* STEP 1 */}
-            {activeStep === 0 && ( <StepOne control={control} errors={errors} /> )}
+            {activeStep === 0 && ( <StepOne control={control} errors={errors} setValue={setValue} /> )}
 
             {/* STEP 2 */}
             {activeStep === 1 && ( <StepTwo control={control} errors={errors} /> )}

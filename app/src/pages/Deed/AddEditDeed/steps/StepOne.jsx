@@ -1,8 +1,9 @@
-import { Box, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, CircularProgress, TextField, Typography } from "@mui/material";
 import { Controller } from "react-hook-form";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import { stepOneFieldsArray } from "../deed-fields";
+import React from "react";
+import axiosInstance from "../../../../config/axiosInstance";
 
 
 const renderFields = (section, control, errors) =>
@@ -20,8 +21,28 @@ const renderFields = (section, control, errors) =>
 
 
 
-const StepOne = ({ control, errors }) => {
+const StepOne = ({ control, errors, setValue }) => {
     
+  const [options, setOptions] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+
+  const fetchDeedNumbers = async (search) => {
+    if (!search) return;
+
+    try {
+      setLoading(true);
+      // const res = await axios.get(`/api/deeds?search=${search}`);
+      const response = await axiosInstance.get(`/deedmaster/fetchbyno?deedno=${search}`);
+      // console.log(response)
+      setOptions(response?.data?.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <Box>
 
@@ -40,7 +61,53 @@ const StepOne = ({ control, errors }) => {
 
         
         
+        {/* {JSON.stringify(control._formValues)} */}
         <Box sx={gridStyles}>
+
+          <Controller name="deedNo" control={control} rules={{ required: "Deed No is required" }}
+            render={({ field }) => (
+              <Autocomplete freeSolo options={options}
+                loading={loading} inputValue={field.value ?? ""}
+                getOptionLabel={(option) => {
+                  // when user types manually, option is string
+                  if (typeof option === "string") return option;
+                  return option.deedNo || "";
+                }}
+                onInputChange={(e, value) => {
+                  setValue("deedType", null)
+                  field.onChange(value);     // keep typed value
+                  fetchDeedNumbers(value);   // call API
+                }}
+                onChange={(e, value) => {
+                  setValue("deedType", value._id)
+                  setValue("dateOfRegistration", value.dateOfRegistration)
+                  setValue("nameOfSeller", value.nameOfSeller)
+                  setValue("nameOfPurchaser", value.nameOfPurchaser)
+                  setValue("mutatedOrLeased", value.mutatedOrLeased)
+                  setValue("nameOfMouza", value.nameOfMouza)
+                  setValue("khatianNo", value.khatianNo)
+                  field.onChange(value);     // when selected from dropdown
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Deed No" variant="filled" fullWidth
+                    error={!!errors?.deedNo} helperText={errors?.deedNo?.message}
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {loading && <CircularProgress size={18} />}
+                          {params.InputProps.endAdornment}
+                        </>
+                      )
+                    }}
+                  />
+                )}
+              />
+            )}
+          />
+
+
+
           {renderFields("deed", control, errors)}
         </Box>
       </Box>

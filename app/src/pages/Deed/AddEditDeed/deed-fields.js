@@ -1,12 +1,12 @@
 export const stepOneFieldsArray = [
-  {
-    section: "deed",
-    name: "deedNo",
-    label: "Deed No *",
-    placeholder: "eg., D-2024-5245",
-    rules: { required: "Deed No is required" },
-    helperText: "Unique legal number assigned to this deed",
-  },
+  // {
+  //   section: "deed",
+  //   name: "deedNo",
+  //   label: "Deed No *",
+  //   placeholder: "eg., D-2024-5245",
+  //   rules: { required: "Deed No is required" },
+  //   helperText: "Unique legal number assigned to this deed",
+  // },
   {
     section: "deed",
     name: "dateOfRegistration",
@@ -100,6 +100,7 @@ export const stepTwoFieldsArray = [
     label: "Purchased Land ( D )",
     type: "number",
     placeholder: "0.00",
+    rules: { required: "Required" },
   },
   {
     section: "calculation",
@@ -107,6 +108,7 @@ export const stepTwoFieldsArray = [
     label: "Actual Land Purchased & Leased  ( E )",
     type: "number",
     placeholder: "0.00",
+    rules: { required: "Required" },
   },
   {
     section: "calculation",
@@ -125,6 +127,7 @@ export const stepTwoFieldsArray = [
     placeholder: "0.00",
     disabled: true,
     helperText: "Auto-calculated: Purchased - B",
+    rules: { required: "Required" },
   },
   {
     section: "calculation",
