@@ -85,10 +85,12 @@ export const getDeedMasterByDeedNo = async (deedNo) => {
 export const getAllDeedDetails = async (filter) => {
     try {
         const deedId = filter?.deedId ? new mongoose.Types.ObjectId(filter.deedId) : null;
+        const deedNo = filter?.deedNo ? String(filter.deedNo).trim() : '';
         const status = filter?.status ? String(filter?.status).trim().toLowerCase() : '';
 
         const pipeline = [
             ...(deedId ? [ { $match: { _id: deedId } } ] : []),
+            ...(deedNo !== '' ? [ { $match: { deedNo: { $regex: `^${deedNo}`, $options: 'i' } } } ] : []),
             ...(status !== '' ? [ { $match: { status: { $regex: `^${status}$`, $options: 'i' } } } ] : []),
             { $lookup: { from: 'deedmasters', localField: 'deedType', foreignField: '_id', as: 'deedType' } },
             { $unwind: { path: '$deedType', preserveNullAndEmptyArrays: true } },
@@ -275,30 +277,26 @@ const update = async (req, res) => {
         const deedPayld = req.body;
         const user = req.user;
 
-        ['serial', 'id', '_id', '__v', 'deedNo', 'dateOfRegistration', 'nameOfSeller',
-            'nameOfPurchaser', 'nameOfMouza', 'mutatedOrLeased', 'khatianNo',
-            'createdby', 'createdAt', 'updatedAt', 'createdAtITC', 'updatedAtITC']?.forEach(field => delete deedPayld[field]);
+        ['serial', 'id', '_id', '__v', 'createdby', 'createdAt',
+            'updatedAt', 'createdAtITC', 'updatedAtITC']?.forEach(field => delete deedPayld[field]);
         Object.assign(deedPayld, { updatedby: user?._id });
 
+        // removables removal & new Files upload
         const filefield = 'deedDocs';
         const existingKey = `${filefield}Existing`;
         if (deedPayld?.[existingKey]?.length > 0) {
             deedPayld[filefield] = JSON.parse(deedPayld[existingKey]);
             delete deedPayld[existingKey];
         }
-
         const { deedDocs: deedDocsPayld } = deedPayld;
         delete deedPayld[filefield];
-
         let deedRecord = await deedModel.findById(deedId);
         if (!deedRecord) {
             return res.status(404).json({ message: "Deed details not found" });
         }
-
         const deedDocsRmv = deedDocsPayld?.length > 0
             ? deedRecord.deedDocs.filter(file => !deedDocsPayld.some(f => f.filId === file.filId))
             : deedRecord.deedDocs;
-
         if (deedDocsRmv.length > 0) {
             await removeFiles(deedDocsRmv);
 
@@ -311,19 +309,45 @@ const update = async (req, res) => {
             }
             deedRecord = updtDeedRecord;
         }
-
+        let newfiles = []
         if (req.files) {
             const results = await uploadNewFiles(req.files, filefield, user?._id);
             if (results[filefield].length > 0) {
-                deedRecord = await deedModel.findByIdAndUpdate(deedId, {
-                    $push: { deedDocs: { $each: results[filefield] } }
-                }, { new: true });
+                newfiles = [...results[filefield]];
             }
+        }
+
+        // Deed payload restructuring
+        if (deedPayld.deedType && deedPayld.deedType !== "null") {
+            ['deedType', 'deedNo', 'dateOfRegistration', 'nameOfSeller', 'nameOfPurchaser',
+                'nameOfMouza', 'mutatedOrLeased', 'khatianNo']?.forEach(field => delete deedPayld[field]);
+            Object.assign(deedPayld, { updatedby: user?._id });
+        }
+        else {
+            const deedMaster = await deedMasterModel.create({
+                deedNo: deedPayld.deedNo,
+                dateOfRegistration: deedPayld.dateOfRegistration,
+                nameOfSeller: deedPayld.nameOfSeller,
+                nameOfPurchaser: deedPayld.nameOfPurchaser,
+                nameOfMouza: deedPayld.nameOfMouza,
+                mutatedOrLeased: deedPayld.mutatedOrLeased,
+                khatianNo: deedPayld.khatianNo,
+                status: 'Active',
+                createdby: user?._id
+            });
+            deedPayld.deedType = new mongoose.Types.ObjectId(deedMaster._id);
+        }
+        deedRecord = await deedModel.findByIdAndUpdate(deedId, {
+            ...deedPayld,
+            $push: { deedDocs: { $each: newfiles } }
+        }, { new: true });
+        if (!deedRecord) {
+            return res.status(404).json({ message: "Deed details update failed" });
         }
 
         const deedInfo = await getAllDeedDetails({ deedNo: deedRecord.deedNo });
         res.status(201).json({
-            message: apprvFlg === 0 ? "Deed details updated successfully" : "Deed details changes approved successfully",
+            message: "Deed details updated successfully",
             data: deedInfo[0] || deedRecord
         });
     } catch (error) {
