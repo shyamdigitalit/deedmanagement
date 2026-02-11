@@ -29,7 +29,7 @@ const Shift = lazy(() => import('../pages/Masters/Shift'));
 
 
 const Deed = lazy(() => import('../pages/Deed'));
-const AddEditDeed = lazy(() => import('../pages/Deed/form'));
+const Plot = lazy(() => import('../pages/Plot'));
 
 
 
@@ -43,9 +43,9 @@ const router = createBrowserRouter([
       { path: '/login', element: <Login /> },
       { path: '/home', element: <ProtectedRoute> <Home /> </ProtectedRoute>  },
       { path: '/deed', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },
-      { path: '/plot', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },
+      { path: '/plot', element: <ProtectedRoute> <Plot /> </ProtectedRoute> },
       { path: '/bank', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },
-      { path: '/deed/form', element: <ProtectedRoute><AddEditDeed /></ProtectedRoute> },
+      // { path: '/deed/form', element: <ProtectedRoute><AddEditDeed /></ProtectedRoute> },
       // { path: '/hand-spectro-analysis-report', element: <ProtectedRoute><HandSpectroReport /></ProtectedRoute> },
       // { path: '/hand-spectro-analysis-report/form', element: <ProtectedRoute><AddEditHandSpectroReport /></ProtectedRoute> },
       // { path: '/melting-report-of-100-kg-fc', element: <ProtectedRoute><MeltingReport100KGFC /></ProtectedRoute> },

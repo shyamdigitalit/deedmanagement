@@ -7,33 +7,33 @@ import { DataGrid } from "@mui/x-data-grid";
 import axiosInstance from "../../config/axiosInstance";
 import { Description, HourglassTop, Map, Verified } from "@mui/icons-material";
 import MUIDialog from "../../components/MUIDialog";
-import AddEditDeed from "./AddEditDeed";
-import { DEED_COLUMNS } from "./deed-columns";
+import AddEditPlot from "./AddEditPlot";
+import { PLOT_COLUMNS } from "./plot-columns";
 
-export default function Deed() {
-  const [deedData, setDeedData] = React.useState([]);
+export default function Plot() {
+  const [plotData, setPlotData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-  const [selectedDeed, setSelectedDeed] = React.useState(null);
+  const [selectedPlot, setSelectedPlot] = React.useState(null);
 
   const handleClickOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
-    fetchDeeds();
+    fetchPlots();
   };
 
   React.useEffect(() => {
-    fetchDeeds();
-    document.title = "Deedwise";
+    fetchPlots();
+    document.title = "Plotwise";
   }, []);
 
-  const fetchDeeds = async () => {
+  const fetchPlots = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get("/deed/fetch");
-      setDeedData(res.data.data || []);
+      const res = await axiosInstance.get("/plot/fetch");
+      setPlotData(res.data.data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -43,7 +43,7 @@ export default function Deed() {
 
   const onEdit = (row) => {
     // console.log(row)
-    setSelectedDeed(row)
+    setSelectedPlot(row)
     handleClickOpen();
   }
 
@@ -51,41 +51,42 @@ export default function Deed() {
     <Box className="module-container" p={3}>
 
       <MUIDialog open={open} handleClose={handleClose} 
-      icon={<Description sx={{ color: '#fff', fontSize: 22 }} />} title={"Add New Deed"} description={"Enter legal and land aquisition details"}
-      content={<AddEditDeed selectedDeed={selectedDeed} handleClose={handleClose}  />}></MUIDialog>
+      icon={<Description sx={{ color: '#fff', fontSize: 22 }} />} title={"Add New Plot"} description={"Enter legal and land aquisition details"}
+      content={<AddEditPlot selectedPlot={selectedPlot} handleClose={handleClose}  />}></MUIDialog>
 
       {/* Header */}
       <Box display="flex" justifyContent="space-between" mb={3}>
         <Box>
           <Typography variant="h5" fontWeight={600}>
-            Deedwise
+            Plotwise
           </Typography>
           <Typography color="text.secondary">
-            Track, verify, and manage land acquisition deeds
+            Track, verify, and manage land acquisition plots
           </Typography>
         </Box>
 
         <Button className="add-button" onClick={() => {
-          setSelectedDeed(null)
+          setSelectedPlot(null)
           setOpen(true)
         }}>
-          <AddIcon /> Add Deed </Button>
+          <AddIcon /> Add Plot </Button>
         {/* <Link to="form">
 
         </Link> */}
       </Box>
 
       {/* Stats Cards */}
-      {/* <Grid className="stats-cards" container spacing={2} mb={3}>
+      <Grid className="stats-cards" container spacing={2} mb={3}>
         {[
-          { label: "Total Deeds", value: 892, icon: <Description />, bg: "#FFF3E0", color: "#FB8C00", },
-          { label: "Verified Deed", value: 745, icon: <Verified />, bg: "#E8F5E9", color: "#43A047", },
+          { label: "Total Plots", value: 892, icon: <Description />, bg: "#FFF3E0", color: "#FB8C00", },
+          { label: "Verified Plot", value: 745, icon: <Verified />, bg: "#E8F5E9", color: "#43A047", },
           { label: "Pending Review", value: 147, icon: <HourglassTop />, bg: "#FFF8E1", color: "#F9A825", },
           { label: "Total Coverage", value: "5,132 acres", icon: <Map />, bg: "#E3F2FD", color: "#1E88E5", },
         ].map((item, i) => (
           <Grid item xs={12} md={3} key={i}>
             <Card sx={{ borderRadius: 3 }}>
               <CardContent style={{display: "flex", alignItems: "center", gap: "2rem"}}>
+                {/* Left Section */}
                 <Box>
                   <Typography color="text.secondary" fontSize={14}>
                     {item.label}
@@ -95,7 +96,7 @@ export default function Deed() {
                   </Typography>
                 </Box>
                 
-                
+                {/* Right icon */}
                 <Box className="right-icon" sx={{ backgroundColor: item.bg, color: item.color, }} >
                   {item.icon}
                 </Box>
@@ -103,14 +104,14 @@ export default function Deed() {
             </Card>
           </Grid>
         ))}
-      </Grid> */}
+      </Grid>
 
-      {/* Deed List */}
+      {/* Plot List */}
       <Card className="datagrid-card" sx={{ borderRadius: 3 }}>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} >
             <Typography variant="h6" fontWeight={600}>
-              {/* Deed List */}
+              Plot List
             </Typography>
 
             {/* Filters */}
@@ -133,7 +134,7 @@ export default function Deed() {
           {loading && <LinearProgress />}
 
           <Box height={450}>
-            <DataGrid rows={deedData} columns={DEED_COLUMNS({ onEdit })} getRowId={(row) => row._id}
+            <DataGrid rows={plotData} columns={PLOT_COLUMNS({ onEdit })} getRowId={(row) => row._id}
               pageSizeOptions={[5, 10, 15]} disableRowSelectionOnClick
               sx={{
                 border: "none",

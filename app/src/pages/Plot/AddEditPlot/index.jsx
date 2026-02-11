@@ -1,4 +1,4 @@
-import * as styles from "./../../../styles/formStyle"
+import * as styles from "../../../styles/formStyle"
 
 import React, { useEffect, useState } from "react";
 import { Box, Button, Typography, } from "@mui/material";
@@ -14,10 +14,10 @@ import StepTwo from "./steps/StepTwo";
 import StepOne from "./steps/StepOne";
 import DEFAULTVALUES from "./default-values";
 import CustomStepper from "../../../components/stepper";
-import { stepOneFieldsArray, stepTwoFieldsArray } from "./deed-fields";
+import { stepOneFieldsArray, stepTwoFieldsArray } from "./plot-fields";
 
 
-export default function AddEditDeed({ selectedDeed, handleClose }) {
+export default function AddEditPlot({ selectedPlot, handleClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
@@ -35,14 +35,14 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
   const excessMutated = watch("excessMutated") || 0;
 
   // const id = new URLSearchParams(window.location.search).get("_id");
-  const id = selectedDeed?._id;
+  const id = selectedPlot?._id;
 
   /* ===========================
      EFFECTS
   ============================ */
 
   useEffect(() => {
-    if (id) getDeedById(id);
+    if (id) getPlotById(id);
   }, [id]);
 
   useEffect(() => {
@@ -58,14 +58,14 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
      API
   ============================ */
 
-  const getDeedById = async (id) => {
+  const getPlotById = async (id) => {
     try {
-      const result = await axiosInstance.get(`/deed/fetchby/${id}`);
+      const result = await axiosInstance.get(`/plot/fetchby/${id}`);
       if (result.status === 200) {
-        const deedData = result.data.data;
+        const plotData = result.data.data;
 
         setFiles(
-          deedData?.deedDocs?.map((f) => ({
+          plotData?.plotDocs?.map((f) => ({
             id: f.filId,
             name: f.filName,
             size: Number(f.filContentSize),
@@ -74,15 +74,15 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
           }))
         );
 
-        if (deedData.approvalStatus === "Rejected") {
+        if (plotData.approvalStatus === "Rejected") {
           setApprovalRemarks(
-            deedData.approvalDetails[
-              deedData.approvalDetails.length - 1
+            plotData.approvalDetails[
+              plotData.approvalDetails.length - 1
             ]
           );
         }
 
-        reset(deedData);
+        reset(plotData);
       }
     } catch (error) {
       console.error(error);
@@ -111,8 +111,6 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
   ============================ */
 
   const onSubmit = async (data) => {
-    console.log(data);
-    return;
     if (parseFloat(totalMutatedArea) > parseFloat(totalPurchasedArea)) {
       dispatch(
         showSnackbar({
@@ -128,8 +126,8 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
     data.approvalStatus = "Pending L1 Approval";
     data.currentPendingApprovalLevel = 1;
 
-    data.deedDocs = files.map((f) => f.file).filter(Boolean);
-    data.deedDocsExisting = JSON.stringify(
+    data.plotDocs = files.map((f) => f.file).filter(Boolean);
+    data.plotDocsExisting = JSON.stringify(
       files
         .filter((f) => f.isExisting)
         .map((f) => ({
@@ -142,15 +140,15 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
 
     const formData = new FormData();
     for (const key in data) {
-      if (key === "deedDocs") {
-        data.deedDocs.forEach((file) => formData.append("deedDocs", file) );
+      if (key === "plotDocs") {
+        data.plotDocs.forEach((file) => formData.append("plotDocs", file) );
       } else {
         formData.append(key, data[key]);
       }
     }
 
     try {
-      const url = id ? `/deed/update?id=${id}` : "/deed/create";
+      const url = id ? `/plot/update?id=${id}` : "/plot/create";
       const response = await axiosInstance[id ? "patch" : "post"]( url, formData );
 
       if (response.status === 201) {
@@ -215,12 +213,12 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
 
 const steps = [
   {
-    label: "Deed, Area & Mutation",
+    label: "Plot, Area & Mutation",
     subLabel: "Step 1/3",
     icon: <PersonOutline />,
   },
   {
-    label: "Deed Calculation",
+    label: "Plot Calculation",
     subLabel: "Step 2/3",
     icon: <LocationOnOutlined />,
   },
