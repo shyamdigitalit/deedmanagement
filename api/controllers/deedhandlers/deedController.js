@@ -84,10 +84,14 @@ export const getDeedMasterByDeedNo = async (deedNo) => {
 
 export const getAllDeedDetails = async (filter) => {
     try {
+        const deedId = filter?.deedId ? new mongoose.Types.ObjectId(filter.deedId) : null;
         const status = filter?.status ? String(filter?.status).trim().toLowerCase() : '';
 
         const pipeline = [
+            ...(deedId ? [ { $match: { _id: deedId } } ] : []),
             ...(status !== '' ? [ { $match: { status: { $regex: `^${status}$`, $options: 'i' } } } ] : []),
+            { $lookup: { from: 'deedmasters', localField: 'deedType', foreignField: '_id', as: 'deedType' } },
+            { $unwind: { path: '$deedType', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'createdby', foreignField: '_id', as: 'createdby' } },
             { $unwind: { path: '$createdby', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'updatedby', foreignField: '_id', as: 'updatedby' } },
@@ -101,6 +105,15 @@ export const getAllDeedDetails = async (filter) => {
                 $addFields: {
                     createdAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$createdAt', timezone: "+05:30" } },
                     updatedAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$updatedAt', timezone: "+05:30" } }
+                }
+            },
+            {
+                $project: {
+                    "deedType.__v": 0,
+                    "deedType.status": 0,
+                    "deedType.createdby": 0,
+                    "deedType.createdAt": 0,
+                    "deedType.updatedAt": 0,
                 }
             },
             {
@@ -118,7 +131,18 @@ export const getAllDeedDetails = async (filter) => {
                     }
                 }
             },
-            { $replaceRoot: { newRoot: { $mergeObjects: ['$doc', { approvalDetails: '$approvalDetails' }] } } },
+            {
+                $replaceRoot: {
+                    newRoot: {
+                        $mergeObjects: [
+                            "$doc.deedType",
+                            "$doc",
+                            { deedType: "$doc.deedType._id" },
+                            { approvalDetails: "$approvalDetails" }
+                        ]
+                    }
+                }
+            },
             { $sort: { updatedAt: -1 } },
         ]
         const deedRecords = await deedModel.aggregate(pipeline)
@@ -140,8 +164,8 @@ const create = async (req, res) => {
     try {
         const deedPayld = req.body;
         const user = req.user;
-        
-        if (deedPayld.deedType === null) {
+
+        if (deedPayld.deedType === "null") {
             const deedMaster = await deedMasterModel.create({
                 deedNo: deedPayld.deedNo,
                 dateOfRegistration: deedPayld.dateOfRegistration,
@@ -149,7 +173,9 @@ const create = async (req, res) => {
                 nameOfPurchaser: deedPayld.nameOfPurchaser,
                 nameOfMouza: deedPayld.nameOfMouza,
                 mutatedOrLeased: deedPayld.mutatedOrLeased,
-                khatianNo: deedPayld.khatianNo
+                khatianNo: deedPayld.khatianNo,
+                status: 'Active',
+                createdby: user?._id
             });
             deedPayld.deedType = new mongoose.Types.ObjectId(deedMaster._id);
             // deedPayld.deedType = validateId(deedMaster._id);
@@ -197,7 +223,8 @@ const create = async (req, res) => {
 const readDeedMaster = async (req, res) => {
     try {
         const deedNo = req.query.deedno || '';
-        const deedMasters = await getDeedMasterByDeedNo(deedNo);
+        const deedMastersDoc = await getDeedMasterByDeedNo(deedNo);
+        const deedMasters = deedMastersDoc[0]
         res.status(200).json({
             message: "Deed Masters retrieved successfully",
             data: deedMasters
@@ -226,8 +253,9 @@ const read = async (req, res) => {
 const readById = async (req, res) => {
     try {
         const deedId = req.params.id;
-        const deedRecord = await deedModel.findById(deedId)
-            .populate(['createdby', 'updatedby']);
+        const status = req.query.status || '';
+        // const deedRecord = await deedModel.findById(deedId)
+        const deedRecord = await getAllDeedDetails({deedId, status})
         if (!deedRecord) {
             return res.status(404).json({ message: "Deed details not found" });
         }

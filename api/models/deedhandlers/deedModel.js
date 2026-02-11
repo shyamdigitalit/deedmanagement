@@ -4,7 +4,7 @@ import mongoose from 'mongoose'
 const { Schema, model, Types } = mongoose
 
 const DeedSchema = new Schema({
-    deedType: { type: Types.ObjectId, ref: 'DeedMaster', required: true },
+    deedType: { type: Types.ObjectId, ref: 'Deedmaster', required: true },
     plotNo: { type: String, trim: true },
     totalAreaOfplotNo: { type: String, trim: true },
     totalPurchasedAreaOfDeed: { type: String, trim: true },

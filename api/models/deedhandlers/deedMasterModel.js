@@ -8,7 +8,10 @@ const DeedMasterSchema = new Schema({
     nameOfPurchaser: { type: String, trim: true },
     nameOfMouza: { type: String, trim: true },
     mutatedOrLeased: { type: String, trim: true },
-    khatianNo: { type: String, trim: true }
+    khatianNo: { type: String, trim: true },
+    status: { type: String, required: true, enum: ['Open', 'Active', 'Inactive'], default: 'Active' },
+    createdby: { type: Types.ObjectId, ref: 'Account', required: true },
+    updatedby: { type: Types.ObjectId, ref: 'Account' }
 }, { timestamps: true });
 
 export default model('Deedmaster', DeedMasterSchema);
