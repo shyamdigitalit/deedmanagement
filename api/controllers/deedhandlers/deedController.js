@@ -8,7 +8,7 @@ import { uploadFile, deleteFile } from '../../utilities/fileOperations.js';
 // Reusable functions---------------------------------------------------------------------------------------------------------------
 
 export const validateId = (id) => {
-    if (isValidObjectId(id)) {
+    if (!isValidObjectId(id)) {
         throw new Error("Invalid ObjectId");
     }
     return new mongoose.Types.ObjectId(id);
@@ -223,8 +223,7 @@ const create = async (req, res) => {
 const readDeedMaster = async (req, res) => {
     try {
         const deedNo = req.query.deedno || '';
-        const deedMastersDoc = await getDeedMasterByDeedNo(deedNo);
-        const deedMasters = deedMastersDoc[0]
+        const deedMasters = await getDeedMasterByDeedNo(deedNo);
         res.status(200).json({
             message: "Deed Masters retrieved successfully",
             data: deedMasters
@@ -255,7 +254,8 @@ const readById = async (req, res) => {
         const deedId = req.params.id;
         const status = req.query.status || '';
         // const deedRecord = await deedModel.findById(deedId)
-        const deedRecord = await getAllDeedDetails({deedId, status})
+        const deedRecords = await getAllDeedDetails({deedId, status})
+        const deedRecord = deedRecords[0];
         if (!deedRecord) {
             return res.status(404).json({ message: "Deed details not found" });
         }
