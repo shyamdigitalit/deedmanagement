@@ -51,8 +51,11 @@ export default function Deed() {
     <Box className="module-container" p={3}>
 
       <MUIDialog open={open} handleClose={handleClose} 
-      icon={<Description sx={{ color: '#fff', fontSize: 22 }} />} title={"Add New Deed"} description={"Enter legal and land aquisition details"}
-      content={<AddEditDeed selectedDeed={selectedDeed} handleClose={handleClose}  />}></MUIDialog>
+        icon={<Description sx={{ color: '#fff', fontSize: 22 }} />} 
+        title={selectedDeed ? "Update Deed" : "Add New Deed"} 
+        description={"Enter legal and land aquisition details"}
+        content={<AddEditDeed selectedDeed={selectedDeed} handleClose={handleClose}  />}>
+      </MUIDialog>
 
       {/* Header */}
       <Box display="flex" justifyContent="space-between" mb={3}>

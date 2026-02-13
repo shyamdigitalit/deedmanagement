@@ -53,7 +53,7 @@ export const stepOneFieldsArray = [
   {
     section: "deed",
     name: "mutatedKhatianNo",
-    label: "Mutated Khaitan Number",
+    label: "Mutated Khatian Number",
     type: "number",
     placeholder: "0.00",
   },

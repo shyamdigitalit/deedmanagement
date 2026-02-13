@@ -10,16 +10,19 @@ import { EditSquare } from "@mui/icons-material";
 const renderFields = (section, control, errors, deedType) =>
   stepOneFieldsArray
     .filter(field => field.section === section)
-    .map(field => (
-      <Controller key={field.name} name={field.name} control={control} rules={field.rules}
-        render={({ field: controllerField }) => (
-          <TextField {...controllerField} {...field} type={field.type || "text"} 
-            variant={field.variant || "outlined"} disabled={deedType !== null}
-            error={!!errors[field.name]} helperText={errors[field.name]?.message || field.helperText}
-          />
-        )}
-      />
-    ));
+    .map(field => {
+      const shouldDisable = deedType !== null && field.name !== "mutatedKhatianNo"
+      return (
+        <Controller key={field.name} name={field.name} control={control} rules={field.rules}
+          render={({ field: controllerField }) => (
+            <TextField {...controllerField} {...field} type={field.type || "text"} 
+              variant={shouldDisable ? "filled" : "outlined"}  disabled={shouldDisable}
+              error={!!errors[field.name]} helperText={errors[field.name]?.message || field.helperText}
+            />
+          )}
+        />
+      )
+    });
 
 
 
