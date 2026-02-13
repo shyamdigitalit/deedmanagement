@@ -18,12 +18,7 @@ const PlotSchema = new Schema({
     trim: true,
     required: true
   },
-
-  plotType: {
-    type: String,
-    trim: true,
-    required: true
-  },
+  // this bitch
 
   mouzaWithJLNo: { type: String, trim: true },
   locationOfPlot: { type: String, trim: true },

@@ -1,4 +1,4 @@
-import * as styles from "../../../styles/formStyle"
+import * as styles from "./../../../styles/formStyle"
 
 import React, { useEffect, useState } from "react";
 import { Box, Button, Typography, } from "@mui/material";
@@ -22,6 +22,7 @@ export default function AddEditPlot({ selectedPlot, handleClose }) {
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
 
+  const containerRef = React.useRef(null);
   const [activeStep, setActiveStep] = useState(0);
   const [files, setFiles] = useState([]);
   const [approvalRemarks, setApprovalRemarks] = useState(null);
@@ -40,6 +41,11 @@ export default function AddEditPlot({ selectedPlot, handleClose }) {
   /* ===========================
      EFFECTS
   ============================ */
+
+  React.useEffect(() => {
+    if (containerRef.current) containerRef.current.scrollTo({ top: 0, behavior: "smooth", });
+  }, [activeStep]);
+
 
   useEffect(() => {
     if (id) getPlotById(id);
@@ -111,6 +117,8 @@ export default function AddEditPlot({ selectedPlot, handleClose }) {
   ============================ */
 
   const onSubmit = async (data) => {
+    // console.log(data);
+    // return;
     if (parseFloat(totalMutatedArea) > parseFloat(totalPurchasedArea)) {
       dispatch(
         showSnackbar({
@@ -172,7 +180,7 @@ export default function AddEditPlot({ selectedPlot, handleClose }) {
         
         
         {/* {activeStep} */}
-        <Box sx={{ p: 6, pt: 2, height: "calc(100vh - 430px)", overflowY: "auto" }}>
+        <Box ref={containerRef} sx={{ p: 6, pt: 2, height: "calc(100vh - 430px)", overflowY: "auto" }}>
             {/* STEP 1 */}
             {activeStep === 0 && ( <StepOne control={control} errors={errors} setValue={setValue} /> )}
 
@@ -198,7 +206,7 @@ export default function AddEditPlot({ selectedPlot, handleClose }) {
             <Button sx={styles.secondaryButton} type="button" onClick={handleBack} disabled={activeStep < 1}>Back</Button>
 
             {activeStep === 2 ? (
-                <Button sx={styles.primaryButton} type="button" onClick={handleSubmit(onSubmit)}>Save Changes</Button>
+                <Button sx={styles.primaryButton} type="button" onClick={handleSubmit(onSubmit)}>{selectedPlot ? "Update":"Save"} Changes</Button>
             ) : (
                 <Button sx={styles.primaryButton} type="button" variant="contained"
                 onClick={handleNext}>Continue</Button>

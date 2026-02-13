@@ -1,6 +1,7 @@
 const DEFAULTVALUES = {
   deedType: "",
   deedNo: "",
+  dateOfRegistration: "",
   nameOfSeller: "",
   nameOfPurchaser: "",
   nameOfMouza: "",

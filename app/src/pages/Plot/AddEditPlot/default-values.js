@@ -8,11 +8,17 @@ const DEFAULTVALUES = {
   khatianNo: "",
   plotNo: "",
   totalAreaOfplotNo: "",
-  totalPurchasedArea: "",
+  totalPurchasedPlotWiseAsperDeed: "",
+  purchasedButDeedNotReceived: "",
+  totalPurchased: "",
+  totalPurchasedPlotWise: "",
+  balanceToBePurchased: "",
+  excessPurchased: "",
+  excessMutatedOrDeedNotReceived: "",
   totalMutatedArea: "",
-  nonMutatedArea: "",
-  locationOfPurchasedLand: "",
-  remarks: "",
+  purchasedLand:  "",
+  actualLandPurchasedAndLeasedOutToUs: "",
+  mutatedKhaitianNo: "",
 };
 
 export default DEFAULTVALUES;

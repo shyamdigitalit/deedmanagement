@@ -1,23 +1,28 @@
-import { Autocomplete, Box, CircularProgress, TextField, Typography } from "@mui/material";
-import { Controller } from "react-hook-form";
+import { Autocomplete, Box, CircularProgress, IconButton, TextField, Typography } from "@mui/material";
+import { Controller, useWatch } from "react-hook-form";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { stepOneFieldsArray } from "../plot-fields";
 import React from "react";
 import axiosInstance from "../../../../config/axiosInstance";
+import { EditSquare } from "@mui/icons-material";
 
 
-const renderFields = (section, control, errors) =>
+const renderFields = (section, control, errors, deedType) =>
   stepOneFieldsArray
     .filter(field => field.section === section)
-    .map(field => (
-      <Controller key={field.name} name={field.name} control={control} rules={field.rules}
-        render={({ field: controllerField }) => (
-          <TextField {...controllerField} {...field} type={field.type || "text"} variant={field.variant || "outlined"}
-            error={!!errors[field.name]} helperText={errors[field.name]?.message || field.helperText}
-          />
-        )}
-      />
-    ));
+    .map(field => {
+      const shouldDisable = deedType !== null && field.name !== "mutatedKhatianNo"
+      return (
+        <Controller key={field.name} name={field.name} control={control} rules={field.rules}
+          render={({ field: controllerField }) => (
+            <TextField {...controllerField} {...field} type={field.type || "text"} 
+              variant={shouldDisable ? "filled" : "outlined"}  disabled={shouldDisable}
+              error={!!errors[field.name]} helperText={errors[field.name]?.message || field.helperText}
+            />
+          )}
+        />
+      )
+    });
 
 
 
@@ -25,6 +30,8 @@ const StepOne = ({ control, errors, setValue }) => {
     
   const [options, setOptions] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
+
+  const deedType = useWatch({ control, name: "deedType" });
 
   const fetchDeedNumbers = async (search) => {
     if (!search) return;
@@ -49,16 +56,18 @@ const StepOne = ({ control, errors, setValue }) => {
       {/* =======================
           Deed & Parties
       ======================== */}
-      <Box sx={cardStyles}>
+      <Box sx={cardStyles} style={{ position: "relative" }}>
         <Typography sx={sectionTitle}>
           <DescriptionOutlinedIcon fontSize="small" color="warning" />
-          Deed & Parties Information
+          Plot & Parties Information
         </Typography>
 
         <Typography sx={sectionSubTitle}>
           Capture the legal transaction identity and involved parties
         </Typography>
 
+        {deedType && <IconButton style={{position: "absolute", top: 15, right: 20}}
+        onClick={() => setValue("deedType", null)}> <EditSquare /> </IconButton>}
         
         
         {/* {JSON.stringify(control._formValues)} */}
@@ -74,10 +83,11 @@ const StepOne = ({ control, errors, setValue }) => {
                   return option.deedNo || "";
                 }}
                 onInputChange={(e, value) => {
-                  setValue("deedType", null)
+                  // setValue("deedType", null)
                   field.onChange(value);     // keep typed value
                   fetchDeedNumbers(value);   // call API
                 }}
+                onKeyUp={e => setValue("deedType", null)}
                 onChange={(e, value) => {
                   setValue("deedType", value._id)
                   setValue("dateOfRegistration", value.dateOfRegistration)
@@ -86,6 +96,7 @@ const StepOne = ({ control, errors, setValue }) => {
                   setValue("mutatedOrLeased", value.mutatedOrLeased)
                   setValue("nameOfMouza", value.nameOfMouza)
                   setValue("khatianNo", value.khatianNo)
+                  setValue("mutatedKhatianNo", value.mutatedKhatianNo)
                   field.onChange(value);     // when selected from dropdown
                 }}
                 renderInput={(params) => (
@@ -108,27 +119,10 @@ const StepOne = ({ control, errors, setValue }) => {
 
 
 
-          {renderFields("deed", control, errors)}
+          {renderFields("deed", control, errors, deedType)}
         </Box>
       </Box>
 
-      {/* =======================
-          Area & Mutation
-      ======================== */}
-      {/* <Box sx={cardStyles}>
-        <Typography sx={sectionTitle}>
-          <TimelineOutlinedIcon fontSize="small" color="warning" />
-          Area & Mutation Details
-        </Typography>
-
-        <Typography sx={sectionSubTitle}>
-          Capture the legal transaction identity and involved parties
-        </Typography>
-
-        <Box sx={gridStyles}>
-          {renderFields("area", control, errors)}
-        </Box>
-      </Box> */}
 
     </Box>
   );

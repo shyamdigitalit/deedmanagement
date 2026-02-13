@@ -6,7 +6,7 @@ import moment from "moment";
 export const PLOT_COLUMNS = (props) => ([
     // { field: 'id', headerName: 'ID', width: 90 },
     // { field: 'logbookName', headerName: 'Logbook Name', width: 150 },
-    { field: 'deedNo', headerName: 'Deed Number', width: 150 },
+    { field: 'plotNo', headerName: 'Plot Number', width: 150 },
     { field: 'plotNo', headerName: 'Plot Number', width: 150 },
     { field: 'nameOfSeller', headerName: 'Seller', width: 150 },
     { field: 'nameOfPurchaser', headerName: 'Purchaser', width: 180 },

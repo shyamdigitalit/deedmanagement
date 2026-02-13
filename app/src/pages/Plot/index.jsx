@@ -51,8 +51,11 @@ export default function Plot() {
     <Box className="module-container" p={3}>
 
       <MUIDialog open={open} handleClose={handleClose} 
-      icon={<Description sx={{ color: '#fff', fontSize: 22 }} />} title={"Add New Plot"} description={"Enter legal and land aquisition details"}
-      content={<AddEditPlot selectedPlot={selectedPlot} handleClose={handleClose}  />}></MUIDialog>
+        icon={<Description sx={{ color: '#fff', fontSize: 22 }} />} 
+        title={selectedPlot ? "Update Plot" : "Add New Plot"} 
+        description={"Enter legal and land aquisition details"}
+        content={<AddEditPlot selectedPlot={selectedPlot} handleClose={handleClose}  />}>
+      </MUIDialog>
 
       {/* Header */}
       <Box display="flex" justifyContent="space-between" mb={3}>
@@ -76,7 +79,7 @@ export default function Plot() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid className="stats-cards" container spacing={2} mb={3}>
+      {/* <Grid className="stats-cards" container spacing={2} mb={3}>
         {[
           { label: "Total Plots", value: 892, icon: <Description />, bg: "#FFF3E0", color: "#FB8C00", },
           { label: "Verified Plot", value: 745, icon: <Verified />, bg: "#E8F5E9", color: "#43A047", },
@@ -86,7 +89,6 @@ export default function Plot() {
           <Grid item xs={12} md={3} key={i}>
             <Card sx={{ borderRadius: 3 }}>
               <CardContent style={{display: "flex", alignItems: "center", gap: "2rem"}}>
-                {/* Left Section */}
                 <Box>
                   <Typography color="text.secondary" fontSize={14}>
                     {item.label}
@@ -96,7 +98,7 @@ export default function Plot() {
                   </Typography>
                 </Box>
                 
-                {/* Right icon */}
+                
                 <Box className="right-icon" sx={{ backgroundColor: item.bg, color: item.color, }} >
                   {item.icon}
                 </Box>
@@ -104,14 +106,14 @@ export default function Plot() {
             </Card>
           </Grid>
         ))}
-      </Grid>
+      </Grid> */}
 
       {/* Plot List */}
       <Card className="datagrid-card" sx={{ borderRadius: 3 }}>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} >
             <Typography variant="h6" fontWeight={600}>
-              Plot List
+              {/* Plot List */}
             </Typography>
 
             {/* Filters */}

@@ -54,7 +54,7 @@ const StepTwo = ({ control, errors }) => {
                 Plot Information
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Tie this deed to official government land records
+                Tie this plot to official government land records
               </Typography>
             </Box>
           </Stack>
@@ -87,7 +87,7 @@ const StepTwo = ({ control, errors }) => {
       <Box sx={cardStyles}>
         <Typography sx={sectionTitle}>
           <TimelineOutlined fontSize="small" color="warning" />
-          Deed Calculation
+          Plot Calculation
         </Typography>
 
         <Typography sx={sectionSubTitle}>
