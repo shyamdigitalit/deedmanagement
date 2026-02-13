@@ -3,18 +3,20 @@ import plotModel from '../../models/plothandlers/plotModel.js';
 import plotMasterModel from '../../models/plothandlers/plotMasterModel.js';
 import { uploadFile, deleteFile } from '../../utilities/fileOperations.js';
 
+/* -------------------------------------------------------------------------- */
+/*                               Helper Utils                                 */
+/* -------------------------------------------------------------------------- */
+
 const validateId = (id) => {
-    if (isValidObjectId(id)) {
-        throw new Error("Invalid ObjectId");
+    if (!isValidObjectId(id)) {
+        throw new Error('Invalid ObjectId');
     }
     return new mongoose.Types.ObjectId(id);
-}
+};
 
 const uploadNewFiles = async (files, fileField, userId) => {
     const results = { [fileField]: [] };
-    const duplicates = { [fileField]: [] };
-
-    if (!files || files.length === 0) return results;
+    if (!files) return results;
 
     const fileList = Array.isArray(files)
         ? files.filter(f => f.fieldname === fileField)
@@ -22,342 +24,282 @@ const uploadNewFiles = async (files, fileField, userId) => {
 
     await Promise.allSettled(
         fileList.map(async (file) => {
-            try {
-                const uploadedFile = await uploadFile(
-                    file.buffer,
-                    file.originalname,
-                    file.mimetype
-                );
-                results[fileField].push({
-                    filId: uploadedFile?.file?._id,
-                    filName: uploadedFile?.file?.filename,
-                    filContentType: uploadedFile?.file?.metadata?.contentType,
-                    filContentSize: uploadedFile?.file?.length,
-                    filUploadStatus: "Done",
-                    fileUploadedby: userId
-                });
-            } catch (err) {
-                if (err.message.includes("Duplicate file")) {
-                    duplicates[fileField].push(file.originalname);
-                } else {
-                    console.error("❌ Upload Error:", err.message);
-                }
-            }
+            const uploadedFile = await uploadFile(
+                file.buffer,
+                file.originalname,
+                file.mimetype
+            );
+
+            results[fileField].push({
+                filId: uploadedFile?.file?._id,
+                filName: uploadedFile?.file?.filename,
+                filContentType: uploadedFile?.file?.metadata?.contentType,
+                filContentSize: uploadedFile?.file?.length,
+                filUploadStatus: 'Done',
+                fileUploadedby: userId
+            });
         })
     );
 
     return results;
 };
 
-const removeFiles = async (files, fileIds) => {
-    if (!files?.length) return;
-    
+const removeFiles = async (files = []) => {
     await Promise.allSettled(
-        files.map(file => deleteFile(file.filId).catch(err => console.error("❌ File Deletion Error:", err.message)))
+        files.map(f =>
+            deleteFile(f.filId).catch(err =>
+                console.error('❌ File Deletion Error:', err.message)
+            )
+        )
     );
 };
 
-const getPlotMasterById = async (plotMasterId) => {
-    try {
-        const plotMaster = await plotMasterModel.findById(plotMasterId);
-        return plotMaster;
-    } catch (error) {
-        console.error("Error retrieving Plot Master details:", error);
-        throw error;
-    }
-};
+/* -------------------------------------------------------------------------- */
+/*                            Plot Master Helpers                              */
+/* -------------------------------------------------------------------------- */
 
-const getPlotMasterByPlotNo = async (plotNo) => {
-    try {
-        const plotMaster = await plotMasterModel.find({ plotNo: plotNo }).sort({ createdAt: -1 });
-        return plotMaster;
-    }
-    catch (error) {
-        console.error("Error retrieving Plot Master details by Plot No:", error);
-        throw error;
-    }
-};
+// const getPlotMasterByPlotNo = async (plotNo) => {
+//     return plotMasterModel
+//         .find({ plotNo })
+//         .sort({ createdAt: -1 });
+// };
 
+/* -------------------------------------------------------------------------- */
+/*                               Controllers                                   */
+/* -------------------------------------------------------------------------- */
 
-// ----------------------------------------------------------------------------------------------------------------------------------
-// ==================================================================================================================================
-// Controller functions
+/* ------------------------------- CREATE ----------------------------------- */
 
 const create = async (req, res) => {
     try {
         const plotPayld = req.body;
         const user = req.user;
-        
-        if (plotPayld.plotType === null) {
-            const plotMaster = await plotMasterModel.create({
-                plotNo: plotPayld.plotNo,
-                dateOfRegistration: plotPayld.dateOfRegistration,
-                nameOfSeller: plotPayld.nameOfSeller,
-                nameOfPurchaser: plotPayld.nameOfPurchaser,
-                nameOfMouza: plotPayld.nameOfMouza,
-                mutatedOrLeased: plotPayld.mutatedOrLeased,
-                khatianNo: plotPayld.khatianNo
-            });
-            plotPayld.plotType = validateId(plotMaster._id);
-        }
-        else {
-            plotPayld.plotType = validateId(plotPayld.plotType);
+
+        if (!plotPayld.plotType) {
+            return res.status(400).json({ message: 'Plot Type is required' });
         }
 
         if (!req.files || Object.keys(req.files).length === 0) {
-            return res.status(400).json({ message: "No files uploaded" });
+            return res.status(400).json({ message: 'No files uploaded' });
         }
 
-        const fileField = 'plotDocs';
-        const results = await uploadNewFiles(req.files, fileField, user?._id);
-
-        if (results[fileField].length > 0) {
-            plotPayld[fileField] = results[fileField];
-        }
+        const { plotDocs } = await uploadNewFiles(req.files, 'plotDocs', user?._id);
 
         Object.assign(plotPayld, {
+            plotDocs,
+            createdBy: user?._id,
             status: 'Active',
             approvalStatus: 'Approved',
-            currentPendingApprovalLevel: 0,
-            createdby: user?._id
+            currentPendingApprovalLevel: 0
         });
 
         const plot = await plotModel.create(plotPayld);
-        if (!plot) {
-            return res.status(422).json({ message: "Failed to add New Plot" });
-        }
 
         res.status(201).json({
-            message: "Plot details added successfully",
+            message: 'Plot details added successfully',
             data: plot
         });
+
     } catch (error) {
-        console.error("Error creating Plot details:", error);
-        res.status(500).json({ message: "Internal server error" });
+        console.error('Error creating Plot:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
 
-export const getAllPlotDetails = async (filter) => {
-    try {
-        const status = filter?.status ? String(filter?.status).trim().toLowerCase() : '';
-        const plotNo = filter?.plotNo ? String(filter?.plotNo).trim().toLowerCase() : '';
+/* ------------------------------- READ ALL --------------------------------- */
 
-        const pipeline = [
-            ...(status !== '' ? [ { $match: { status: { $regex: `^${status}$`, $options: 'i' } } } ] : []),
-            ...(plotNo !== '' ? [ { $match: { plotNo: String(plotNo).trim() } } ] : []),
-            { $lookup: { from: 'accounts', localField: 'createdby', foreignField: '_id', as: 'createdby' } },
-            { $unwind: { path: '$createdby', preserveNullAndEmptyArrays: true } },
-            { $lookup: { from: 'accounts', localField: 'updatedby', foreignField: '_id', as: 'updatedby' } },
-            { $unwind: { path: '$updatedby', preserveNullAndEmptyArrays: true } },
+export const getAllPlotDetails = async (filter = {}) => {
+    const pipeline = [
+        ...(filter.status ? [{
+            $match: { status: { $regex: `^${filter.status}$`, $options: 'i' } }
+        }] : []),
 
-            { $unwind: { path: '$approvalDetails', preserveNullAndEmptyArrays: true } },
-            { $lookup: { from: 'accounts', localField: 'approvalDetails.approver', foreignField: '_id', as: 'approvalDetails.approver' } },
-            { $unwind: { path: '$approvalDetails.approver', preserveNullAndEmptyArrays: true } },
-            
-            {
-                $addFields: {
-                    createdAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$createdAt', timezone: "+05:30" } },
-                    updatedAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$updatedAt', timezone: "+05:30" } }
-                }
-            },
-            {
-                $group: {
-                    _id: '$_id',
-                    doc: { $first: '$$ROOT' },
-                    approvalDetails: {
-                        $push: {
-                            $cond: [
-                                { $gt: [{ $ifNull: ['$approvalDetails.approvalLevel', null] }, null] },
-                                '$approvalDetails',
-                                '$$REMOVE'
-                            ]
-                        }
-                    }
-                }
-            },
-            { $replaceRoot: { newRoot: { $mergeObjects: ['$doc', { approvalDetails: '$approvalDetails' }] } } },
-            { $sort: { updatedAt: -1 } },
-        ]
-        const plotRecords = await plotModel.aggregate(pipeline)
+        ...(filter.plotNo ? [{
+            $match: { plotNo: filter.plotNo }
+        }] : []),
 
-        return plotRecords
-    } catch (error) {
-        console.error(error)
-    }
-}
+        { $lookup: { from: 'accounts', localField: 'createdBy', foreignField: '_id', as: 'createdBy' } },
+        { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
 
-const readPlotMaster = async (req, res) => {
-    try {
-        const plotNo = req.query.plotno || '';
-        const plotMasters = await getPlotMasterByPlotNo(plotNo);
-        res.status(200).json({
-            message: "Plot Masters retrieved successfully",
-            data: plotMasters
-        });
-    } catch (error) {
-        console.error("Error retrieving plot Masters:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
+        { $lookup: { from: 'accounts', localField: 'updatedBy', foreignField: '_id', as: 'updatedBy' } },
+        { $unwind: { path: '$updatedBy', preserveNullAndEmptyArrays: true } },
+
+        { $sort: { updatedAt: -1 } }
+    ];
+
+    return plotModel.aggregate(pipeline);
+};
 
 const read = async (req, res) => {
     try {
         const status = req.query.status || '';
-        const plotRecords = await getAllplotDetails({status})
+        const plotRecords = await getAllPlotDetails({ status });
 
         res.status(200).json({
-            message: "plot details retrieved successfully",
+            message: 'Plot details retrieved successfully',
             data: plotRecords
         });
     } catch (error) {
-        console.error("Error retrieving plot details:", error);
-        res.status(500).json({ message: "Internal server error" });
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
+
+/* ------------------------------- READ BY ID -------------------------------- */
 
 const readById = async (req, res) => {
     try {
-        const plotId = req.params.id;
-        const plotRecord = await plotModel.findById(plotId)
-            .populate(['createdby', 'updatedby']);
+        const plotId = validateId(req.params.id);
+
+        const plotRecord = await plotModel
+            .findById(plotId)
+            .populate(['createdBy', 'updatedBy']);
+
         if (!plotRecord) {
-            return res.status(404).json({ message: "plot details not found" });
+            return res.status(404).json({ message: 'Plot not found' });
         }
+
         res.status(200).json({
-            message: "plot details retrieved successfully",
+            message: 'Plot details retrieved successfully',
             data: plotRecord
         });
     } catch (error) {
-        console.error("Error retrieving plot details:", error);
-        res.status(500).json({ message: "Internal server error" });
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
+
+/* ------------------------------- UPDATE ----------------------------------- */
 
 const update = async (req, res) => {
     try {
-        const plotId = new mongoose.Types.ObjectId(req.query.id) || null;
+        const plotId = validateId(req.query.id);
         const plotPayld = req.body;
         const user = req.user;
 
         [
-            'serial', 'id', '_id', '__v', 'plotNo', 'createdby', 'creationdt', 'creationtm',
-            'createdAt', 'updatedAt', 'createdAtITC', 'updatedAtITC'
-        ]?.forEach(field => delete plotPayld[field]);
-        Object.assign(plotPayld, { updatedby: user?._id });
+            '_id', '__v', 'createdBy', 'createdAt', 'updatedAt'
+        ].forEach(f => delete plotPayld[f]);
 
-        const filefield = 'plotDocs';
-        const existingKey = `${filefield}Existing`;
-        if (plotPayld?.[existingKey]?.length > 0) {
-            plotPayld[filefield] = JSON.parse(plotPayld[existingKey]);
-            delete plotPayld[existingKey];
-        }
-
-        const { plotDocs: plotDocsPayld } = plotPayld;
-        delete plotPayld[filefield];
+        plotPayld.updatedBy = user?._id;
 
         let plotRecord = await plotModel.findById(plotId);
         if (!plotRecord) {
-            return res.status(404).json({ message: "plot details not found" });
+            return res.status(404).json({ message: 'Plot not found' });
         }
 
-        const plotDocsRmv = plotDocsPayld?.length > 0
-            ? plotRecord.plotDocs.filter(file => !plotDocsPayld.some(f => f.filId === file.filId))
-            : plotRecord.plotDocs;
-
-        if (plotDocsRmv.length > 0) {
-            await removeFiles(plotDocsRmv);
-
-            let updtPlotRecord = await plotModel.findByIdAndUpdate(plotId, {
-                $pull: { plotDocs: { filId: { $in: plotDocsRmv.map(f => f.filId) } } }
-            }, { new: true });
-
-            if (!updtPlotRecord) {
-                return res.status(404).json({ message: "plot details update failed" });
-            }
-            plotRecord = updtPlotRecord;
+        /* -------- Handle Existing Files -------- */
+        if (plotPayld.plotDocsExisting) {
+            plotPayld.plotDocs = JSON.parse(plotPayld.plotDocsExisting);
+            delete plotPayld.plotDocsExisting;
         }
 
+        const removedFiles = plotRecord.plotDocs.filter(
+            f => !plotPayld.plotDocs?.some(p => p.filId === f.filId)
+        );
+
+        if (removedFiles.length) {
+            await removeFiles(removedFiles);
+        }
+
+        /* -------- Upload New Files -------- */
         if (req.files) {
-            const results = await uploadNewFiles(req.files, filefield, user?._id);
-            if (results[filefield].length > 0) {
-                plotRecord = await plotModel.findByIdAndUpdate(plotId, {
-                    $push: { plotDocs: { $each: results[filefield] } }
-                }, { new: true });
-            }
+            const { plotDocs } = await uploadNewFiles(req.files, 'plotDocs', user?._id);
+            plotPayld.plotDocs = [...(plotPayld.plotDocs || []), ...plotDocs];
         }
 
-        const plotInfo = await getAllPlotDetails({ plotNo: plotRecord.plotNo });
-        res.status(201).json({
-            message: apprvFlg === 0 ? "plot details updated successfully" : "plot details changes approved successfully",
-            data: plotInfo[0] || plotRecord
+        const updatedPlot = await plotModel.findByIdAndUpdate(
+            plotId,
+            plotPayld,
+            { new: true }
+        );
+
+        res.status(200).json({
+            message: 'Plot details updated successfully',
+            data: updatedPlot
         });
+
     } catch (error) {
-        console.error("Error updating plot details:", error);
-        res.status(500).json({ message: "Internal server error" });
+        console.error('Error updating plot:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 
+/* ------------------------------- STATUS UPDATE ----------------------------- */
+
 const statusUpdate = async (req, res) => {
     try {
-        const plotId = new mongoose.Types.ObjectId(req.query.id) || null;
-        const plotPayld = req.body;
-        // console.log(plotPayld);
-        const user = req.user
+        const plotId = validateId(req.query.id);
+        const user = req.user;
 
-        const plotRecord = await complianceModel.findByIdAndUpdate(plotId,
-            { status: plotPayld.status, updatedby: user._id },
+        const plotRecord = await plotModel.findByIdAndUpdate(
+            plotId,
+            { status: req.body.status, updatedBy: user._id },
             { new: true }
         );
-        res.status(201).json({
-            message: "plot details updated successfully",
+
+        res.status(200).json({
+            message: 'Plot status updated successfully',
             data: plotRecord
         });
     } catch (error) {
-        console.error("Error deleting plot details:", error);
-        res.status(500).json({ message: "Internal server error" });
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
+
+/* ------------------------------- DELETE ----------------------------------- */
 
 const remove = async (req, res) => {
     try {
-        const plotId = new mongoose.Types.ObjectId(req.query.id) || null;
-        // console.log(plotId);
+        const plotId = validateId(req.query.id);
+
         const plotRecord = await plotModel.findById(plotId);
         if (!plotRecord) {
-            return res.status(404).json({ message: "plot details not found" });
+            return res.status(404).json({ message: 'Plot not found' });
         }
-        else {
-            const fileField = 'plotDocs';
-            const files = plotRecord[fileField] || [];
-            for (const file of files) {
-                try {
-                    await deleteFile(file.filId);
-                } catch (err) {
-                    console.error("❌ File Deletion Error:", err.message);
-                }
-            }
-            const deletedPlot = await plotModel.findByIdAndDelete(plotId);
-            if (!deletedPlot) {
-                return res.status(404).json({ message: "plot details not found" });
-            }
-            res.status(200).json({
-                message: "plot details and associated files deleted successfully",
-                data: deletedPlot
-            });
-        }
+
+        await removeFiles(plotRecord.plotDocs);
+
+        const deletedPlot = await plotModel.findByIdAndDelete(plotId);
+
+        res.status(200).json({
+            message: 'Plot details and associated files deleted successfully',
+            data: deletedPlot
+        });
     } catch (error) {
-        console.error("Error deleting plot details:", error);
-        res.status(500).json({ message: "Internal server error" });
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
+
+/* ------------------------------- PLOT MASTER ------------------------------- */
+
+// const readPlotMaster = async (req, res) => {
+//     try {
+//         const plotNo = req.query.plotno || '';
+//         const plotMasters = await getPlotMasterByPlotNo(plotNo);
+
+//         res.status(200).json({
+//             message: 'Plot Masters retrieved successfully',
+//             data: plotMasters
+//         });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Internal server error' });
+//     }
+// };
+
+/* -------------------------------------------------------------------------- */
+/*                                   EXPORT                                   */
+/* -------------------------------------------------------------------------- */
 
 export default {
     create,
-    readPlotMaster,
     read,
     readById,
     update,
     statusUpdate,
-    remove
+    remove,
+    // readPlotMaster
 };
-
