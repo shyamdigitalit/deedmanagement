@@ -7,14 +7,7 @@ export const stepOneFieldsArray = [
   //   rules: { required: "Deed No is required" },
   //   helperText: "Unique legal number assigned to this deed",
   // },
-  {
-    section: "deed",
-    name: "dateOfRegistration",
-    label: "Date of registration *",
-    type: "date",
-    // rules: { required: "Date of registration is required" },
-    InputLabelProps: { shrink: true },
-  },
+
   {
     section: "deed",
     name: "nameOfSeller",
@@ -31,13 +24,6 @@ export const stepOneFieldsArray = [
   },
   {
     section: "deed",
-    name: "mutatedOrLeased",
-    label: "Mutated / Leased *",
-    placeholder: "Enter Mutated / Leased in the name of CO",
-    rules: { required: "Purchaser name is required" },
-  },
-  {
-    section: "deed",
     name: "nameOfMouza",
     label: "Mouza Name",
     placeholder: "Enter mouza",
@@ -45,43 +31,37 @@ export const stepOneFieldsArray = [
   },
   {
     section: "deed",
-    name: "khatianNo",
-    label: "Khatian No",
-    placeholder: "Enter khatian",
+    name: "purchaseInCompany",
+    label: "Purchase In Company",
+    placeholder: "Enter purchase in company",
     rules: { required: "Required" },
   },
-  {
-    section: "deed",
-    name: "mutatedKhatianNo",
-    label: "Mutated Khatian Number",
-    type: "number",
-    placeholder: "0.00",
-  },
+  // {
+  //   section: "deed",
+  //   name: "deedNo",
+  //   label: "Deed No",
+  //   type: "number",
+  //   placeholder: "Enter Deed No",
+  //   rules: { required: "Required" },
+  // },
+  // {
+  //   section: "deed",
+  //   name: "plotNo",
+  //   label: "Plot No",
+  //   type: "number",
+  //   placeholder: "Enter Plot No",
+  //   rules: { required: "Required" },
+  // },
+
 
   // ================= Area & Mutation =================
 ];
 
 export const stepTwoFieldsArray = [
   {
-    section: "plot",
-    name: "plotNo",
-    label: "Plot No",
-    variant: "filled",
-    placeholder: "Enter plot",
-    rules: { required: "Required" },
-  },
-  {
-    section: "plot",
-    name: "locationOfPurchasedLand",
-    label: "Location of Purchased Land",
-    variant: "filled",
-    placeholder: "e.g., North-West corner adjacent to NH-34",
-    rules: { required: "Required" },
-  },
-  {
     section: "calculation",
-    name: "totalAreaOfplotNo",
-    label: "Total Area of Plot",
+    name: "totalArea",
+    label: "Total Area ( A )",
     type: "number",
     placeholder: "0.00",
     rules: { required: "Required" },
@@ -89,52 +69,55 @@ export const stepTwoFieldsArray = [
   {
     section: "calculation",
     name: "totalPurchasedArea",
-    label: "Purchased Area as per Deed",
+    label: "Total Purchased Area ( B ) ",
     type: "number",
     placeholder: "0.00",
     rules: { required: "Required" },
   },
   {
     section: "calculation",
-    name: "purchasedLand",
-    label: "Purchased Land ( D )",
-    type: "number",
-    placeholder: "0.00",
+    name: "balanceArea",
+    label: "Balance Area ( C )",
+    type: "number", variant: "filled",
+    placeholder: "0.00", disabled: true,
     rules: { required: "Required" },
-  },
-  {
-    section: "calculation",
-    name: "actualLandPurchasedLeased",
-    label: "Actual Land Purchased & Leased  ( E )",
-    type: "number",
-    placeholder: "0.00",
-    rules: { required: "Required" },
+    helperText: "Auto-calculated: A - B",
   },
   {
     section: "calculation",
     name: "totalMutatedArea",
-    label: "Total Mutated Area ( B )",
-    type: "number", variant: "filled",
-    placeholder: "0.00", disabled: true,
+    label: "Total Mutated Area ( D )",
+    type: "number",
+    placeholder: "0.00",
     rules: { required: "Required" },
-    helperText: "Auto-calculated: D + E",
   },
   {
     section: "calculation",
     name: "nonMutatedArea",
-    label: "Non-Mutated Area ( C ) ",
+    label: "Non-Mutated Area ( E )",
     type: "number", variant: "filled",
     placeholder: "0.00",
     disabled: true,
-    helperText: "Auto-calculated: Purchased - B",
+    helperText: "Auto-calculated: B - D",
+    rules: { required: "Required" },
+  },
+];
+
+
+export const stepThreeFieldsArray = [
+  {
+    section: "review",
+    name: "mutatedInCompany",
+    label: "Mutated In Company",
+    placeholder: "Enter Mutated in company",
     rules: { required: "Required" },
   },
   {
-    section: "calculation",
-    name: "excessMutated",
-    label: "Excess Mutated / Deed Not Received ( A )",
-    type: "number", variant: "filled",
-    placeholder: "0.00", disabled: true,
-    helperText: "Auto-calculated: B + C",
-  },  
-];
+    section: "review",
+    name: "mutatedKhatianNo",
+    label: "Mutated Khatian No",
+    placeholder: "Enter Mutated Khaitan No",
+    rules: { required: "Required" },
+  },
+
+]

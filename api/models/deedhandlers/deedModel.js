@@ -4,17 +4,31 @@ import mongoose from 'mongoose'
 const { Schema, model, Types } = mongoose
 
 const DeedSchema = new Schema({
-    deedType: { type: Types.ObjectId, ref: 'Deedmaster', required: true },
+    // deedType: { type: Types.ObjectId, ref: 'Deedmaster', required: true },
+    // locationOfPurchasedLand: { type: String, trim: true },
+    plantId: { type: Types.ObjectId, ref: 'Plant', required: true },
+    nameOfSeller: { type: String, trim: true },
+    nameOfPurchaser: { type: String, trim: true },
+    nameOfMouza: { type: String, trim: true },
+    correcterOfLand: { type: String, trim: true },
+
+    purchaseInCompany: { type: String, required: true, trim: true },
+    deedNo: { type: String, required: true, trim: true },
     plotNo: { type: String, trim: true },
-    totalAreaOfplotNo: { type: String, trim: true },
+
+    totalArea: { type: String, trim: true },
     totalPurchasedArea: { type: String, trim: true },
-    locationOfPurchasedLand: { type: String, trim: true },
-    purchasedLand: { type: String, trim: true },
-    actualLandPurchasedLeased: { type: String, trim: true },
-    mutatedKhatianNo: { type: String, trim: true },
+    balanceArea: { type: String, trim: true },
     totalMutatedArea: { type: String, trim: true },
     nonMutatedArea: { type: String, trim: true },
-    excessMutated: { type: String, trim: true },
+
+    mutatedInCompany: { type: String, trim: true },
+    mutatedKhatianNo: { type: String, trim: true },
+
+    // purchasedLand: { type: String, trim: true },
+    // actualLandPurchasedLeased: { type: String, trim: true },
+    // excessMutated: { type: String, trim: true },
+
     remarks: { type: String, trim: true },
     deedDocs: [{
         filId: { type: String, trim: true, required: true },

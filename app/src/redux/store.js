@@ -3,7 +3,6 @@ import storage from 'redux-persist/lib/storage';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import authReducer from './slices/authSlice';
 import { snackbarReducer } from './slices/snackbar';
-import { functionRefreshReducer } from './slices/functionRefresh';
 
 
 const persistConfig = {
@@ -15,7 +14,6 @@ const persistConfig = {
 const rootReducer = combineReducers({
     auth: authReducer,
     snackbar: snackbarReducer,
-    functionRefresh: functionRefreshReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -64,7 +64,8 @@ postRoutes.forEach(route => createRoute('post', route.path, ...route.handlers));
 // GET
 const getRoutes = [
     { path: '/deed/fetch', handlers: [basicAuth, deedController.read] },
-    { path: '/deedmaster/fetchbyno', handlers: [basicAuth, deedController.readDeedMaster] },
+    { path: '/deed/search', handlers: [basicAuth, deedController.searchDeeds] },
+    // { path: '/deedmaster/fetchbyno', handlers: [basicAuth, deedController.readDeedMaster] },
     { path: '/deed/fetchby/:id', handlers: [basicAuth, deedController.readById] },
     { path: '/dept/fetch', handlers: [basicAuth, deptController.read] },
     { path: '/desig/fetch', handlers: [basicAuth, desigController.read] },
@@ -84,6 +85,7 @@ const getRoutes = [
     { path: '/admin/stt/fetch', handlers: [basicAuth, sttController.read] },
     { path: '/admin/plnt/fetch', handlers: [basicAuth, plntController.read] },
     { path: '/dynapprvl/fetch', handlers: [basicAuth, dynapprvlController.read] },
+    { path: '/file/view/:id', handlers: [jwtHybrdProtect, fileOpController.viewHandler] },
     { path: '/file/download/:id', handlers: [jwtHybrdProtect, fileOpController.downloadHandler] },
     { path: '/file/downloadall', handlers: [jwtHybrdProtect, fileOpController.downloadAllHandler] }
 ];
@@ -101,7 +103,7 @@ const patchRoutes = [
             deedController.update
         ]
     },
-    { path: '/deed/status/update', handlers: [jwtHybrdProtect, fileUpload.none(), deedController.statusUpdate] },
+    // { path: '/deed/status/update', handlers: [jwtHybrdProtect, fileUplo  ad.none(), deedController.statusUpdate] },
     { path: '/acctyp/update', handlers: [jwtHybrdProtect, fileUpload.none(), acctypController.update] },
     { path: '/cmpny/update', handlers: [jwtHybrdProtect, fileUpload.none(), cmpnyController.update] },
     { path: '/unt/update', handlers: [jwtHybrdProtect, fileUpload.none(), untController.update] },

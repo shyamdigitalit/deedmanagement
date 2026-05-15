@@ -17,8 +17,8 @@ import DomainIcon from '@mui/icons-material/Domain';
 export const SIDE_MENU = [
     // { title: 'Form Builder', icon: <Handyman className='icn' />, path: '/' },
     { title: 'Home', path: "/home", icon: <Home className='sidebar-icon' /> },
-    { title: 'Deed Wise', path: "/deed", icon: <Description className='sidebar-icon' /> },
-    { title: 'Plot Wise', path: "/plot", icon: <FmdGood className='sidebar-icon' /> },
+    { title: 'Land Management', path: "/deed", icon: <Description className='sidebar-icon' /> },
+    // { title: 'Plot Wise', path: "/plot", icon: <FmdGood className='sidebar-icon' /> },
     { title: 'Deed Bank', path: "/bank", icon: <AccountBalance className='sidebar-icon' /> },
     
 ];

@@ -34,4 +34,9 @@ export const primaryButton = {
     backgroundColor: '#E65C00',
     boxShadow: 'none',
   },
+  '&:disabled': {
+    backgroundColor: '#ccc',
+    color: "black",
+    boxShadow: 'none',
+  },
 };

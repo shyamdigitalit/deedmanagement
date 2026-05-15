@@ -81,6 +81,22 @@ const downloadHandler = async (req, res) => {
   }
 };
 
+const viewHandler = async (req, res) => {
+  try {
+    const { file, stream } = await getFileStream(req.params.id);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${file.filename}"`
+    );
+
+    res.setHeader("Content-Type", file.metadata.contentType);
+    stream.pipe(res);
+
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+};
+
 // Download multiple as ZIP
 const downloadAllHandler = async (req, res) => {
   try {
@@ -111,6 +127,7 @@ const deleteHandler = async (req, res) => {
 export default {
   uploadHandler,
   getAllHandler,
+  viewHandler,
   downloadHandler,
   downloadAllHandler,
   deleteHandler,

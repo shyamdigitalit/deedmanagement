@@ -3,7 +3,7 @@ import * as styles from "./../../../styles/formStyle"
 import React, { useEffect, useState } from "react";
 import { Box, Button, Typography, } from "@mui/material";
 import { CheckCircleOutline, LocationOnOutlined, PersonOutline } from "@mui/icons-material";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -15,6 +15,7 @@ import StepOne from "./steps/StepOne";
 import DEFAULTVALUES from "./default-values";
 import CustomStepper from "../../../components/stepper";
 import { stepOneFieldsArray, stepTwoFieldsArray } from "./deed-fields";
+import StepThree from "./steps/StepThree";
 
 
 export default function AddEditDeed({ selectedDeed, handleClose }) {
@@ -24,41 +25,35 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
 
   const containerRef = React.useRef(null);
   const [activeStep, setActiveStep] = useState(0);
-  const [files, setFiles] = useState([]);
   const [approvalRemarks, setApprovalRemarks] = useState(null);
+  const [isLoading, setLoading] = useState(false);
 
-  const { control, register, handleSubmit, reset, setValue, watch, trigger, formState: { errors }, } = useForm({ defaultValues: DEFAULTVALUES });
-
-  const totalPurchasedArea = watch("totalPurchasedArea") || 0;
-  const purchasedLand = watch("purchasedLand") || 0;
-  const actualLandPurchasedLeased = watch("actualLandPurchasedLeased") || 0;
-  const totalMutatedArea = watch("totalMutatedArea") || 0;
-  const excessMutated = watch("excessMutated") || 0;
+  const { control, register, handleSubmit, reset, setValue, watch, trigger, formState: { errors }, } = useForm({ defaultValues: DEFAULTVALUES, shouldUnregister: false });
+  
 
   // const id = new URLSearchParams(window.location.search).get("_id");
   const id = selectedDeed?._id;
-
-  /* ===========================
-     EFFECTS
-  ============================ */
+  useEffect(() => {
+    if (id) getDeedById(id);
+  }, [id]);
+  
 
   React.useEffect(() => {
     if (containerRef.current) containerRef.current.scrollTo({ top: 0, behavior: "smooth", });
   }, [activeStep]);
 
 
-  useEffect(() => {
-    if (id) getDeedById(id);
-  }, [id]);
+  // const totalArea = watch("totalArea") || 0;
+  // const totalPurchasedArea = watch("totalPurchasedArea") || 0;
+  // const totalMutatedArea = watch("totalMutatedArea") || 0;
 
-  useEffect(() => {
-    const totalMutatedArea = parseFloat(purchasedLand) + parseFloat(actualLandPurchasedLeased);
-    setValue("totalMutatedArea", totalMutatedArea >= 0 ? totalMutatedArea : 0);
-    const nonMutatedArea = parseFloat(totalPurchasedArea) - parseFloat(totalMutatedArea);
-    setValue("nonMutatedArea", nonMutatedArea >= 0 ? nonMutatedArea : 0);
-    const excessMutated = totalMutatedArea + nonMutatedArea
-    setValue("excessMutated", excessMutated >= 0 ? excessMutated : 0);
-  }, [totalPurchasedArea, purchasedLand, actualLandPurchasedLeased]);
+  // useEffect(() => {
+  //   const balanceArea = parseFloat(totalArea) - parseFloat(totalPurchasedArea);
+  //   setValue("balanceArea", balanceArea >= 0 ? balanceArea : 0);
+  //   const nonMutatedArea = parseFloat(totalPurchasedArea) - parseFloat(totalMutatedArea);
+  //   setValue("nonMutatedArea", nonMutatedArea >= 0 ? nonMutatedArea : 0);
+  // }, [totalPurchasedArea, totalMutatedArea]);
+
 
   /* ===========================
      API
@@ -69,16 +64,40 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
       const result = await axiosInstance.get(`/deed/fetchby/${id}`);
       if (result.status === 200) {
         const deedData = result.data.data;
+        
+        reset({
+          plantId: deedData.plantId,
+          nameOfSeller: deedData.nameOfSeller,
+          nameOfPurchaser: deedData.nameOfPurchaser,
+          nameOfMouza: deedData.nameOfMouza,
+          correcterOfLand: deedData.correcterOfLand,
+          purchaseInCompany: deedData.purchaseInCompany,
 
-        setFiles(
-          deedData?.deedDocs?.map((f) => ({
-            id: f.filId,
-            name: f.filName,
-            size: Number(f.filContentSize),
-            type: f.filContentType,
-            isExisting: true,
-          }))
-        );
+          deeds: [
+              {
+                  deedNo: deedData.deedNo,
+                  plotNo: deedData.plotNo,
+              
+                  totalArea: deedData.totalArea,
+                  totalPurchasedArea: deedData.totalPurchasedArea,
+                  balanceArea: deedData.balanceArea,
+                  totalMutatedArea: deedData.totalMutatedArea,
+                  nonMutatedArea: deedData.nonMutatedArea,
+              
+                  mutatedInCompany: deedData.mutatedInCompany,
+                  mutatedKhatianNo: deedData.mutatedKhatianNo,
+                  
+                  remarks: deedData.remarks,
+                  deedDocs: deedData?.deedDocs?.map((f) => ({
+                    id: f.filId,
+                    name: f.filName,
+                    size: Number(f.filContentSize),
+                    type: f.filContentType,
+                    isExisting: true,
+                  }))
+              }
+          ]
+        });
 
         if (deedData.approvalStatus === "Rejected") {
           setApprovalRemarks(
@@ -88,7 +107,6 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
           );
         }
 
-        reset(deedData);
       }
     } catch (error) {
       console.error(error);
@@ -101,8 +119,20 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
 
   const handleNext = async () => {
     let fields = [];
-    if (activeStep === 0) fields = stepOneFieldsArray.map(e => e.name);
-    if (activeStep === 1) fields = stepTwoFieldsArray.map(e => e.name);
+    if (activeStep === 0) fields = [...stepOneFieldsArray.map(e => e.name), "deeds", "plantId"];
+    // if (activeStep === 1) fields = [...stepTwoFieldsArray.map(e => e.name), "deeds"];
+
+    if (activeStep === 1) {
+
+      const deedFields = watch("deeds") || [];
+
+      fields = deedFields.flatMap((_, index) =>
+        stepTwoFieldsArray.map(
+          field => `deeds.${index}.${field.name}`
+        )
+      );
+    }
+
 
     const isValid = await trigger(fields);
     if (!isValid) return;
@@ -112,28 +142,71 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
 
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
+
+  const flattenDeedPayload = (payload) => {
+
+    const commonFields = {
+      plantId: payload.plantId,
+      nameOfSeller: payload.nameOfSeller,
+      nameOfPurchaser: payload.nameOfPurchaser,
+      nameOfMouza: payload.nameOfMouza,
+      correcterOfLand: payload.correcterOfLand,
+      purchaseInCompany: payload.purchaseInCompany,
+    };
+
+    return payload.deeds.map((deed) => ({
+      ...commonFields,
+
+      deedNo: deed.deedNo,
+      plotNo: deed.plotNo,
+
+      totalArea: deed.totalArea,
+      totalPurchasedArea: deed.totalPurchasedArea,
+      balanceArea: deed.balanceArea,
+
+      totalMutatedArea: deed.totalMutatedArea,
+      nonMutatedArea: deed.nonMutatedArea,
+
+      mutatedInCompany: deed.mutatedInCompany,
+      mutatedKhatianNo: deed.mutatedKhatianNo,
+
+      remarks: deed.remarks,
+
+      deedDocs: deed.deedDocs,
+    }));
+  };
+
+
   /* ===========================
      SUBMIT
   ============================ */
 
   const onSubmit = async (data) => {
-    // console.log(data);
+    const finalPayload = flattenDeedPayload(data);
+    console.log(finalPayload);
     // return;
-    if (parseFloat(totalMutatedArea) > parseFloat(totalPurchasedArea)) {
-      dispatch(
-        showSnackbar({
-          message:
-            "Total Mutated Area cannot be greater than Total Purchased Area",
-          severity: "error",
-        })
-      );
-      return;
-    }
 
+    finalPayload.forEach((payload) => saveDeed(payload));
+  };
+  
+  
+  const saveDeed = async (data) => {
+    // if (parseFloat(totalMutatedArea) > parseFloat(totalPurchasedArea)) {
+    //   dispatch(
+    //     showSnackbar({
+    //       message:
+    //         "Total Mutated Area cannot be greater than Total Purchased Area",
+    //       severity: "error",
+    //     })
+    //   );
+    //   return;
+    // }
+    setLoading(true);
     data.createdby = user._id;
     data.approvalStatus = "Pending L1 Approval";
     data.currentPendingApprovalLevel = 1;
-
+  
+    const files = data.deedDocs || [];
     data.deedDocs = files.map((f) => f.file).filter(Boolean);
     data.deedDocsExisting = JSON.stringify(
       files
@@ -145,7 +218,9 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
           filContentSize: f.size,
         }))
     );
-
+    console.log(data)
+    // return;
+  
     const formData = new FormData();
     for (const key in data) {
       if (key === "deedDocs") {
@@ -154,19 +229,22 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
         formData.append(key, data[key]);
       }
     }
-
+  
     try {
       const url = id ? `/deed/update?id=${id}` : "/deed/create";
       const response = await axiosInstance[id ? "patch" : "post"]( url, formData );
-
+  
       if (response.status === 201) {
         dispatch( showSnackbar({ message: response.data.message, severity: "success", }) );
         handleClose();
+        setLoading(false);
       }
     } catch (error) {
       dispatch( showSnackbar({ message: error.message, severity: "error", }) );
+      setLoading(false);
     }
-  };
+
+  }
 
   /* ===========================
      UI
@@ -185,18 +263,10 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
             {activeStep === 0 && ( <StepOne control={control} errors={errors} setValue={setValue} /> )}
 
             {/* STEP 2 */}
-            {activeStep === 1 && ( <StepTwo control={control} errors={errors} /> )}
+            {activeStep === 1 && ( <StepTwo control={control} errors={errors} setValue={setValue} /> )}
 
             {/* STEP 3 */}
-            {activeStep === 2 && (
-                <Box>
-                    <Typography variant="h6" mb={1}> Remarks </Typography>
-                    <textarea {...register("remarks", { required: "Remarks is Required"})} rows={5} style={{ width: "100%", padding: 10 }} />
-                    <Box mt={3}>
-                    <FileUploader files={files} setFiles={setFiles} />
-                    </Box>
-                </Box>
-            )}
+            {activeStep === 2 && (<StepThree control={control} errors={errors} />)}
 
         </Box>
 
@@ -206,7 +276,9 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
             <Button sx={styles.secondaryButton} type="button" onClick={handleBack} disabled={activeStep < 1}>Back</Button>
 
             {activeStep === 2 ? (
-                <Button sx={styles.primaryButton} type="button" onClick={handleSubmit(onSubmit)}>{selectedDeed ? "Update":"Save"} Changes</Button>
+                <Button sx={styles.primaryButton} type="button" onClick={handleSubmit(onSubmit)} disabled={isLoading}>
+                  {isLoading ? "Loading ..." : selectedDeed ? "Update Changes":"Save Changes"}
+                </Button>
             ) : (
                 <Button sx={styles.primaryButton} type="button" variant="contained"
                 onClick={handleNext}>Continue</Button>

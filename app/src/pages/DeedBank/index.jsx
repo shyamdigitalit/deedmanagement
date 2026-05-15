@@ -1,64 +1,85 @@
 import React, { useState } from "react";
-import { Box, Button, Card, CardContent, Typography, Grid, TextField, MenuItem, LinearProgress, } from "@mui/material";
+import { Box, Button, Card, CardContent, Typography, Grid, TextField, MenuItem, LinearProgress, Autocomplete, } from "@mui/material";
 import "./deedbank.css";
+import axiosInstance from "../../config/axiosInstance";
+import store from "../../redux/store";
 
 export default function DeedBank() {
-  const deedData = [
-    {
-      id: 1,
-      name: "Deed of 3B, Ashoka Road",
-      owners: [
-        {
-          name: "Smt. Sumitra Devi Agarwal",
-          files: [
-            {
-              name: "Deed No 5774 dt.25.05.2089 area 1600 sq.ft.pdf",
-              size: "15.4 MB",
-              modified: "2/1/2023, 4:33:52 PM"
-            }
-          ]
-        },
-        {
-          name: "Sri M.P Agarwal & Sons (HUF)",
-          files: [
-            {
-              name: "HUF Document.pdf",
-              size: "10 MB",
-              modified: "2/1/2023, 4:33:52 PM"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: "Deed of Burdwan",
-      owners: []
-    }
-  ];
 
-  const [selectedDeedId, setSelectedDeedId] = useState("");
+  const [selectedDeed, setSelectedDeed] = useState(null);
+  const [deedOptions, setDeedOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // owners + table
   const [owners, setOwners] = useState([]);
   const [tableData, setTableData] = useState([]);
 
-  const handleGo = () => {
-    const deed = deedData.find(
-      (d) => d.id === Number(selectedDeedId)
-    );
+  const searchDeeds = async (searchText) => {
+    try {
+      if (!searchText || searchText.length < 2) {
+        setDeedOptions([]);
+        return;
+      }
 
-    if (!deed) return;
+      setLoading(true);
 
-    setOwners(deed.owners);
-    setTableData([]); // clear table until folder clicked
+      const res = await axiosInstance.get(`/deed/search?search=${searchText}`);
+      setDeedOptions(res.data?.data || []);
+
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGo = async () => {
+    try {
+      if (!selectedDeed?.nameOfSeller) return;
+      const res = await axiosInstance.get( `/deed/search?sellerName=${selectedDeed.nameOfSeller}` );
+      const sellerDeeds = res.data?.data || [];
+
+      setOwners(sellerDeeds);
+      setTableData([]);
+      
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleFolderClick = (owner) => {
-    setTableData(owner.files);
+    setTableData(owner.deedDocs || []);
+  };
+
+  const downloadFile = async (file) => {
+    try {
+      const response = await axiosInstance.get(`/file/download/${file.filId}`, {responseType: "blob"});
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", file.filName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+    } catch (error) {
+      console.error("Error downloading documents:", error);
+    } 
+    
+  }
+  
+  const viewFile = async (file) => {
+    const { accessToken } = store.getState().auth;
+    try {
+      window.open( `${axiosInstance.defaults.baseURL}/file/view/${file.filId}?accessToken=${accessToken}`, "_blank" );
+    } catch (error) {
+      console.error("Error viewing document:", error);
+    }
   };
 
   return (
     
-    <div className="wrapper">
+    <div className="bank-wrapper">
       <Box>
           <Typography variant="h5" fontWeight={600}>
             Deedwise
@@ -74,17 +95,16 @@ export default function DeedBank() {
           <div className="left-box">
             <label>Deed</label>
             <div className="dropdown-row">
-              <select
-                value={selectedDeedId}
-                onChange={(e) => setSelectedDeedId(e.target.value)}
-              >
-                <option value="">Search</option>
-                {deedData.map((deed) => (
-                  <option key={deed.id} value={deed.id}>
-                    {deed.name}
-                  </option>
-                ))}
-              </select>
+              <Autocomplete className="deed-autocomplete" style={{ width: 300}} size="small" 
+                options={deedOptions} loading={loading} value={selectedDeed}
+                onChange={(event, newValue) => setSelectedDeed(newValue)}
+                onInputChange={(event, value) => searchDeeds(value)}
+                getOptionLabel={(option) =>
+                  option?.deedNo ? `${option.deedNo} - ${option.nameOfPurchaser || ""}` : ""
+                }
+                filterOptions={(x) => x}
+                renderInput={(params) => (<TextField {...params} placeholder="Search Deed No" />)}
+              />
 
               <button className="go-btn" onClick={handleGo}>
                 GO
@@ -95,15 +115,12 @@ export default function DeedBank() {
           {/* SECTION 2 - ALWAYS VISIBLE */}
           <div className="right-box">
             {owners.length === 0 ? (
-              <div className="empty-text">No Owners Selected</div>
+              <div>No Owners Selected</div>
             ) : (
               owners.map((owner, index) => (
                 <div className="owner-row" key={index}>
-                  <span>{owner.name}</span>
-                  <button
-                    className="folder-btn"
-                    onClick={() => handleFolderClick(owner)}
-                  >
+                  <span>{owner.nameOfSeller}</span>
+                  <button className="folder-btn" onClick={() => handleFolderClick(owner)} >
                     Go to folder
                   </button>
                 </div>
@@ -113,8 +130,8 @@ export default function DeedBank() {
         </div>
 
         {/* SECTION 3 - ALWAYS VISIBLE TABLE */}
-        <h3 className="title">Documents</h3>
-
+        <h3 className="document-title">Documents</h3>
+        {/* {JSON.stringify(tableData)} */}
         <table className="file-table">
           <thead>
             <tr>
@@ -128,19 +145,19 @@ export default function DeedBank() {
           <tbody>
             {tableData.length === 0 ? (
               <tr>
-                <td colSpan="4" className="empty-text">
+                <td colSpan="4">
                   No Data Available
                 </td>
               </tr>
             ) : (
               tableData.map((file, index) => (
                 <tr key={index}>
-                  <td>{file.name}</td>
-                  <td>{file.size}</td>
-                  <td>{file.modified}</td>
+                  <td>{file.filName}</td>
+                  <td>{file.filContentSize}</td>
+                  <td>{file.fileUploadDate}</td>
                   <td>
-                    <button className="view-btn">View</button>
-                    <button className="download-btn">Download</button>
+                    <button className="view-btn" onClick={() => viewFile(file)}>View</button>
+                    <button className="download-btn" onClick={() => downloadFile(file)}>Download</button>
                   </td>
                 </tr>
               ))

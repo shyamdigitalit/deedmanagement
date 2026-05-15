@@ -61,39 +61,57 @@ export const removeFiles = async (files, fileIds) => {
     );
 };
 
-export const getDeedMasterById = async (deedMasterId) => {
-    try {
-        const deedMaster = await deedMasterModel.findById(deedMasterId);
-        return deedMaster;
-    } catch (error) {
-        console.error("Error retrieving Deed Master details:", error);
-        throw error;
-    }
+
+export const searchDeeds = async (req, res) => {
+  try {
+    const { search, sellerName } = req.query;
+    const query = { status: { $ne: "Inactive" } };
+
+    // autocomplete search
+    if (search?.trim()) query.deedNo = { $regex: search.trim(), $options: "i" };
+    if (sellerName?.trim()) query.nameOfSeller = { $regex: `^${sellerName.trim()}$`, $options: "i" };
+
+    const deeds = await deedModel.find(query);
+
+    return res.status(200).json({ success: true, data: deeds });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 };
 
-export const getDeedMasterByDeedNo = async (deedNo) => {
-    try {
-        const deedMaster = await deedMasterModel.find({ deedNo: { $regex: `^${deedNo}`, $options: 'i' } }).sort({ createdAt: -1 });
-        return deedMaster;
-    }
-    catch (error) {
-        console.error("Error retrieving Deed Master details by Deed No:", error);
-        throw error;
-    }
-};
 
 export const getAllDeedDetails = async (filter) => {
     try {
-        const deedId = filter?.deedId ? new mongoose.Types.ObjectId(filter.deedId) : null;
-        const deedNo = filter?.deedNo ? String(filter.deedNo).trim() : '';
-        const status = filter?.status ? String(filter?.status).trim().toLowerCase() : '';
+        const matchQuery = {};
+
+        if (filter?.deedId) matchQuery._id = new mongoose.Types.ObjectId(filter.deedId);
+        if (filter?.plantId) matchQuery.plantId = new mongoose.Types.ObjectId(filter.plantId);
+        if (filter?.deedNo?.trim()) matchQuery.deedNo = { $regex: filter.deedNo.trim(), $options: "i" };
+        if (filter?.plotNo?.trim()) matchQuery.plotNo = { $regex: filter.plotNo.trim(), $options: "i" };
+        if (filter?.nameOfSeller?.trim()) matchQuery.nameOfSeller = { $regex: filter.nameOfSeller.trim(), $options: "i" };
+        if (filter?.nameOfPurchaser?.trim()) matchQuery.nameOfPurchaser = { $regex: filter.nameOfPurchaser.trim(), $options: "i" };
+
+
+        /* DATE RANGE FILTER */
+
+        if (filter?.fromDate || filter?.toDate) {
+            matchQuery.createdAt = {};
+            if (filter?.fromDate) matchQuery.createdAt.$gte = new Date(filter.fromDate);
+            if (filter?.toDate) {
+                const toDate = new Date(filter.toDate);
+                toDate.setHours(23, 59, 59, 999);
+                matchQuery.createdAt.$lte = toDate;
+            }
+        }
 
         const pipeline = [
-            ...(deedId ? [ { $match: { _id: deedId } } ] : []),
-            ...(deedNo !== '' ? [ { $match: { deedNo: { $regex: `^${deedNo}`, $options: 'i' } } } ] : []),
-            ...(status !== '' ? [ { $match: { status: { $regex: `^${status}$`, $options: 'i' } } } ] : []),
-            { $lookup: { from: 'deedmasters', localField: 'deedType', foreignField: '_id', as: 'deedType' } },
-            { $unwind: { path: '$deedType', preserveNullAndEmptyArrays: true } },
+            { $match: matchQuery },
+            { $lookup: { from: 'plants', localField: 'plantId', foreignField: '_id', as: 'plant' } },
+            { $unwind: { path: '$plant', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'createdby', foreignField: '_id', as: 'createdby' } },
             { $unwind: { path: '$createdby', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'updatedby', foreignField: '_id', as: 'updatedby' } },
@@ -102,20 +120,11 @@ export const getAllDeedDetails = async (filter) => {
             { $unwind: { path: '$approvalDetails', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'approvalDetails.approver', foreignField: '_id', as: 'approvalDetails.approver' } },
             { $unwind: { path: '$approvalDetails.approver', preserveNullAndEmptyArrays: true } },
-            
+            { $addFields: { plantName: '$plant.plantName', } },
             {
                 $addFields: {
                     createdAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$createdAt', timezone: "+05:30" } },
                     updatedAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$updatedAt', timezone: "+05:30" } }
-                }
-            },
-            {
-                $project: {
-                    "deedType.__v": 0,
-                    "deedType.status": 0,
-                    "deedType.createdby": 0,
-                    "deedType.createdAt": 0,
-                    "deedType.updatedAt": 0,
                 }
             },
             {
@@ -133,13 +142,13 @@ export const getAllDeedDetails = async (filter) => {
                     }
                 }
             },
+
+            // merge back
             {
                 $replaceRoot: {
                     newRoot: {
                         $mergeObjects: [
-                            "$doc.deedType",
                             "$doc",
-                            { deedType: "$doc.deedType._id" },
                             { approvalDetails: "$approvalDetails" }
                         ]
                     }
@@ -164,28 +173,8 @@ export const getAllDeedDetails = async (filter) => {
 
 const create = async (req, res) => {
     try {
-        const deedPayld = req.body;
+        const payload = req.body;
         const user = req.user;
-
-        if (deedPayld.deedType === "null") {
-            const deedMaster = await deedMasterModel.create({
-                deedNo: deedPayld.deedNo,
-                dateOfRegistration: deedPayld.dateOfRegistration,
-                nameOfSeller: deedPayld.nameOfSeller,
-                nameOfPurchaser: deedPayld.nameOfPurchaser,
-                nameOfMouza: deedPayld.nameOfMouza,
-                mutatedOrLeased: deedPayld.mutatedOrLeased,
-                khatianNo: deedPayld.khatianNo,
-                status: 'Active',
-                createdby: user?._id
-            });
-            deedPayld.deedType = new mongoose.Types.ObjectId(deedMaster._id);
-            // deedPayld.deedType = validateId(deedMaster._id);
-        }
-        else {
-            deedPayld.deedType = new mongoose.Types.ObjectId(deedPayld._id);
-            // deedPayld.deedType = validateId(deedPayld.deedType);
-        }
 
         if (!req.files || Object.keys(req.files).length === 0) {
             return res.status(400).json({ message: "No files uploaded" });
@@ -195,19 +184,17 @@ const create = async (req, res) => {
         const results = await uploadNewFiles(req.files, fileField, user?._id);
 
         if (results[fileField].length > 0) {
-            deedPayld[fileField] = results[fileField];
+            payload[fileField] = results[fileField];
         }
 
-        ['deedNo', 'dateOfRegistration', 'nameOfSeller', 'nameOfPurchaser',
-            'nameOfMouza', 'mutatedOrLeased', 'khatianNo']?.forEach(field => delete deedPayld[field]);
-        Object.assign(deedPayld, {
+        Object.assign(payload, {
             status: 'Active',
             approvalStatus: 'Approved',
             currentPendingApprovalLevel: 0,
             createdby: user?._id
         });
 
-        const deed = await deedModel.create(deedPayld);
+        const deed = await deedModel.create(payload);
         if (!deed) {
             return res.status(422).json({ message: "Failed to add New Deed" });
         }
@@ -222,24 +209,9 @@ const create = async (req, res) => {
     }
 }
 
-const readDeedMaster = async (req, res) => {
-    try {
-        const deedNo = req.query.deedno || '';
-        const deedMasters = await getDeedMasterByDeedNo(deedNo);
-        res.status(200).json({
-            message: "Deed Masters retrieved successfully",
-            data: deedMasters
-        });
-    } catch (error) {
-        console.error("Error retrieving Deed Masters:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
-
 const read = async (req, res) => {
     try {
-        const status = req.query.status || '';
-        const deedRecords = await getAllDeedDetails({status})
+        const deedRecords = await getAllDeedDetails(req.query)
 
         res.status(200).json({
             message: "Deed details retrieved successfully",
@@ -274,22 +246,23 @@ const readById = async (req, res) => {
 const update = async (req, res) => {
     try {
         const deedId = new mongoose.Types.ObjectId(req.query.id) || null;
-        const deedPayld = req.body;
+        const payload = req.body;
+        payload.plantId = new mongoose.Types.ObjectId(payload.plantId) || null;
         const user = req.user;
 
         ['serial', 'id', '_id', '__v', 'createdby', 'createdAt',
-            'updatedAt', 'createdAtITC', 'updatedAtITC']?.forEach(field => delete deedPayld[field]);
-        Object.assign(deedPayld, { updatedby: user?._id });
+            'updatedAt', 'createdAtITC', 'updatedAtITC']?.forEach(field => delete payload[field]);
+        Object.assign(payload, { updatedby: user?._id });
 
         // removables removal & new Files upload
         const filefield = 'deedDocs';
         const existingKey = `${filefield}Existing`;
-        if (deedPayld?.[existingKey]?.length > 0) {
-            deedPayld[filefield] = JSON.parse(deedPayld[existingKey]);
-            delete deedPayld[existingKey];
+        if (payload?.[existingKey]?.length > 0) {
+            payload[filefield] = JSON.parse(payload[existingKey]);
+            delete payload[existingKey];
         }
-        const { deedDocs: deedDocsPayld } = deedPayld;
-        delete deedPayld[filefield];
+        const { deedDocs: deedDocsPayld } = payload;
+        delete payload[filefield];
         let deedRecord = await deedModel.findById(deedId);
         if (!deedRecord) {
             return res.status(404).json({ message: "Deed details not found" });
@@ -317,65 +290,26 @@ const update = async (req, res) => {
             }
         }
 
-        // Deed payload restructuring
-        if (deedPayld.deedType && deedPayld.deedType !== "null") {
-            ['deedType', 'deedNo', 'dateOfRegistration', 'nameOfSeller', 'nameOfPurchaser',
-                'nameOfMouza', 'mutatedOrLeased', 'khatianNo']?.forEach(field => delete deedPayld[field]);
-            Object.assign(deedPayld, { updatedby: user?._id });
-        }
-        else {
-            const deedMaster = await deedMasterModel.create({
-                deedNo: deedPayld.deedNo,
-                dateOfRegistration: deedPayld.dateOfRegistration,
-                nameOfSeller: deedPayld.nameOfSeller,
-                nameOfPurchaser: deedPayld.nameOfPurchaser,
-                nameOfMouza: deedPayld.nameOfMouza,
-                mutatedOrLeased: deedPayld.mutatedOrLeased,
-                khatianNo: deedPayld.khatianNo,
-                status: 'Active',
-                createdby: user?._id
-            });
-            deedPayld.deedType = new mongoose.Types.ObjectId(deedMaster._id);
-        }
+        Object.assign(payload, { updatedby: user?._id });
+
         deedRecord = await deedModel.findByIdAndUpdate(deedId, {
-            ...deedPayld,
+            ...payload,
             $push: { deedDocs: { $each: newfiles } }
         }, { new: true });
         if (!deedRecord) {
             return res.status(404).json({ message: "Deed details update failed" });
         }
 
-        const deedInfo = await getAllDeedDetails({ deedNo: deedRecord.deedNo });
+        // const deedInfo = await getAllDeedDetails({ deedNo: deedRecord.deedNo });
         res.status(201).json({
             message: "Deed details updated successfully",
-            data: deedInfo[0] || deedRecord
+            data: deedRecord
         });
     } catch (error) {
         console.error("Error updating Deed details:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
-
-const statusUpdate = async (req, res) => {
-    try {
-        const deedId = new mongoose.Types.ObjectId(req.query.id) || null;
-        const deedPayld = req.body;
-        // console.log(deedPayld);
-        const user = req.user
-
-        const deedRecord = await complianceModel.findByIdAndUpdate(deedId,
-            { status: deedPayld.status, updatedby: user._id },
-            { new: true }
-        );
-        res.status(201).json({
-            message: "Deed details updated successfully",
-            data: deedRecord
-        });
-    } catch (error) {
-        console.error("Error deleting Deed details:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
 
 const remove = async (req, res) => {
     try {
@@ -429,11 +363,10 @@ const remove = async (req, res) => {
 }
 
 export default {
+    searchDeeds,
     create,
-    readDeedMaster,
     read,
     readById,
     update,
-    statusUpdate,
-    remove
+    remove,
 };

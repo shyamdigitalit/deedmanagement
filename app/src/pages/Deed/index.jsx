@@ -1,7 +1,7 @@
 import "../../styles/ListPage.css";
 
 import React from "react";
-import { Box, Button, Card, CardContent, Typography, Grid, TextField, MenuItem, LinearProgress, } from "@mui/material";
+import { Box, Button, Card, CardContent, Typography, Grid, TextField, MenuItem, LinearProgress, FormControl, InputLabel, Select, } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { DataGrid } from "@mui/x-data-grid";
 import axiosInstance from "../../config/axiosInstance";
@@ -9,12 +9,24 @@ import { Description, HourglassTop, Map, Verified } from "@mui/icons-material";
 import MUIDialog from "../../components/MUIDialog";
 import AddEditDeed from "./AddEditDeed";
 import { DEED_COLUMNS } from "./deed-columns";
+import { useSearchParams } from "react-router";
 
 export default function Deed() {
+  const [searchParams] = useSearchParams();
   const [deedData, setDeedData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [selectedDeed, setSelectedDeed] = React.useState(null);
+  const [plantList, setPlantList] = React.useState([])
+  const [filters, setFilters] = React.useState({
+    plantId: searchParams.get('plantId'),
+    deedNo: "",
+    plotNo: "",
+    nameOfSeller: "",
+    nameOfPurchaser: "",
+    fromDate: "",
+    toDate: "",
+  });
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -25,21 +37,52 @@ export default function Deed() {
   };
 
   React.useEffect(() => {
-    fetchDeeds();
+    getPlantList();
     document.title = "Deedwise";
   }, []);
 
-  const fetchDeeds = async () => {
+  React.useEffect(() => {
+    const timer = setTimeout(() => fetchDeeds(filters), 500);
+    return () => clearTimeout(timer);
+  }, [filters]);
+
+  const fetchDeeds = async (customFilters = filters) => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get("/deed/fetch");
+      const queryParams = new URLSearchParams();
+
+      Object.entries(customFilters).forEach(([key, value]) => {
+        if (value) queryParams.append(key, value);
+      });
+
+      const res = await axiosInstance.get( `/deed/fetch?${queryParams.toString()}` );
       setDeedData(res.data.data || []);
+
     } catch (err) {
       console.error(err);
+
     } finally {
       setLoading(false);
     }
   };
+
+  const getPlantList = async () => {
+    try {
+      const result = await axiosInstance.get(`/admin/plnt/fetch`).then(res => res.data)
+      if(result.statuscode == 200) {
+        setPlantList(result.data)
+      }
+    }
+    catch (error) {
+      console.error(error)
+    }
+  }
+
+
+  const handleFilterChange = (field, value) => {
+    setFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
 
   const onEdit = (row) => {
     // console.log(row)
@@ -47,12 +90,29 @@ export default function Deed() {
     handleClickOpen();
   }
 
+  const downloadAllFiles = async (row) => {
+    try {
+      const response = await axiosInstance.get(`/file/downloadall?files=${row.deedDocs.map(doc => doc.filId).join(",")}`, {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Deed_${row.deedNo}_Docs.zip`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error downloading documents:", error);
+    } 
+  }
+
   return (
     <Box className="module-container" p={3}>
 
       <MUIDialog open={open} handleClose={handleClose} 
         icon={<Description sx={{ color: '#fff', fontSize: 22 }} />} 
-        title={selectedDeed ? "Update Deed" : "Add New Deed"} 
+        title={selectedDeed ? "Update Detail" : "Add New Detail"} 
         description={"Enter legal and land aquisition details"}
         content={<AddEditDeed selectedDeed={selectedDeed} handleClose={handleClose}  />}>
       </MUIDialog>
@@ -61,10 +121,10 @@ export default function Deed() {
       <Box display="flex" justifyContent="space-between" mb={3}>
         <Box>
           <Typography variant="h5" fontWeight={600}>
-            Deedwise
+            Land Management
           </Typography>
           <Typography color="text.secondary">
-            Track, verify, and manage land acquisition deeds
+            Track, verify, and manage land acquisition
           </Typography>
         </Box>
 
@@ -78,36 +138,6 @@ export default function Deed() {
         </Link> */}
       </Box>
 
-      {/* Stats Cards */}
-      {/* <Grid className="stats-cards" container spacing={2} mb={3}>
-        {[
-          { label: "Total Deeds", value: 892, icon: <Description />, bg: "#FFF3E0", color: "#FB8C00", },
-          { label: "Verified Deed", value: 745, icon: <Verified />, bg: "#E8F5E9", color: "#43A047", },
-          { label: "Pending Review", value: 147, icon: <HourglassTop />, bg: "#FFF8E1", color: "#F9A825", },
-          { label: "Total Coverage", value: "5,132 acres", icon: <Map />, bg: "#E3F2FD", color: "#1E88E5", },
-        ].map((item, i) => (
-          <Grid item xs={12} md={3} key={i}>
-            <Card sx={{ borderRadius: 3 }}>
-              <CardContent style={{display: "flex", alignItems: "center", gap: "2rem"}}>
-                <Box>
-                  <Typography color="text.secondary" fontSize={14}>
-                    {item.label}
-                  </Typography>
-                  <Typography variant="h5" fontWeight={700}>
-                    {item.value}
-                  </Typography>
-                </Box>
-                
-                
-                <Box className="right-icon" sx={{ backgroundColor: item.bg, color: item.color, }} >
-                  {item.icon}
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid> */}
-
       {/* Deed List */}
       <Card className="datagrid-card" sx={{ borderRadius: 3 }}>
         <CardContent>
@@ -117,27 +147,56 @@ export default function Deed() {
             </Typography>
 
             {/* Filters */}
-            <Box display="flex" gap={2}>
-              <TextField select size="small" label="Status" fullWidth>
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="Verified">Verified</MenuItem>
-                <MenuItem value="Pending">Pending</MenuItem>
-                <MenuItem value="Rejected">Rejected</MenuItem>
-              </TextField>
+            <Box display="flex" gap={2} flexWrap="wrap">
 
-              <TextField fullWidth size="small" type="date" label="Date range"
+              {!!plantList.length && <FormControl size="small" variant="outlined" fullWidth style={{width: 150}}>
+                <InputLabel id="plant-label">Location</InputLabel>
+                <Select labelId="plant-label" id="plant" defaultValue={filters.plantId || ""}
+                onChange={(e) => handleFilterChange("plantId", e.target.value)}>
+                  <MenuItem value=""> <em>Select</em> </MenuItem>
+                  {plantList.map((plant) => (
+                    <MenuItem key={plant._id} value={plant._id}>
+                      {plant.plantName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>}
+
+
+              <TextField size="small" label="Deed No" value={filters.deedNo} style={{width: 130}}
+                onChange={(e) => handleFilterChange("deedNo", e.target.value)}
+              />
+
+              <TextField size="small" label="Plot No" value={filters.plotNo} style={{width: 130}}
+                onChange={(e) => handleFilterChange("plotNo", e.target.value) }
+              />
+
+              <TextField size="small" label="Seller" value={filters.nameOfSeller}
+                onChange={(e) => handleFilterChange("nameOfSeller", e.target.value) }
+              />
+
+              <TextField size="small" label="Purchaser" value={filters.nameOfPurchaser}
+                onChange={(e) => handleFilterChange("nameOfPurchaser", e.target.value) }
+              />
+
+              <TextField type="date" size="small" label="From Date" value={filters.fromDate}
+                onChange={(e) => handleFilterChange("fromDate", e.target.value) }
                 InputLabelProps={{ shrink: true }}
               />
 
-              <TextField size="small" fullWidth placeholder="Search" />
+              <TextField type="date" size="small" label="To Date" value={filters.toDate}
+                onChange={(e) => handleFilterChange("toDate", e.target.value) }
+                InputLabelProps={{ shrink: true }}
+              />
+
             </Box>
           </Box>
 
           {loading && <LinearProgress />}
 
           <Box height={450}>
-            <DataGrid rows={deedData} columns={DEED_COLUMNS({ onEdit })} getRowId={(row) => row._id}
-              pageSizeOptions={[5, 10, 15]} disableRowSelectionOnClick
+            <DataGrid rows={deedData} columns={DEED_COLUMNS({ onEdit, downloadAllFiles })} getRowId={(row) => row._id}
+              pageSizeOptions={[5, 10, 15]} disableRowSelectionOnClick showToolbar
               sx={{
                 border: "none",
                 "& .MuiDataGrid-columnHeaders": {

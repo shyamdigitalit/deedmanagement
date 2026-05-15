@@ -20,7 +20,7 @@ const AccountCategory = lazy(() => import('../pages/Masters/AccountCategory'));
 const Department = lazy(() => import('../pages/Masters/Department'));
 const Designation = lazy(() => import('../pages/Masters/Designation'));
 
-const Function = lazy(() => import('../pages/Masters/Function'));
+// const Function = lazy(() => import('../pages/Masters/Function'));
 const State = lazy(() => import('../pages/Masters/State'));
 const Company = lazy(() => import('../pages/Masters/Company'));
 const Plant = lazy(() => import('../pages/Masters/Plant'));
@@ -67,7 +67,7 @@ const router = createBrowserRouter([
       ]},
       { path: "/admin", children: [
         { index: true, element: <Navigate to="state" replace /> },
-        { path: "function", element: <Function /> },
+        // { path: "function", element: <Function /> },
         { path: "state", element: <ProtectedRoute> <State /> </ProtectedRoute> },
         { path: "company", element: <ProtectedRoute> <Company /> </ProtectedRoute> },
         { path: "plant", element: <ProtectedRoute> <Plant /> </ProtectedRoute> },

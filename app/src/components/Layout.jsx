@@ -94,7 +94,6 @@ export default function MiniDrawer() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
   const { isAuthenticated } = useSelector((state) => state.auth);
-  const functionRefresh = useSelector((state) => state.functionRefresh.refresh);
   const user = useSelector((state) => state.auth.user);
   const userSymbol = user?.acc_fname?.split(" ")?.map(item => item[0])?.join("");
   const navigate = useNavigate()

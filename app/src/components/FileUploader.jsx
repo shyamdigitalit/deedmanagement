@@ -28,7 +28,8 @@ export default function FileUploader({ files, setFiles }) {
         file,
       }));
 
-    setFiles((prev) => [...prev, ...validFiles]);
+    // setFiles((prev) => [...prev, ...validFiles]);
+    setFiles([...files, ...validFiles]);
 
     // reset input so same file can be selected again
     e.target.value = "";
@@ -47,7 +48,8 @@ export default function FileUploader({ files, setFiles }) {
       console.log("Deleting existing file from backend:", fileToRemove.id);
     }
 
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+    // setFiles((prev) => prev.filter((_, i) => i !== index));
+    setFiles(files.filter((_, i) => i !== index));
   };
 
   /* ============================
