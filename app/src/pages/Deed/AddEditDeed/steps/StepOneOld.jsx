@@ -29,8 +29,11 @@ const StepOne = ({ control, errors, setValue }) => {
   const [options, setOptions] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [plantList, setPlantList] = React.useState([])
-
-  const { fields, append, remove } = useFieldArray({ control, name: "deeds" });
+  
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "deeds"
+  });
   
   const plantId = useWatch({ control, name: "plantId" });
 
@@ -51,6 +54,7 @@ const StepOne = ({ control, errors, setValue }) => {
       console.error(error)
     }
   }
+
 
   return (
     <Box>
@@ -109,7 +113,7 @@ const StepOne = ({ control, errors, setValue }) => {
           </Box>
 
           <Button type="button" size="small" variant="contained" startIcon={<Add />}
-            onClick={() => append({ deedNo: "", plotNo: "", totalArea: "" }) }
+            onClick={() => append({ deedNo: "", plotNo: "" }) }
           >
             Add
           </Button>
@@ -118,8 +122,31 @@ const StepOne = ({ control, errors, setValue }) => {
 
         <Box display="flex" flexDirection="column" gap={1.5}>
           {fields.map((field, index) => (
-            <FieldForm key={field.id} fields={fields} index={index} control={control} 
-            errors={errors} remove={remove} setValue={setValue} />
+            <Box key={field.id} display="flex" alignItems="center" gap={1} flexWrap="wrap" >
+
+              <Controller name={`deeds.${index}.deedNo`} control={control} rules={{ required: "Deed No is required" }}
+                render={({ field: controllerField }) => (
+                  <TextField type="number" {...controllerField} label="Deed No" sx={{ flex: 1, minWidth: "180px" }}
+                    error={!!errors?.deeds?.[index]?.deedNo} helperText={errors?.deeds?.[index]?.deedNo?.message}
+                  />
+                )}
+              />
+
+              <Controller name={`deeds.${index}.plotNo`} control={control} rules={{ required: "Plot No is required" }}
+                render={({ field: controllerField }) => (
+                  <TextField type="number" {...controllerField} label="Plot No" sx={{ flex: 1, minWidth: "180px" }}
+                    error={!!errors?.deeds?.[index]?.plotNo} helperText={errors?.deeds?.[index]?.plotNo?.message}
+                  />
+                )}
+              />
+
+              {fields.length > 1 && (
+                <IconButton color="error" size="small" onClick={() => remove(index)} >
+                  <Close />
+                </IconButton>
+              )}
+
+            </Box>
           ))}
         </Box>
         
@@ -131,71 +158,6 @@ const StepOne = ({ control, errors, setValue }) => {
 
 export default StepOne;
 
-
-const FieldForm = ({ fields, index, control, errors, remove, setValue }) => {
-  const [plotOptions, setPlotOptions] = React.useState([]);
-  const [loadingPlots, setLoadingPlots] = React.useState(false);
-
-  const plotNo = useWatch({ control, name: `deeds.${index}.plotNo` });
-
-  React.useEffect(() => {
-    if (plotNo) searchPlots(plotNo);
-  }, []);
-
-
-  const searchPlots = async (searchText) => {
-    try {
-      setLoadingPlots(true);
-      const res = await axiosInstance.get(`/plot/fetch?plotNo=${searchText}`);
-      setPlotOptions(res.data.data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingPlots(false);
-    }
-  };
-
-
-  return (
-    <Box display="flex" alignItems="center" gap={1} flexWrap="wrap" >
-
-      <Controller name={`deeds.${index}.deedNo`} control={control} rules={{ required: "Deed No is required" }}
-        render={({ field: controllerField }) => (
-          <TextField type="number" {...controllerField} label="Deed No" sx={{ flex: 1, minWidth: "180px" }}
-            error={!!errors?.deeds?.[index]?.deedNo} helperText={errors?.deeds?.[index]?.deedNo?.message}
-          />
-        )}
-      />
-
-      <Controller control={control} name={`deeds.${index}.plotNo`}
-        rules={{ required: "Plot No is required" }}
-        render={({ field }) => (
-          <Autocomplete options={plotOptions} loading={loadingPlots}
-            sx={{ flex: 1, minWidth: "180px" }} getOptionLabel={(option) => option.plotNo || ""}
-            value={plotOptions.find((x) => x.plotNo === field.value) || null}
-            onInputChange={(e, value) => { if (value?.trim()) searchPlots(value); }}
-            onChange={(e, selectedPlot) => {
-              field.onChange(selectedPlot?.plotNo || "");
-              setValue(`deeds.${index}.totalArea`, selectedPlot?.totalArea || "");
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label="Plot No" error={!!errors?.deeds?.[index]?.plotNo}
-                helperText={errors?.deeds?.[index]?.plotNo?.message}
-              />
-            )}
-          />
-        )}
-      />
-
-      {fields.length > 1 && (
-        <IconButton color="error" size="small" onClick={() => remove(index)} >
-          <Close />
-        </IconButton>
-      )}
-
-    </Box>
-  )
-}
 
 
 

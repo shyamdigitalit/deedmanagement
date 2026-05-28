@@ -6,9 +6,18 @@ import moment from "moment";
 export const DEED_COLUMNS = (props) => ([
     // { field: 'id', headerName: 'ID', width: 90 },
     // { field: 'logbookName', headerName: 'Logbook Name', width: 150 },
-    { field: 'plantName', headerName: 'Location', width: 150 },
-    { field: 'deedNo', headerName: 'Deed Number', width: 150 },
-    { field: 'plotNo', headerName: 'Plot Number', width: 150 },
+    { field: 'plantName', headerName: 'Plant', width: 100 },
+    { field: 'deedNo', headerName: 'Deed No', width: 100 },
+    { field: 'plotNo', headerName: 'Plot No', width: 100 },
+    { field: 'totalArea', headerName: 'Total Area', width: 100 },
+    { field: 'totalPurchasedArea', headerName: 'Purchased Area', width: 120 },
+    { field: 'balanceArea', headerName: 'Balance Area', width: 100 },
+    { field: 'remainingArea', headerName: 'Remaining Area', width: 120, renderCell: (params) => {
+      const remainingArea = parseFloat(params.value);
+      if(!remainingArea) return "";
+      const color = remainingArea > 0 ? "success" : remainingArea === 0 ? "default" : "error";
+      return <Chip size="small" label={params.value} color={color} />;
+    } },
     { field: 'nameOfSeller', headerName: 'Seller', width: 150 },
     { field: 'nameOfPurchaser', headerName: 'Purchaser', width: 180 },
     // { field: 'shift', headerName: 'Shift', width: 100, renderCell: (params) => params.row?.shift?.shft_name },

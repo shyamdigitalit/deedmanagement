@@ -18,7 +18,7 @@ import { stepOneFieldsArray, stepTwoFieldsArray } from "./deed-fields";
 import StepThree from "./steps/StepThree";
 
 
-export default function AddEditDeed({ selectedDeed, handleClose }) {
+export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
@@ -33,9 +33,13 @@ export default function AddEditDeed({ selectedDeed, handleClose }) {
 
   // const id = new URLSearchParams(window.location.search).get("_id");
   const id = selectedDeed?._id;
-  useEffect(() => {
+  React.useEffect(() => {
     if (id) getDeedById(id);
   }, [id]);
+
+  React.useEffect(() => {
+    if (plantId) setValue("plantId", plantId);
+  }, [plantId, setValue]);
   
 
   React.useEffect(() => {

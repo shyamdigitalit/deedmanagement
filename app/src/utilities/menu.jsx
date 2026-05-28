@@ -30,7 +30,7 @@ export const ADMIN_MENU = [
       icon: <AdminPanelSettingsIcon className='icn' />,
       className: 'menu-group',
       children: [
-        { title: 'Function Master', icon: <AccountTreeIcon className='icn' />, path: '/admin/function' },
+        // { title: 'Function Master', icon: <AccountTreeIcon className='icn' />, path: '/admin/function' },
         { title: 'State Master', icon: <LocationOn className='icn' />, path: '/admin/state' },
         { title: 'Company Master', icon: <CorporateFare className='icn' />, path: '/admin/company' },
         { title: 'Plant Master', icon: <FactoryIcon className='icn' />, path: '/admin/plant' },
@@ -52,11 +52,12 @@ export const ADMIN_MENU = [
       ],
     },
     {
-      title: 'Process Setup',
+      title: 'Deed Setup',
       icon: <MemoryIcon className='icn' />,
       className: 'menu-group',
       children: [
-        { title: 'Shift Master', icon: <LabelImportantIcon className='icn' />, path: '/process/shift' },
+        { title: 'Plot Master', icon: <LabelImportantIcon className='icn' />, path: '/setup/plot' },
+        // { title: 'Shift Master', icon: <LabelImportantIcon className='icn' />, path: '/process/shift' },
         // { title: 'Phase Master', icon: <DomainIcon className='icn' />, path: '/' },
         // { title: 'Doctype Master', icon: <DomainIcon className='icn' />, path: '/' },
         // { title: 'Filetype Master', icon: <DomainIcon className='icn' />, path: '/' },

@@ -26,10 +26,10 @@ const Company = lazy(() => import('../pages/Masters/Company'));
 const Plant = lazy(() => import('../pages/Masters/Plant'));
 const Material = lazy(() => import('../pages/Masters/Material'));
 const Shift = lazy(() => import('../pages/Masters/Shift'));
+const Plot = lazy(() => import('../pages/Masters/Plot'));
 
 
 const Deed = lazy(() => import('../pages/Deed'));
-const Plot = lazy(() => import('../pages/Plot'));
 const DeedBank = lazy(() => import('../pages/DeedBank'));
 
 
@@ -74,9 +74,10 @@ const router = createBrowserRouter([
         { path: "material", element: <ProtectedRoute> <Material /> </ProtectedRoute> },
 
       ]},
-      { path: "/process", children: [
-        { index: true, element: <Navigate to="shift" replace /> },
-        { path: "shift", element: <ProtectedRoute> <Shift /> </ProtectedRoute> },
+      { path: "/setup", children: [
+        { index: true, element: <Navigate to="plot" replace /> },
+        { path: "plot", element: <ProtectedRoute> <Plot /> </ProtectedRoute> },
+        // { path: "shift", element: <ProtectedRoute> <Shift /> </ProtectedRoute> },
 
       ]}
     ]

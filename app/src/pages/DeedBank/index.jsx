@@ -16,7 +16,7 @@ export default function DeedBank() {
 
   const searchDeeds = async (searchText) => {
     try {
-      if (!searchText || searchText.length < 2) {
+      if (!searchText) {
         setDeedOptions([]);
         return;
       }
@@ -93,7 +93,7 @@ export default function DeedBank() {
         {/* SECTION 1 - SEARCH */}
         <div className="top-section">
           <div className="left-box">
-            <label>Deed</label>
+            <label>Deed / Plot</label>
             <div className="dropdown-row">
               <Autocomplete className="deed-autocomplete" style={{ width: 300}} size="small" 
                 options={deedOptions} loading={loading} value={selectedDeed}
@@ -103,7 +103,7 @@ export default function DeedBank() {
                   option?.deedNo ? `${option.deedNo} - ${option.nameOfPurchaser || ""}` : ""
                 }
                 filterOptions={(x) => x}
-                renderInput={(params) => (<TextField {...params} placeholder="Search Deed No" />)}
+                renderInput={(params) => (<TextField {...params} placeholder="Search Deed / Plot No" />)}
               />
 
               <button className="go-btn" onClick={handleGo}>

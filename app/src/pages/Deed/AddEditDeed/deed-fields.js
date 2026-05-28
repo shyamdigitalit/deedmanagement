@@ -62,8 +62,8 @@ export const stepTwoFieldsArray = [
     section: "calculation",
     name: "totalArea",
     label: "Total Area ( A )",
-    type: "number",
-    placeholder: "0.00",
+    type: "number", variant: "filled",
+    placeholder: "0.00", disabled: true,
     rules: { required: "Required" },
   },
   {
@@ -105,13 +105,13 @@ export const stepTwoFieldsArray = [
 
 
 export const stepThreeFieldsArray = [
-  {
-    section: "review",
-    name: "mutatedInCompany",
-    label: "Mutated In Company",
-    placeholder: "Enter Mutated in company",
-    rules: { required: "Required" },
-  },
+  // {
+  //   section: "review",
+  //   name: "mutatedInCompany",
+  //   label: "Mutated In Company",
+  //   placeholder: "Enter Mutated in company",
+  //   rules: { required: "Required" },
+  // },
   {
     section: "review",
     name: "mutatedKhatianNo",

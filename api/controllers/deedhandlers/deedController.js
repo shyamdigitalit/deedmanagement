@@ -68,7 +68,12 @@ export const searchDeeds = async (req, res) => {
     const query = { status: { $ne: "Inactive" } };
 
     // autocomplete search
-    if (search?.trim()) query.deedNo = { $regex: search.trim(), $options: "i" };
+    if (search?.trim()) {
+      query.$or = [
+        { deedNo: { $regex: search.trim(), $options: "i" } },
+        { plotNo: { $regex: search.trim(), $options: "i" } }
+      ];
+    }
     if (sellerName?.trim()) query.nameOfSeller = { $regex: `^${sellerName.trim()}$`, $options: "i" };
 
     const deeds = await deedModel.find(query);
@@ -186,6 +191,25 @@ const create = async (req, res) => {
         if (results[fileField].length > 0) {
             payload[fileField] = results[fileField];
         }
+
+
+
+        // Sum all purchased areas for the plot
+        const purchasedAreaResult = await deedModel.aggregate([
+            { $match: { plotNo: payload.plotNo, status: { $ne: 'Inactive' } } },
+            {
+                $group: {
+                    _id: null,
+                    totalPurchasedArea: { $sum: { $toDouble: "$totalPurchasedArea" } }
+                }
+            }
+        ]);
+
+        const existingPurchasedArea = purchasedAreaResult.length > 0 ? purchasedAreaResult[0].totalPurchasedArea : 0;
+        const currentPurchasedArea = Number(payload.totalPurchasedArea || 0);
+        const totalPurchased = existingPurchasedArea + currentPurchasedArea;
+        const totalArea = Number(payload.totalArea || 0);
+        payload.remainingArea = totalArea - totalPurchased;
 
         Object.assign(payload, {
             status: 'Active',

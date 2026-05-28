@@ -4,8 +4,7 @@ import mongoose from 'mongoose'
 const { Schema, model, Types } = mongoose
 
 const DeedSchema = new Schema({
-    // deedType: { type: Types.ObjectId, ref: 'Deedmaster', required: true },
-    // locationOfPurchasedLand: { type: String, trim: true },
+    
     plantId: { type: Types.ObjectId, ref: 'Plant', required: true },
     nameOfSeller: { type: String, trim: true },
     nameOfPurchaser: { type: String, trim: true },
@@ -19,15 +18,13 @@ const DeedSchema = new Schema({
     totalArea: { type: String, trim: true },
     totalPurchasedArea: { type: String, trim: true },
     balanceArea: { type: String, trim: true },
+    remainingArea: { type: String, trim: true },
     totalMutatedArea: { type: String, trim: true },
     nonMutatedArea: { type: String, trim: true },
 
     mutatedInCompany: { type: String, trim: true },
     mutatedKhatianNo: { type: String, trim: true },
-
-    // purchasedLand: { type: String, trim: true },
-    // actualLandPurchasedLeased: { type: String, trim: true },
-    // excessMutated: { type: String, trim: true },
+    
 
     remarks: { type: String, trim: true },
     deedDocs: [{

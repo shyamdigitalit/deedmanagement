@@ -17,7 +17,7 @@ const DEFAULTVALUES = {
             totalMutatedArea: "",
             nonMutatedArea: "",
         
-            mutatedInCompany: "",
+            // mutatedInCompany: "",
             mutatedKhatianNo: "",
             
             remarks: "",

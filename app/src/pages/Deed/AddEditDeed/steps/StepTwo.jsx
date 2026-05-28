@@ -36,23 +36,12 @@ const StepTwo = ({ control, errors, setValue, }) => {
 
       {/* TABS */}
 
-      <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue) }
-        variant="scrollable" scrollButtons="auto"
-        sx={{
-          position: "sticky",
-          top: -18,
-          pl: 2,
-          zIndex: 2,
-          backgroundColor: "#fff",
-          boxShadow: 1,
-          borderBottom: "1px solid #eee",
-          borderRadius: "0 0 8px 8px",
-          mb: 2,
-        }}
+      <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue) } variant="scrollable" scrollButtons="auto"
+        sx={{ position: "sticky", top: -18, pl: 2, zIndex: 2, backgroundColor: "#fff", boxShadow: 1, borderBottom: "1px solid #eee", borderRadius: "0 0 8px 8px", mb: 2, }}
       >
 
         {fields.map((item, index) => (
-          <Tab key={item.id} label={item.plotNo ? `Plot - ${item.plotNo}` : `Deed ${index + 1}`} />
+          <Tab key={item.id} label={item.plotNo ? `${item.deedNo} / ${item.plotNo}` : `Deed ${index + 1}`} />
         ))}
 
       </Tabs>
@@ -118,8 +107,8 @@ const DeedTabForm = ({ index, control, errors, setValue, remove, totalTabs, }) =
     const balanceArea = Number(totalArea || 0) - Number(totalPurchasedArea || 0);
     const nonMutatedArea = Number(totalPurchasedArea || 0) - Number(totalMutatedArea || 0);
 
-    setValue(`deeds.${index}.balanceArea`, balanceArea >= 0 ? balanceArea : 0, { shouldValidate: false, shouldDirty: false, } );
-    setValue( `deeds.${index}.nonMutatedArea`, nonMutatedArea >= 0 ? nonMutatedArea : 0, { shouldValidate: false, shouldDirty: false, } );
+    setValue(`deeds.${index}.balanceArea`, balanceArea, { shouldValidate: false, shouldDirty: false, } );
+    setValue( `deeds.${index}.nonMutatedArea`, nonMutatedArea, { shouldValidate: false, shouldDirty: false, } );
 
   }, [ totalArea, totalPurchasedArea, totalMutatedArea, index, setValue, ]);
 
@@ -146,21 +135,8 @@ const DeedTabForm = ({ index, control, errors, setValue, remove, totalTabs, }) =
 
   return (
     <Box position="relative">
-
-      {/* REMOVE */}
-      {totalTabs > 1 && (
-
-        <IconButton color="error" size="small" type="button" onClick={() => remove(index)}
-          sx={{ position: "absolute", top: -10, right: -10, zIndex: 2,}}
-        >
-          <Close fontSize="small" />
-        </IconButton>
-
-      )}
-
       {/* FIELDS */}
       <Box sx={gridStyles}> {renderFields("calculation")} </Box>
-
     </Box>
   );
 };

@@ -31,7 +31,7 @@ const StepThree = ({ control, errors, setValue }) => {
       >
 
         {fields.map((item, index) => (
-          <Tab key={item.id} label={item.plotNo ? `Plot - ${item.plotNo}` : `Deed ${index + 1}`} />
+          <Tab key={item.id} label={item.plotNo ? `${item.deedNo} / ${item.plotNo}` : `Deed ${index + 1}`} />
         ))}
 
       </Tabs>
@@ -110,7 +110,18 @@ const DeedReviewTab = ({ index, control, errors, setValue, totalTabs, remove }) 
       </Box>
 
       {/* FORM FIELDS */}
-      <Box sx={gridStyles}> {renderFields("review")} </Box>
+      <Box sx={gridStyles}> 
+        
+        <Controller name="purchaseInCompany" control={control}
+          render={({field: controllerField,}) => (
+            <TextField {...controllerField} label="Purchase In Company"
+              variant="outlined" fullWidth size="small" disabled={true}
+            />
+          )}
+        />
+
+        {renderFields("review")} 
+      </Box>
 
       {/* FILE UPLOADER */}
       <Box mt={3}>
