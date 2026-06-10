@@ -2,14 +2,15 @@ const DEFAULTVALUES = {
     plantId: "",
     nameOfSeller: "",
     nameOfPurchaser: "",
-    nameOfMouza: "",
     correcterOfLand: "",
     purchaseInCompany: "",
-
+    
     deeds: [
         {
             deedNo: "",
+            nameOfMouza: "",
             plotNo: "",
+            plotNumber: "",
         
             totalArea: "",
             totalPurchasedArea: "",

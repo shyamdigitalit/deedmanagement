@@ -161,7 +161,7 @@ const FieldForm = ({ fields, index, control, errors, remove, setValue }) => {
 
       <Controller name={`deeds.${index}.deedNo`} control={control} rules={{ required: "Deed No is required" }}
         render={({ field: controllerField }) => (
-          <TextField type="number" {...controllerField} label="Deed No" sx={{ flex: 1, minWidth: "180px" }}
+          <TextField type="text" {...controllerField} label="Deed No" sx={{ flex: 1, minWidth: "180px" }}
             error={!!errors?.deeds?.[index]?.deedNo} helperText={errors?.deeds?.[index]?.deedNo?.message}
           />
         )}
@@ -172,10 +172,13 @@ const FieldForm = ({ fields, index, control, errors, remove, setValue }) => {
         render={({ field }) => (
           <Autocomplete options={plotOptions} loading={loadingPlots}
             sx={{ flex: 1, minWidth: "180px" }} getOptionLabel={(option) => option.plotNo || ""}
-            value={plotOptions.find((x) => x.plotNo === field.value) || null}
+            value={plotOptions.find((x) => x._id === field.value) || null}
             onInputChange={(e, value) => { if (value?.trim()) searchPlots(value); }}
             onChange={(e, selectedPlot) => {
-              field.onChange(selectedPlot?.plotNo || "");
+              console.log(selectedPlot)
+              field.onChange(selectedPlot?._id || "");
+              setValue(`deeds.${index}.nameOfMouza`, selectedPlot?.nameOfMouza || "");
+              setValue(`deeds.${index}.plotNumber`, selectedPlot?.plotNo || "");
               setValue(`deeds.${index}.totalArea`, selectedPlot?.totalArea || "");
             }}
             renderInput={(params) => (

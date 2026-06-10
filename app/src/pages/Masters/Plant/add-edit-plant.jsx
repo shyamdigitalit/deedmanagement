@@ -3,7 +3,7 @@ import { AccountTree, Add, Close, LocationOn, Save } from '@mui/icons-material'
 import { Button, Checkbox, FormControl, FormControlLabel, FormHelperText, IconButton, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material'
 import React from 'react'
 import { RippleEffect } from "../../../utilities/ripple";
-import { useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import axiosInstance from "../../../config/axiosInstance";
 import { useDispatch, useSelector } from "react-redux";
 import { showSnackbar } from "../../../redux/slices/snackbar";
@@ -15,7 +15,7 @@ const AddEditPlant = (props) => {
     const [companyList, setCompanyList] = React.useState([]);
     const [locationList, setLocationList] = React.useState([]);
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit, control, reset, formState: { errors } } = useForm({
         defaultValues: {
             plantCode: "",
             plantName: "",
@@ -26,6 +26,16 @@ const AddEditPlant = (props) => {
         mode: "onBlur",
         reValidateMode: "onChange",
     });
+
+    const plantCompany = useWatch({ control, name: "plnt_cmpny" });
+    const plantLocation = useWatch({ control, name: "plnt_loc" });
+
+    React.useEffect(() => {
+        if(props.selectedPlant) {
+            const { plantCode, plantName, plnt_cmpny, plnt_loc } = props.selectedPlant;
+            reset({ plantCode, plantName, plnt_cmpny: plnt_cmpny?._id || "", plnt_loc: plnt_loc?._id || "" });
+        }
+    }, [props.selectedPlant, reset])
 
     React.useEffect(() => {
         getCompanyList();
@@ -72,7 +82,8 @@ const AddEditPlant = (props) => {
         data.status = "Active";
         
         try {
-            const result = await axiosInstance.post(`/admin/plnt/create`, data).then(res => res.data)
+            let url = props.selectedPlant ? `/admin/plnt/update/${props.selectedPlant._id}` : `/admin/plnt/create`;
+            const result = await axiosInstance[props.selectedPlant ? "patch":"post"](url, data).then(res => res.data)
             
             props.onClose(); // Close the drawer
             dispatch(showSnackbar({ message: result.message, severity: 'success', }));
@@ -94,7 +105,7 @@ const AddEditPlant = (props) => {
         <section className="drawer-container">
             <div className="drawer-header">
                 <Typography className="title" color="primary">
-                    <LocationOn color="primary" style={{ fontSize: "2rem", margin: "-10px 0" }} /> ADD PLANT
+                    <LocationOn color="primary" style={{ fontSize: "2rem", margin: "-10px 0" }} /> {props.selectedPlant ? "EDIT":"ADD"} PLANT
                 </Typography>
                 <IconButton onClick={() => props.onClose()}> <Close color="error" width={300} /> </IconButton>
             </div>
@@ -108,45 +119,47 @@ const AddEditPlant = (props) => {
                     error={!!errors.plantName} helperText={errors.plantName?.message} fullWidth /> 
                 </div>
                 <div className="input-container"> 
-                    <FormControl fullWidth variant="filled" error={!!errors.plnt_cmpny}>
-                    <InputLabel id="plant-company-label">Company</InputLabel>
-                    <Select
-                        labelId="plant-company-label"
-                        id="plant-company" defaultValue={""}
-                        {...register("plnt_cmpny", { required: "Company is required" })}
-                    >
-                        {companyList.map((company) => (
-                        <MenuItem key={company._id} value={company._id}>
-                            {company.companyCode} - {company.companyDesc}
-                        </MenuItem>
-                        ))}
-                    </Select>
-                    <FormHelperText>{errors.plnt_cmpny?.message}</FormHelperText>
-                    </FormControl>
+                    <Controller name="plnt_cmpny" control={control} 
+                        rules={{ required: "Company is required" }}
+                        render={({ field }) => (
+                            <FormControl fullWidth variant="filled" error={!!errors.plnt_cmpny}>
+                                <InputLabel>Company</InputLabel>
+                                <Select {...field}>
+                                    {companyList.map((company) => (
+                                        <MenuItem key={company._id} value={company._id}>
+                                            {company.companyCode} - {company.companyDesc}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{errors.plnt_cmpny?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
                 </div>
                 <div className="input-container"> 
-                    <FormControl fullWidth variant="filled" error={!!errors.plnt_loc}>
-                    <InputLabel id="plant-location-label">Location</InputLabel>
-                    <Select
-                        labelId="plant-location-label"
-                        id="plant-location" defaultValue={""}
-                        {...register("plnt_loc", { required: "Location is required" })}
-                    >
-                        {locationList.map((location) => (
-                        <MenuItem key={location._id} value={location._id}>
-                            {location.stt_code} - {location.stt_name}
-                        </MenuItem>
-                        ))}
-                    </Select>
-                    <FormHelperText>{errors.plnt_loc?.message}</FormHelperText>
-                    </FormControl>
+                    <Controller name="plnt_loc" control={control}
+                        rules={{ required: "State is required" }}
+                        render={({ field }) => (
+                            <FormControl fullWidth variant="filled" error={!!errors.plnt_loc}>
+                                <InputLabel>State</InputLabel>
+                                <Select {...field}>
+                                    {locationList.map((location) => (
+                                        <MenuItem key={location._id} value={location._id}>
+                                            {location.stt_code} - {location.stt_name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{errors.plnt_loc?.message}</FormHelperText>
+                            </FormControl>
+                        )}
+                    />
                 </div>
 
 
                 <div className="action-buttons">
                     <div style={{padding: "1rem 2rem", display: "flex", alignItems: "center", gap: "1rem"}}>
                         <Button type="submit" variant="contained" size="large">
-                            ADD <Add style={{ margin: "-3px 0 0 4px" }} />
+                            {props.selectedPlant ? "UPDATE":"ADD"} <Add style={{ margin: "-3px 0 0 4px" }} />
                         </Button>
                         
                         <div className="reset-button" onClick={handleReset}> Reset </div>

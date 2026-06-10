@@ -25,6 +25,13 @@ const AddEditState = (props) => {
         reValidateMode: "onChange",
     });
 
+    React.useEffect(() => {
+        if(props.selectedState) {
+            const { stt_code, stt_name, stt_desc, stt_captl } = props.selectedState;
+            reset({ stt_code, stt_name, stt_desc, stt_captl });
+        }
+    }, [props.selectedState, reset])
+
     const onSubmit = async (data) => {
     console.log("FORM SUBMITTED", data);
 
@@ -32,7 +39,8 @@ const AddEditState = (props) => {
         data.status = "Active";
         
         try {
-            const result = await axiosInstance.post(`/admin/stt/create`, data).then(res => res.data)
+            let url = props.selectedState ? `/admin/stt/update/${props.selectedState._id}` : `/admin/stt/create`;
+            const result = await axiosInstance[props.selectedState ? "patch":"post"](url, data).then(res => res.data)
             
             if(result.statuscode === 201){
                 props.onClose(); // Close the drawer
@@ -54,7 +62,7 @@ const AddEditState = (props) => {
         <section className="drawer-container">
             <div className="drawer-header">
                 <Typography className="title" color="primary">
-                    <LocationOn color="primary" style={{ fontSize: "2rem", margin: "-10px 0" }} /> ADD STATE
+                    <LocationOn color="primary" style={{ fontSize: "2rem", margin: "-10px 0" }} /> {props.selectedState ? "EDIT" : "ADD"} STATE
                 </Typography>
                 <IconButton onClick={() => props.onClose()}> <Close color="error" width={300} /> </IconButton>
             </div>
@@ -79,7 +87,7 @@ const AddEditState = (props) => {
                 <div className="action-buttons">
                     <div style={{padding: "1rem 2rem", display: "flex", alignItems: "center", gap: "1rem"}}>
                         <Button type="submit" variant="contained" size="large">
-                            ADD <Add style={{ margin: "-3px 0 0 4px" }} />
+                            {props.selectedState ? "UPDATE":"ADD"} <Add style={{ margin: "-3px 0 0 4px" }} />
                         </Button>
                         
                         <div className="reset-button" onClick={handleReset}> Reset </div>

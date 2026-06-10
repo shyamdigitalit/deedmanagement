@@ -21,6 +21,7 @@ import sttController from '../controllers/masters/admin/sttController.js';
 import deptController from '../controllers/masters/accsetups/deptController.js';
 import desigController from '../controllers/masters/accsetups/desigController.js';
 import plotController from '../controllers/masters/deedsetups/plotController.js';
+import locationController from '../controllers/masters/admin/locationController.js';
 
 // Utility function to create routes
 const createRoute = (method, path, ...handlers) => {
@@ -45,10 +46,11 @@ const postRoutes = [
     },
     { path: '/acctyp/create', handlers: [jwtHybrdProtect, fileUpload.none(), acctypController.create] },
     { path: '/dept/create', handlers: [jwtHybrdProtect, fileUpload.none(), deptController.create] },
-    { path: '/plot/create', handlers: [jwtHybrdProtect, fileUpload.none(), plotController.create] },
+    { path: '/admin/plot/create', handlers: [jwtHybrdProtect, fileUpload.none(), plotController.create] },
     { path: '/desig/create', handlers: [jwtHybrdProtect, fileUpload.none(), desigController.create] },
     { path: '/acccat/create', handlers: [jwtHybrdProtect, fileUpload.none(), acccatController.create] },
     { path: '/admin/cmpny/create', handlers: [jwtHybrdProtect, fileUpload.none(), cmpnyController.create] },
+    { path: '/admin/location/create', handlers: [jwtHybrdProtect, fileUpload.none(), locationController.create] },
     { path: '/unt/create', handlers: [jwtHybrdProtect, fileUpload.none(), untController.create] },
     // { path: '/polcytyp/create', handlers: [jwtHybrdProtect, fileUpload.none(), polcytypController.create] },
     // { path: '/provdr/create', handlers: [jwtHybrdProtect, fileUpload.none(), provdrController.create] },
@@ -77,6 +79,7 @@ const getRoutes = [
     { path: '/acctyp/fetchby/:id', handlers: [jwtHybrdProtect, acctypController.readById] },
     { path: '/acctyp/fetchuppr', handlers: [jwtHybrdProtect, acctypController.readLowrHierarchy] },
     { path: '/admin/cmpny/fetch', handlers: [jwtHybrdProtect, cmpnyController.read] },
+    { path: '/admin/location/fetch', handlers: [jwtHybrdProtect, locationController.read] },
     { path: '/unt/fetch', handlers: [basicAuth, untController.read] },
     // { path: '/polcytyp/fetch', handlers: [jwtHybrdProtect, polcytypController.read] },
     // { path: '/provdr/fetch', handlers: [jwtHybrdProtect, provdrController.read] },
@@ -108,9 +111,12 @@ const patchRoutes = [
     },
     // { path: '/deed/status/update', handlers: [jwtHybrdProtect, fileUplo  ad.none(), deedController.statusUpdate] },
     { path: '/acctyp/update', handlers: [jwtHybrdProtect, fileUpload.none(), acctypController.update] },
-    { path: '/plot/update', handlers: [jwtHybrdProtect, fileUpload.none(), plotController.update] },
-    { path: '/cmpny/update', handlers: [jwtHybrdProtect, fileUpload.none(), cmpnyController.update] },
+    { path: '/admin/plot/update/:id', handlers: [jwtHybrdProtect, fileUpload.none(), plotController.update] },
+    { path: '/admin/cmpny/update', handlers: [jwtHybrdProtect, fileUpload.none(), cmpnyController.update] },
+    { path: '/admin/location/update/:id', handlers: [jwtHybrdProtect, fileUpload.none(), locationController.update] },
     { path: '/unt/update', handlers: [jwtHybrdProtect, fileUpload.none(), untController.update] },
+    { path: '/admin/stt/update/:id', handlers: [jwtHybrdProtect, fileUpload.none(), sttController.update] },
+    { path: '/admin/plnt/update/:id', handlers: [jwtHybrdProtect, fileUpload.none(), plntController.update] },
     // { path: '/polcytyp/update', handlers: [jwtHybrdProtect, fileUpload.none(), polcytypController.update] },
     // { path: '/provdr/update', handlers: [jwtHybrdProtect, fileUpload.none(), provdrController.update] },
     // { path: '/brokr/update', handlers: [jwtHybrdProtect, fileUpload.none(), brokrController.update] },
@@ -126,8 +132,12 @@ const deleteRoutes = [
     { path: '/deed/delete', handlers: [jwtHybrdProtect, deedController.remove] },
     { path: '/acctyp/delete', handlers: [jwtHybrdProtect, acctypController.remove] },
     { path: '/dynapprvl/delete/:id', handlers: [jwtHybrdProtect, dynapprvlController.remove] },
-    { path: '/cmpny/delete', handlers: [jwtHybrdProtect, cmpnyController.remove] },
+    { path: '/admin/plot/delete/:id', handlers: [jwtHybrdProtect, plotController.remove] },
+    { path: '/admin/cmpny/delete/:id', handlers: [jwtHybrdProtect, cmpnyController.remove] },
+    { path: '/admin/location/delete/:id', handlers: [jwtHybrdProtect, locationController.remove] },
     { path: '/unt/delete', handlers: [jwtHybrdProtect, untController.remove] },
+    { path: '/admin/stt/delete/:id', handlers: [jwtHybrdProtect, sttController.remove] },
+    { path: '/admin/plnt/delete/:id', handlers: [jwtHybrdProtect, plntController.remove] },
     // { path: '/polcytyp/delete', handlers: [jwtHybrdProtect, polcytypController.remove] },
     // { path: '/provdr/delete', handlers: [jwtHybrdProtect, provdrController.remove] },
     // { path: '/brokr/delete', handlers: [jwtHybrdProtect, brokrController.remove] },

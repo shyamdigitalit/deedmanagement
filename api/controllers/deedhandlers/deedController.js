@@ -64,27 +64,34 @@ export const removeFiles = async (files, fileIds) => {
 
 export const searchDeeds = async (req, res) => {
   try {
-    const { search, sellerName } = req.query;
-    const query = { status: { $ne: "Inactive" } };
 
-    // autocomplete search
+    const { search, sellerName } = req.query;
+
+    // main filters
+    const matchFilter = { status: { $ne: "Inactive" } };
+    if (sellerName?.trim()) matchFilter.nameOfSeller = { $regex: `^${sellerName.trim()}$`, $options: "i" };
+    const searchFilter = {};
+
     if (search?.trim()) {
-      query.$or = [
+      searchFilter.$or = [
         { deedNo: { $regex: search.trim(), $options: "i" } },
-        { plotNo: { $regex: search.trim(), $options: "i" } }
+        { "plotNo.plotNo": { $regex: search.trim(), $options: "i" } }
       ];
     }
-    if (sellerName?.trim()) query.nameOfSeller = { $regex: `^${sellerName.trim()}$`, $options: "i" };
 
-    const deeds = await deedModel.find(query);
+    const deeds = await deedModel.aggregate([
+      { $match: matchFilter },
+      { $lookup: { from: "plots", localField: "plotNo", foreignField: "_id", as: "plotNo" } },
+      { $unwind: { path: "$plotNo", preserveNullAndEmptyArrays: true } },
+
+      // search filter
+      ...(Object.keys(searchFilter).length ? [{ $match: searchFilter }] : [])
+
+    ]);
 
     return res.status(200).json({ success: true, data: deeds });
-
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -96,7 +103,8 @@ export const getAllDeedDetails = async (filter) => {
         if (filter?.deedId) matchQuery._id = new mongoose.Types.ObjectId(filter.deedId);
         if (filter?.plantId) matchQuery.plantId = new mongoose.Types.ObjectId(filter.plantId);
         if (filter?.deedNo?.trim()) matchQuery.deedNo = { $regex: filter.deedNo.trim(), $options: "i" };
-        if (filter?.plotNo?.trim()) matchQuery.plotNo = { $regex: filter.plotNo.trim(), $options: "i" };
+        if (filter?.nameOfMouza?.trim()) matchQuery["plot.nameOfMouza"] = { $regex: filter.nameOfMouza.trim(), $options: "i" };
+        if (filter?.plotNo?.trim()) matchQuery["plot.plotNo"] = { $regex: filter.plotNo.trim(), $options: "i" };
         if (filter?.nameOfSeller?.trim()) matchQuery.nameOfSeller = { $regex: filter.nameOfSeller.trim(), $options: "i" };
         if (filter?.nameOfPurchaser?.trim()) matchQuery.nameOfPurchaser = { $regex: filter.nameOfPurchaser.trim(), $options: "i" };
 
@@ -114,24 +122,29 @@ export const getAllDeedDetails = async (filter) => {
         }
 
         const pipeline = [
-            { $match: matchQuery },
             { $lookup: { from: 'plants', localField: 'plantId', foreignField: '_id', as: 'plant' } },
             { $unwind: { path: '$plant', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'createdby', foreignField: '_id', as: 'createdby' } },
             { $unwind: { path: '$createdby', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'updatedby', foreignField: '_id', as: 'updatedby' } },
             { $unwind: { path: '$updatedby', preserveNullAndEmptyArrays: true } },
+            { $lookup: { from: 'plots', localField: 'plotNo', foreignField: '_id', as: 'plot' } },
+            { $unwind: { path: '$plot', preserveNullAndEmptyArrays: true } },
+            { $lookup: { from: 'locations', localField: 'plot.locationId', foreignField: '_id', as: 'location' } },
+            { $unwind: { path: '$location', preserveNullAndEmptyArrays: true } },
 
             { $unwind: { path: '$approvalDetails', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'approvalDetails.approver', foreignField: '_id', as: 'approvalDetails.approver' } },
             { $unwind: { path: '$approvalDetails.approver', preserveNullAndEmptyArrays: true } },
-            { $addFields: { plantName: '$plant.plantName', } },
+            { $addFields: { plantName: '$plant.plantName', locationName: "$location.locationName", nameOfMouza: "$plot.nameOfMouza" } },
             {
                 $addFields: {
                     createdAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$createdAt', timezone: "+05:30" } },
-                    updatedAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$updatedAt', timezone: "+05:30" } }
+                    updatedAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$updatedAt', timezone: "+05:30" } },
+                    plotNumber: "$plot.plotNo"
                 }
             },
+            { $match: matchQuery },
             {
                 $group: {
                     _id: '$_id',
@@ -196,7 +209,7 @@ const create = async (req, res) => {
 
         // Sum all purchased areas for the plot
         const purchasedAreaResult = await deedModel.aggregate([
-            { $match: { plotNo: payload.plotNo, status: { $ne: 'Inactive' } } },
+            { $match: { plotNo: new mongoose.Types.ObjectId(payload.plotNo), status: { $ne: 'Inactive' } } },
             {
                 $group: {
                     _id: null,
@@ -218,6 +231,7 @@ const create = async (req, res) => {
             createdby: user?._id
         });
 
+        
         const deed = await deedModel.create(payload);
         if (!deed) {
             return res.status(422).json({ message: "Failed to add New Deed" });

@@ -81,6 +81,7 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
               {
                   deedNo: deedData.deedNo,
                   plotNo: deedData.plotNo,
+                  plotNumber: deedData.plotNumber,
               
                   totalArea: deedData.totalArea,
                   totalPurchasedArea: deedData.totalPurchasedArea,
@@ -122,6 +123,7 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
   ============================ */
 
   const handleNext = async () => {
+    console.log("handle next")
     let fields = [];
     if (activeStep === 0) fields = [...stepOneFieldsArray.map(e => e.name), "deeds", "plantId"];
     // if (activeStep === 1) fields = [...stepTwoFieldsArray.map(e => e.name), "deeds"];
@@ -139,6 +141,7 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
 
 
     const isValid = await trigger(fields);
+    console.log(isValid)
     if (!isValid) return;
 
     setActiveStep((prev) => prev + 1);
@@ -163,6 +166,7 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
 
       deedNo: deed.deedNo,
       plotNo: deed.plotNo,
+      plotNumber: deed.plotNumber,
 
       totalArea: deed.totalArea,
       totalPurchasedArea: deed.totalPurchasedArea,
@@ -195,6 +199,12 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
   
   
   const saveDeed = async (data) => {
+    console.log(data)
+    if(!data.totalMutatedArea && data.mutatedKhatianNo)
+    return dispatch( showSnackbar({ message: `Total Mutated Area is required for ${data.deedNo} / ${data.plotNumber} .`, severity: "error", }) );
+    if(data.totalMutatedArea && !data.mutatedKhatianNo)
+    return dispatch( showSnackbar({ message: `Mutated Khatian No is required for ${data.deedNo} / ${data.plotNumber} .`, severity: "error", }) );
+      
     // if (parseFloat(totalMutatedArea) > parseFloat(totalPurchasedArea)) {
     //   dispatch(
     //     showSnackbar({

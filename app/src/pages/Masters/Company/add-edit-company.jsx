@@ -23,13 +23,21 @@ const AddEditCompany = (props) => {
         reValidateMode: "onChange",
     });
 
+    React.useEffect(() => {
+        if(props.selectedCompany) {
+            const { companyCode, companyDesc } = props.selectedCompany;
+            reset({ companyCode, companyDesc });
+        }
+    }, [props.selectedCompany, reset])
+
     const onSubmit = async (data) => {
        console.log("FORM SUBMITTED", data);
         data.createdby = user?._id;
         data.status = "Active";
         
         try {
-            const result = await axiosInstance.post(`/admin/cmpny/create`, data).then(res => res.data)
+            let url = props.selectedCompany ? `/admin/cmpny/update/${props.selectedCompany._id}` : `/admin/cmpny/create`;
+            const result = await axiosInstance[props.selectedCompany ? "patch":"post"](url, data).then(res => res.data)
             
             if(result.statuscode === 201){
                 props.onClose(); // Close the drawer
@@ -51,7 +59,7 @@ const AddEditCompany = (props) => {
         <section className="drawer-container">
             <div className="drawer-header">
                 <Typography className="title" color="primary">
-                    <LocationOn color="primary" style={{ fontSize: "2rem", margin: "-10px 0" }} /> ADD COMPANY
+                    <LocationOn color="primary" style={{ fontSize: "2rem", margin: "-10px 0" }} /> {props.selectedCompany ? "EDIT":"ADD"} COMPANY
                 </Typography>
                 <IconButton onClick={() => props.onClose()}> <Close color="error" width={300} /> </IconButton>
             </div>
@@ -68,7 +76,7 @@ const AddEditCompany = (props) => {
                 <div className="action-buttons">
                     <div style={{padding: "1rem 2rem", display: "flex", alignItems: "center", gap: "1rem"}}>
                         <Button type="submit" variant="contained" size="large">
-                            ADD <Add style={{ margin: "-3px 0 0 4px" }} />
+                            {props.selectedCompany ? "UPDATE":"ADD"} <Add style={{ margin: "-3px 0 0 4px" }} />
                         </Button>
                         
                         <div className="reset-button" onClick={handleReset}> Reset </div>

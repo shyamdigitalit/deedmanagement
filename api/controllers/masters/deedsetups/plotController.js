@@ -6,7 +6,7 @@ const create = async (req, res) => {
         const user = req.user;
         
         Object.assign(plotPayld, { status: 'Active', createdby: user._id });
-        const existingPlot = await plotModel.findOne({ plotNo: plotPayld.plotNo });
+        const existingPlot = await plotModel.findOne({ locationId: plotPayld.locationId, plotNo: plotPayld.plotNo, nameOfMouza: plotPayld.nameOfMouza });
         if (existingPlot) {
             return res.status(409).json({ message: "Plot No already exists", statuscode: 409 });
         } else {
@@ -39,9 +39,12 @@ const read = async (req, res) => {
             { $unwind: { path: '$createdby', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'updatedby', foreignField: '_id', as: 'updatedby' } },
             { $unwind: { path: '$updatedby', preserveNullAndEmptyArrays: true } },
+            { $lookup: { from: 'locations', localField: 'locationId', foreignField: '_id', as: 'location' } },
+            { $unwind: { path: '$location', preserveNullAndEmptyArrays: true } },
             { $addFields: {
                 createdAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$createdAt', timezone: "+05:30" } },
-                updatedAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$updatedAt', timezone: "+05:30" } }
+                updatedAtITC: { $dateToString: { format: "%d-%m-%Y %H:%M:%S", date: '$updatedAt', timezone: "+05:30" } },
+                locationName: "$location.locationName"
             }},
             { $sort: { updatedAt: -1 } }
         ]
@@ -86,9 +89,9 @@ const update = async (req, res) => {
         if (!updatedPlot) {
             return res.status(404).json({ message: "Plot record not found", statuscode: 404 });
         }
-        res.status(200).json({
+        res.status(201).json({
             message: "Plot record updated successfully",
-            statuscode: 200,
+            statuscode: 201,
             data: updatedPlot
         });
     } catch (error) {
@@ -99,7 +102,7 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
     try {
-        const plotId = req.query.id;
+        const plotId = req.params.id;
         const deletedPlot = await plotModel.findByIdAndDelete(plotId);
         if (!deletedPlot) {
             return res.status(404).json({ message: "Plot record not found", statuscode: 404 });

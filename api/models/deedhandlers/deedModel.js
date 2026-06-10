@@ -13,7 +13,7 @@ const DeedSchema = new Schema({
 
     purchaseInCompany: { type: String, required: true, trim: true },
     deedNo: { type: String, required: true, trim: true },
-    plotNo: { type: String, trim: true },
+    plotNo: { type: Types.ObjectId, ref: 'Plot' },
 
     totalArea: { type: String, trim: true },
     totalPurchasedArea: { type: String, trim: true },

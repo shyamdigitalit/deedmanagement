@@ -4,22 +4,6 @@ import { Add, Close, TimelineOutlined, } from "@mui/icons-material";
 import { Controller, useFieldArray, useWatch, } from "react-hook-form";
 import { stepTwoFieldsArray } from "../deed-fields";
 
-const DEFAULT_DEED = {
-  deedNo: "",
-  plotNo: "",
-
-  totalArea: "",
-  totalPurchasedArea: "",
-  balanceArea: "",
-  totalMutatedArea: "",
-  nonMutatedArea: "",
-
-  mutatedInCompany: "",
-  mutatedKhatianNo: "",
-
-  remarks: "",
-  deedDocs: [],
-};
 
 const StepTwo = ({ control, errors, setValue, }) => {
 
@@ -41,7 +25,7 @@ const StepTwo = ({ control, errors, setValue, }) => {
       >
 
         {fields.map((item, index) => (
-          <Tab key={item.id} label={item.plotNo ? `${item.deedNo} / ${item.plotNo}` : `Deed ${index + 1}`} />
+          <Tab key={item.id} label={item.plotNumber ? `${item.deedNo} / ${item.plotNumber}` : `Deed ${index + 1}`} />
         ))}
 
       </Tabs>

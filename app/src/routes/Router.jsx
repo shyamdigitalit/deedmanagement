@@ -24,6 +24,7 @@ const Designation = lazy(() => import('../pages/Masters/Designation'));
 const State = lazy(() => import('../pages/Masters/State'));
 const Company = lazy(() => import('../pages/Masters/Company'));
 const Plant = lazy(() => import('../pages/Masters/Plant'));
+const Location = lazy(() => import('../pages/Masters/Location'));
 const Material = lazy(() => import('../pages/Masters/Material'));
 const Shift = lazy(() => import('../pages/Masters/Shift'));
 const Plot = lazy(() => import('../pages/Masters/Plot'));
@@ -71,6 +72,7 @@ const router = createBrowserRouter([
         { path: "state", element: <ProtectedRoute> <State /> </ProtectedRoute> },
         { path: "company", element: <ProtectedRoute> <Company /> </ProtectedRoute> },
         { path: "plant", element: <ProtectedRoute> <Plant /> </ProtectedRoute> },
+        { path: "location", element: <ProtectedRoute> <Location /> </ProtectedRoute> },
         { path: "material", element: <ProtectedRoute> <Material /> </ProtectedRoute> },
 
       ]},

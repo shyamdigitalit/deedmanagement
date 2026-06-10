@@ -56,21 +56,12 @@ const Login = () => {
 
         <h1 className="login-title">Authentication</h1>
 
-        <TextField 
-          className="text-field" 
-          label="Email / Username" 
-          variant="filled" 
-          fullWidth
-          name="acc_uname"
-          value={credentials.acc_uname}
-          onChange={handlechange}
+        <TextField className="text-field" label="Email / Username" variant="filled" fullWidth 
+          name="acc_uname" value={credentials.acc_uname} onChange={handlechange}
         />
 
-        <TextField
-          className="text-field"
-          label="Password"
-          variant="filled"
-          fullWidth
+        <TextField className="text-field" label="Password" variant="filled" fullWidth
+          name="acc_pass" value={credentials.acc_pass} onChange={handlechange}
           type={showPassword ? 'text' : 'password'}
           InputProps={{
             endAdornment: (
@@ -81,21 +72,14 @@ const Login = () => {
               </InputAdornment>
             ),
           }}
-          name="acc_pass"
-          value={credentials.acc_pass}
-          onChange={handlechange}
         />
 
         <FormControlLabel checked control={<Checkbox />} label="Remember Me" />
 
         {/* <a className="forgot-password" href="">Forgot Password?</a> */}
 
-        <Button
-          size="large"
-          variant="contained"
-          style={{ borderRadius: "25px" }}
-          disabled={loading}
-          onClick={handlesubmit}
+        <Button size="large" variant="contained" style={{ borderRadius: "25px" }} 
+          disabled={loading} onClick={handlesubmit}
         >
           Login
         </Button>

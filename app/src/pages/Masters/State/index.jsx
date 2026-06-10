@@ -5,14 +5,15 @@ import EditSquareIcon from '@mui/icons-material/EditSquare';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { DataGrid } from '@mui/x-data-grid';
-import { Button, Typography, IconButton, Card, CardContent, Breadcrumbs, Drawer, LinearProgress } from '@mui/material';
+import { Button, Typography, IconButton, Card, CardContent, Breadcrumbs, Drawer, LinearProgress, Tooltip } from '@mui/material';
 import { Link } from "react-router-dom";
-import { AccountTree, LocationOn } from "@mui/icons-material";
+import { AccountTree, Delete, EditSquare, LocationOn } from "@mui/icons-material";
 import { DataGridStyle } from "../../../utilities/datagridStyle";
 import axiosInstance from '../../../config/axiosInstance'
 import { useDispatch } from "react-redux";
 import Loader from "../../../components/loader";
 import moment from "moment";
+import { showSnackbar } from "../../../redux/slices/snackbar";
 
 const AddEditState = React.lazy(() => import("./add-edit-state"));
 
@@ -20,7 +21,7 @@ const TableHeaderFormat = (props) => {
  
   return [
     { 
-      field: 'id', headerName: 'ID', width: 150,
+      field: 'id', headerName: 'ID', width: 80,
       renderCell: (params) => {
         return params.api.getRowIndexRelativeToVisibleRows(params.id) + 1 + (props.currentPage * props.pageSize);
       },  
@@ -32,6 +33,21 @@ const TableHeaderFormat = (props) => {
     { field: 'status', headerName: 'Status', width: 150 },
     { field: 'createdAtITC', headerName: 'Created At', width: 180, renderCell: (params) => moment(params.value, 'DD-MM-YYYY hh:mm').format('DD-MM-YYYY hh:mm A')},
     { field: 'updatedAtITC', headerName: 'Updated At', width: 180, renderCell: params => moment(params.value, 'DD-MM-YYYY hh:mm').format('DD-MM-YYYY hh:mm A') },
+    { field: 'action', headerName: 'Actions', type: 'number',
+      renderCell: (params) => {
+        
+        return (
+          <div>
+              <Tooltip title="Edit" arrow onClick={() => props.onEdit(params.row)}> 
+                <IconButton> <EditSquare /> </IconButton> 
+              </Tooltip>
+              <Tooltip title="Delete" arrow onClick={() => props.onDelete(params.row)}> 
+                <IconButton> <Delete /> </IconButton> 
+              </Tooltip>
+          </div>
+        );
+      }
+    }
   ]
 }
 
@@ -43,6 +59,7 @@ export default function State() {
   const [currentPage, setCurrentPage] = React.useState(0)
   const [pageSize, setPageSize] = React.useState(1)
   const [loading, setLoading] = React.useState(false)
+  const [selectedState, setSelectedState] = React.useState(null);
 
   React.useEffect(() => {
     getStateList();
@@ -69,12 +86,38 @@ export default function State() {
     getStateList();
   }
 
+
+  const onEdit = (row) => {
+    // console.log(row)
+    setSelectedState(row)
+    setOpen(true);
+    // handleClickOpen();
+  }
+
+  const onDelete = async (row) => {
+    if(window.confirm("Are you sure you want to delete this record?")) {
+      try {
+        const result = await axiosInstance.delete(`/admin/stt/delete/${row._id}`).then(res => res.data)
+        console.log(result)
+        if(result.statuscode === 200) {
+          dispatch(showSnackbar({ message: result.message, severity: 'success', }));
+          getStateList();
+        }
+      } catch (error) {
+        const message = error.response ? error.response.data.message : error.message;
+        dispatch(showSnackbar({ message, severity: 'error', }));
+      }
+    }
+  }
+
+
+
   return (
     <section className="inspection-entry-form">
         
         <Drawer anchor={"right"} open={open} onClose={() => handleClose()} PaperProps={{ style: { width: 600 } }}> 
           <Suspense fallback={<Loader />}>
-            <AddEditState onClose={handleClose} /> 
+            <AddEditState selectedState={selectedState} onClose={handleClose} /> 
           </Suspense>
         </Drawer>
  
@@ -89,17 +132,20 @@ export default function State() {
         </Typography>
 
         <div className="button-container">
-            <Button variant="outlined" size="large" className="button-css" onClick={() => setOpen(true)}>
+            <Button variant="outlined" size="large" className="button-css" onClick={() => {
+              setSelectedState(null);
+              setOpen(true)
+            }}>
                 Add New <AddIcon style={{ margin: "-1px 0 0 2px", fontSize: 17, fontWeight: 600 }} />
             </Button>
-            {/* <IconButton> <EditSquareIcon color="info" /> </IconButton>
-            <IconButton> <DeleteIcon color="error" /> </IconButton> */}
+            {/* <IconButton> <EditSquareIcon color="info" /> </IconButton> */}
+            {/* <IconButton> <DeleteIcon color="error" /> </IconButton> */}
         </div>
         
         <Card>
             <CardContent style={{ padding: "0px" }}>
                 {loading && (<LinearProgress />)}
-                <DataGrid sx={DataGridStyle} rows={stateList} columns={TableHeaderFormat({currentPage, pageSize})} getRowId={row => row._id}
+                <DataGrid sx={DataGridStyle} rows={stateList} columns={TableHeaderFormat({currentPage, pageSize, onEdit, onDelete})} getRowId={row => row._id}
                   pageSizeOptions={[5, 10, 15]} checkboxSelection disableRowSelectionOnClick
                   initialState={{ pagination: { paginationModel: { pageSize: 15, }, }, }} 
                   onPaginationModelChange={(e) => {

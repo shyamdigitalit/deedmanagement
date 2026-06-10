@@ -13,6 +13,7 @@ import { useSearchParams } from "react-router";
 
 const defaultFilters =  {
   plantId: "",
+  nameOfMouza: "",
   deedNo: "",
   plotNo: "",
   nameOfSeller: "",
@@ -177,7 +178,20 @@ export default function Deed() {
                 </FormControl>
               )}
 
-              <TextField size="small" label="Deed No" value={filters.deedNo} style={{ width: 130 }}
+              <TextField size="small" label="Mouza Name" value={filters.nameOfMouza} style={{ width: 180 }}
+                onChange={(e) => handleFilterChange("nameOfMouza", e.target.value)}
+                InputProps={{
+                  endAdornment: filters.nameOfMouza && (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={() => handleFilterChange("nameOfMouza", "")} >
+                        <Close fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <TextField size="small" label="Deed No" value={filters.deedNo} style={{ width: 180 }}
                 onChange={(e) => handleFilterChange("deedNo", e.target.value)}
                 InputProps={{
                   endAdornment: filters.deedNo && (
@@ -190,7 +204,7 @@ export default function Deed() {
                 }}
               />
 
-              <TextField size="small" label="Plot No" value={filters.plotNo} style={{ width: 130 }}
+              <TextField size="small" label="Plot No" value={filters.plotNo} style={{ width: 180 }}
                 onChange={(e) => handleFilterChange("plotNo", e.target.value)}
                 InputProps={{
                   endAdornment: filters.plotNo && (
@@ -203,7 +217,7 @@ export default function Deed() {
                 }}
               />
 
-              <TextField size="small" label="Seller" value={filters.nameOfSeller}
+              <TextField size="small" label="Seller" value={filters.nameOfSeller} style={{ width: 180 }}
                 onChange={(e) => handleFilterChange("nameOfSeller", e.target.value)}
                 InputProps={{
                   endAdornment: filters.nameOfSeller && (
@@ -216,7 +230,7 @@ export default function Deed() {
                 }}
               />
 
-              <TextField size="small" label="Purchaser" value={filters.nameOfPurchaser}
+              <TextField size="small" label="Purchaser" value={filters.nameOfPurchaser} style={{ width: 180 }}
                 onChange={(e) => handleFilterChange("nameOfPurchaser", e.target.value)}
                 InputProps={{
                   endAdornment: filters.nameOfPurchaser && (
@@ -229,7 +243,7 @@ export default function Deed() {
                 }}
               />
 
-              <TextField type="date" size="small" label="From Date" value={filters.fromDate}
+              <TextField type="date" size="small" label="From Date" value={filters.fromDate} style={{ width: 180 }}
                 onChange={(e) => handleFilterChange("fromDate", e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 InputProps={{
@@ -243,7 +257,7 @@ export default function Deed() {
                 }}
               />
 
-              <TextField type="date" size="small" label="To Date" value={filters.toDate}
+              <TextField type="date" size="small" label="To Date" value={filters.toDate} style={{ width: 180 }}
                 onChange={(e) => handleFilterChange("toDate", e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 InputProps={{

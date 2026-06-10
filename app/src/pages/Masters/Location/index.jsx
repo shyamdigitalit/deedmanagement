@@ -7,37 +7,31 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button, Typography, IconButton, Card, CardContent, Breadcrumbs, Drawer, LinearProgress, Tooltip } from '@mui/material';
 import { Link } from "react-router-dom";
-
+import { CorporateFare, Delete, EditSquare } from "@mui/icons-material";
 import { DataGridStyle } from "../../../utilities/datagridStyle";
 import axiosInstance from '../../../config/axiosInstance'
 // import { useDispatch } from "react-redux";
 import Loader from "../../../components/loader";
-import { Delete, EditSquare, Factory, Upload } from "@mui/icons-material";
-import BulkUploadDialog from "../../../components/bulkUpload";
-import PlantBulkFormat from "./PlantBulkFormat";
 import moment from "moment";
 import { useDispatch } from "react-redux";
 import { showSnackbar } from "../../../redux/slices/snackbar";
 
-const AddEditPlant = React.lazy(() => import("./add-edit-plant"));
+const AddEditLocation = React.lazy(() => import("./add-edit-location"));
 
 const TableHeaderFormat = (props) => {
  
   return [
     { 
-      field: 'id', headerName: 'ID', width: 50,
+      field: 'id', headerName: 'ID', width: 100,
       renderCell: (params) => {
         return params.api.getRowIndexRelativeToVisibleRows(params.id) + 1 + (props.currentPage * props.pageSize);
       },  
     },
-    { field: 'plantCode', headerName: 'Plant Code', width: 100 },
-    { field: 'plantName', headerName: 'Plant Name', width: 180 },
-    { field: 'plnt_cmpny', headerName: 'Company', width: 100, renderCell: (params) => params.value?.companyCode || '' },
-    { field: 'plnt_loc', headerName: 'Location', width: 150, renderCell: (params) => params.value?.stt_name || '' },
-    { field: 'status', headerName: 'Status', width: 100 },
+    { field: 'plantName', headerName: 'Plant', width: 150 },
+    { field: 'locationName', headerName: 'Location Name', width: 150 },
+    { field: 'status', headerName: 'Status', width: 150 },
     { field: 'createdAtITC', headerName: 'Created At', width: 180, renderCell: (params) => moment(params.value, 'DD-MM-YYYY hh:mm').format('DD-MM-YYYY hh:mm A')},
     { field: 'updatedAtITC', headerName: 'Updated At', width: 180, renderCell: params => moment(params.value, 'DD-MM-YYYY hh:mm').format('DD-MM-YYYY hh:mm A') },
-
     { field: 'action', headerName: 'Actions', type: 'number',
       renderCell: (params) => {
         
@@ -57,27 +51,26 @@ const TableHeaderFormat = (props) => {
 }
 
 
-export default function Plant() {
+export default function Location() {
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false)
-  const [openBulk, setOpenBulk] = React.useState(false);
-  const [plantList , setPlantList] = React.useState([])
+  const [locationList , setLocationList] = React.useState([])
   const [currentPage, setCurrentPage] = React.useState(0)
   const [pageSize, setPageSize] = React.useState(1)
   const [loading, setLoading] = React.useState(false)
-  const [selectedPlant, setSelectedPlant] = React.useState(null);
+  const [selectedLocation, setSelectedLocation] = React.useState(null);
 
   React.useEffect(() => {
-    getPlantList();
+    getLocationList();
   }, [])
 
-  const getPlantList = async () => {
+  const getLocationList = async () => {
     try {
       setLoading(true);
-      const result = await axiosInstance.get(`/admin/plnt/fetch`).then(res => res.data)
+      const result = await axiosInstance.get(`/admin/location/fetch`).then(res => res.data)
+      setLocationList(result.data)
+      setLoading(false);
       if(result.statuscode == 200) {
-        setPlantList(result.data)
-        setLoading(false);
         // dispatch(showSnackbar({ message: result.message, severity: 'info', duration: 2000}));
       }
     } catch (error) {
@@ -88,18 +81,13 @@ export default function Plant() {
 
   const handleClose = () => {
     setOpen(false);
-    getPlantList();
-  }
-  
-  const handleCloseBulk = () => {
-    setOpenBulk(false);
-    getPlantList();
+    getLocationList();
   }
 
 
   const onEdit = (row) => {
     // console.log(row)
-    setSelectedPlant(row)
+    setSelectedLocation(row)
     setOpen(true);
     // handleClickOpen();
   }
@@ -107,11 +95,11 @@ export default function Plant() {
   const onDelete = async (row) => {
     if(window.confirm("Are you sure you want to delete this record?")) {
       try {
-        const result = await axiosInstance.delete(`/admin/plnt/delete/${row._id}`).then(res => res.data)
+        const result = await axiosInstance.delete(`/admin/location/delete/${row._id}`).then(res => res.data)
         console.log(result)
         if(result.statuscode === 200) {
           dispatch(showSnackbar({ message: result.message, severity: 'success', }));
-          getPlantList();
+          getLocationList();
         }
       } catch (error) {
         const message = error.response ? error.response.data.message : error.message;
@@ -124,35 +112,28 @@ export default function Plant() {
   return (
     <section className="inspection-entry-form">
         
-        <React.Suspense fallback={<Loader />}>
-          <BulkUploadDialog url={'/admin/plnt/import'} format={PlantBulkFormat} open={openBulk} handleClose={handleCloseBulk} />
-        </React.Suspense>
         <Drawer anchor={"right"} open={open} onClose={() => handleClose()} PaperProps={{ style: { width: 600 } }}> 
           <Suspense fallback={<Loader />}>
-            <AddEditPlant selectedPlant={selectedPlant} onClose={handleClose} /> 
+            <AddEditLocation selectedLocation={selectedLocation} onClose={handleClose} /> 
           </Suspense>
         </Drawer>
  
         <Breadcrumbs aria-label="breadcrumb" style={{marginBottom: "1rem"}}>
           <Link underline="hover" color="inherit" href="/"> Masters </Link>
           <Link underline="hover" color="inherit" href="/material-ui/getting-started/installation/" > Admin Modules </Link>
-          <Typography sx={{ color: 'text.primary' }}>Plant</Typography>
+          <Typography sx={{ color: 'text.primary' }}>Location</Typography>
         </Breadcrumbs>
 
         <Typography className="title" color="primary">
-            <Factory color="primary" style={{ fontSize: "3rem", margin: "-10px 0" }} /> Plant
+            <CorporateFare color="primary" style={{ fontSize: "3rem", margin: "-10px 0" }} /> Location
         </Typography>
 
         <div className="button-container">
             <Button variant="outlined" size="large" className="button-css" onClick={() => {
-              setSelectedPlant(null);
+              setSelectedLocation(null)
               setOpen(true)
             }}>
                 Add New <AddIcon style={{ margin: "-1px 0 0 2px", fontSize: 17, fontWeight: 600 }} />
-            </Button>
-            
-            <Button variant="outlined" size="large" color="info" onClick={() => setOpenBulk(true)}>
-                Upload <Upload style={{ margin: "-1px 0 0 2px", fontSize: 24, fontWeight: 600 }} />
             </Button>
             {/* <IconButton> <EditSquareIcon color="info" /> </IconButton>
             <IconButton> <DeleteIcon color="error" /> </IconButton> */}
@@ -161,7 +142,7 @@ export default function Plant() {
         <Card>
             <CardContent style={{ padding: "0px" }}>
                 {loading && (<LinearProgress />)}
-                <DataGrid sx={DataGridStyle} rows={plantList} columns={TableHeaderFormat({currentPage, pageSize, onEdit, onDelete})} getRowId={row => row._id}
+                <DataGrid sx={DataGridStyle} rows={locationList} columns={TableHeaderFormat({currentPage, pageSize, onEdit, onDelete})} getRowId={row => row._id}
                   pageSizeOptions={[5, 10, 15]} checkboxSelection disableRowSelectionOnClick
                   initialState={{ pagination: { paginationModel: { pageSize: 15, }, }, }} 
                   onPaginationModelChange={(e) => {

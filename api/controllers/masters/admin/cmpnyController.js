@@ -19,6 +19,7 @@ const create = async (req, res) => {
                 return res.status(422).json({ message: "Failed to create Company record" });
             } else {
                 res.status(201).json({
+                    statuscode: 201,
                     message: "Company record created successfully",
                     data: cmpny
                 });
@@ -124,12 +125,13 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
     try {
-        const cmpnyId = new mongoose.Types.ObjectId(req.query.id) || null;
+        const cmpnyId = new mongoose.Types.ObjectId(req.params.id) || null;
         const deletedCmpny = await cmpnyModel.findByIdAndDelete(cmpnyId);
         if (!deletedCmpny) {
             return res.status(404).json({ message: "Company record not found" });
         }
         res.status(200).json({
+            statuscode: 200,
             message: "Company record deleted successfully",
             data: deletedCmpny
         });

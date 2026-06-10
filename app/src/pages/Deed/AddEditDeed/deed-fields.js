@@ -22,13 +22,12 @@ export const stepOneFieldsArray = [
     placeholder: "Enter Purchaser name",
     rules: { required: "Purchaser name is required" },
   },
-  {
-    section: "deed",
-    name: "nameOfMouza",
-    label: "Mouza Name",
-    placeholder: "Enter mouza",
-    rules: { required: "Required" },
-  },
+  // {
+  //   section: "deed",
+  //   name: "nameOfMouza",
+  //   label: "Mouza Name",
+  //   placeholder: "Enter mouza",
+  // },
   {
     section: "deed",
     name: "purchaseInCompany",
@@ -87,9 +86,7 @@ export const stepTwoFieldsArray = [
     section: "calculation",
     name: "totalMutatedArea",
     label: "Total Mutated Area ( D )",
-    type: "number",
-    placeholder: "0.00",
-    rules: { required: "Required" },
+    type: "number", placeholder: "0.00",
   },
   {
     section: "calculation",
@@ -117,7 +114,6 @@ export const stepThreeFieldsArray = [
     name: "mutatedKhatianNo",
     label: "Mutated Khatian No",
     placeholder: "Enter Mutated Khaitan No",
-    rules: { required: "Required" },
   },
 
 ]
