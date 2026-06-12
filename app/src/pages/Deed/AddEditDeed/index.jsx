@@ -79,6 +79,7 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
 
           deeds: [
               {
+                  deedDate: deedData.deedDate.split("T")[0],
                   deedNo: deedData.deedNo,
                   plotNo: deedData.plotNo,
                   plotNumber: deedData.plotNumber,
@@ -164,6 +165,7 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
     return payload.deeds.map((deed) => ({
       ...commonFields,
 
+      deedDate: deed.deedDate.split("T")[0],
       deedNo: deed.deedNo,
       plotNo: deed.plotNo,
       plotNumber: deed.plotNumber,
@@ -280,7 +282,7 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
             {activeStep === 1 && ( <StepTwo control={control} errors={errors} setValue={setValue} /> )}
 
             {/* STEP 3 */}
-            {activeStep === 2 && (<StepThree control={control} errors={errors} />)}
+            {activeStep === 2 && (<StepThree control={control} errors={errors} setValue={setValue} />)}
 
         </Box>
 

@@ -36,7 +36,7 @@ export default function DeedBank() {
   const handleGo = async () => {
     try {
       if (!selectedDeed?.nameOfSeller) return;
-      const res = await axiosInstance.get( `/deed/search?sellerName=${selectedDeed.nameOfSeller}` );
+      const res = await axiosInstance.get( `/deed/search?deedNo=${selectedDeed.deedNo}` );
       const sellerDeeds = res.data?.data || [];
 
       setOwners(sellerDeeds);
@@ -100,7 +100,7 @@ export default function DeedBank() {
                 onChange={(event, newValue) => setSelectedDeed(newValue)}
                 onInputChange={(event, value) => searchDeeds(value)}
                 getOptionLabel={(option) =>
-                  option?.deedNo ? `${option.deedNo} - ${option.nameOfPurchaser || ""}` : ""
+                  option?.deedNo ? `${option.deedNo} / ${option.plotNo.plotNo} - ${option.nameOfPurchaser || ""}` : ""
                 }
                 filterOptions={(x) => x}
                 renderInput={(params) => (<TextField {...params} placeholder="Search Deed / Plot No" />)}

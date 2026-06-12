@@ -7,6 +7,7 @@ const DEFAULTVALUES = {
     
     deeds: [
         {
+            deedDate: "",
             deedNo: "",
             nameOfMouza: "",
             plotNo: "",

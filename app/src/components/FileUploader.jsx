@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 
-export default function FileUploader({ files, setFiles }) {
+export default function FileUploader({ files, setFiles, fileChanged, fileRemoved }) {
   const inputRef = useRef(null);
 
   const allowedTypes = [
@@ -29,8 +29,9 @@ export default function FileUploader({ files, setFiles }) {
       }));
 
     // setFiles((prev) => [...prev, ...validFiles]);
-    setFiles([...files, ...validFiles]);
-
+    const newFiles = [...files, ...validFiles]
+    setFiles(newFiles);
+    fileChanged(newFiles);
     // reset input so same file can be selected again
     e.target.value = "";
   };
@@ -49,7 +50,9 @@ export default function FileUploader({ files, setFiles }) {
     }
 
     // setFiles((prev) => prev.filter((_, i) => i !== index));
-    setFiles(files.filter((_, i) => i !== index));
+    const newFiles = files.filter((_, i) => i !== index)
+    setFiles(newFiles);
+    fileRemoved(newFiles);
   };
 
   /* ============================
@@ -188,6 +191,7 @@ export default function FileUploader({ files, setFiles }) {
 
             {/* REMOVE */}
             <button
+              type="button"
               onClick={() => removeFile(index)}
               style={{
                 background: "#ef4444",

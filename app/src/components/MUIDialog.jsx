@@ -5,7 +5,11 @@ import * as styles from './../styles/DialogStyle';
 
 const MUIDialog = ({ open, handleClose, icon, title, description, content, actions, fullWidth = true, maxWidth = 'sm', }) => {
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
+    <Dialog open={open} fullWidth maxWidth="md"
+      onClose={(event, reason) => {
+        if (reason === "backdropClick") return;
+        handleClose();
+      }}>
       <DialogTitle sx={styles.dialogTitleStyles}>
         <Box sx={styles.headerWrapper}>
           <Box sx={styles.leftSection}>

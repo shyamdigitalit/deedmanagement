@@ -12,6 +12,7 @@ const DeedSchema = new Schema({
     correcterOfLand: { type: String, trim: true },
 
     purchaseInCompany: { type: String, required: true, trim: true },
+    deedDate: { type: Date, required: true, trim: true },
     deedNo: { type: String, required: true, trim: true },
     plotNo: { type: Types.ObjectId, ref: 'Plot' },
 

@@ -63,7 +63,28 @@ export default StepThree;
 /* ---------------------------------------- */
 
 const DeedReviewTab = ({ index, control, errors, setValue, totalTabs, remove }) => {
+
   
+  const deeds = useWatch({control, name: "deeds"});
+  const deedNo = useWatch({control, name: `deeds.${index}.deedNo`});
+  const currentFiles = useWatch({control, name: `deeds.${index}.deedDocs`}) || [];
+
+  const handleFilesChange = (files) => syncDeedDocs(deedNo, files);
+  const handleRemoveFile = (files) => syncDeedDocs(deedNo, files);
+    
+  const syncDeedDocs = (deedNo, files) => {
+
+    deeds.forEach((deed, idx) => {
+      if (deed.deedNo === deedNo) {
+        setValue(`deeds.${idx}.deedDocs`, files, {
+          shouldDirty: true,
+        });
+      }
+    });
+  };
+
+
+
   const renderFields = (section) =>
     stepThreeFieldsArray.filter( (field) => field.section === section )
       .map((field) => (
@@ -142,6 +163,8 @@ const DeedReviewTab = ({ index, control, errors, setValue, totalTabs, remove }) 
             <FileUploader
               files={field.value || []}
               setFiles={field.onChange}
+              fileChanged={handleFilesChange}
+              fileRemoved={handleRemoveFile}
             />
           )}
         />

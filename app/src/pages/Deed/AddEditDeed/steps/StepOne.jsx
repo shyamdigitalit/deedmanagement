@@ -109,7 +109,7 @@ const StepOne = ({ control, errors, setValue }) => {
           </Box>
 
           <Button type="button" size="small" variant="contained" startIcon={<Add />}
-            onClick={() => append({ deedNo: "", plotNo: "", totalArea: "" }) }
+            onClick={() => append({ deedDate: "", deedNo: "", plotNo: "", totalArea: "" }) }
           >
             Add
           </Button>
@@ -158,6 +158,15 @@ const FieldForm = ({ fields, index, control, errors, remove, setValue }) => {
 
   return (
     <Box display="flex" alignItems="center" gap={1} flexWrap="wrap" >
+
+      <Controller name={`deeds.${index}.deedDate`} control={control} rules={{ required: "Deed Date is required" }}
+        render={({ field: controllerField }) => (
+          <TextField type="date" {...controllerField} label="Deed Date" sx={{ flex: 1, minWidth: "180px" }}
+            error={!!errors?.deeds?.[index]?.deedDate} helperText={errors?.deeds?.[index]?.deedDate?.message}
+            InputLabelProps={{ shrink: true }}
+          />
+        )}
+      />
 
       <Controller name={`deeds.${index}.deedNo`} control={control} rules={{ required: "Deed No is required" }}
         render={({ field: controllerField }) => (
