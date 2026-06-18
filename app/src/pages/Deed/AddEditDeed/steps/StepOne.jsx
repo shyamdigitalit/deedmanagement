@@ -31,7 +31,9 @@ const StepOne = ({ control, errors, setValue }) => {
   const [plantList, setPlantList] = React.useState([])
 
   const { fields, append, remove } = useFieldArray({ control, name: "deeds" });
-  
+
+
+  const deeds = useWatch({control, name: "deeds"});
   const plantId = useWatch({ control, name: "plantId" });
 
   // console.log("Plant ID ", control._formValues.plantId);
@@ -109,7 +111,7 @@ const StepOne = ({ control, errors, setValue }) => {
           </Box>
 
           <Button type="button" size="small" variant="contained" startIcon={<Add />}
-            onClick={() => append({ deedDate: "", deedNo: "", plotNo: "", totalArea: "" }) }
+            onClick={() => append({ deedDate: deeds?.[deeds.length - 1]?.deedDate || "", deedNo: "", plotNo: "", totalArea: "" }) }
           >
             Add
           </Button>

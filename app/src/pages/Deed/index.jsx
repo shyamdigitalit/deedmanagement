@@ -16,6 +16,7 @@ const defaultFilters =  {
   nameOfMouza: "",
   deedNo: "",
   plotNo: "",
+  mutatedKhatianNo: "",
   nameOfSeller: "",
   nameOfPurchaser: "",
   fromDate: "",
@@ -197,6 +198,19 @@ export default function Deed() {
                   endAdornment: filters.deedNo && (
                     <InputAdornment position="end">
                       <IconButton size="small" onClick={() => handleFilterChange("deedNo", "")} >
+                        <Close fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <TextField size="small" label="Khatian No" value={filters.mutatedKhatianNo} style={{ width: 180 }}
+                onChange={(e) => handleFilterChange("mutatedKhatianNo", e.target.value)}
+                InputProps={{
+                  endAdornment: filters.mutatedKhatianNo && (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={() => handleFilterChange("mutatedKhatianNo", "")} >
                         <Close fontSize="small" />
                       </IconButton>
                     </InputAdornment>

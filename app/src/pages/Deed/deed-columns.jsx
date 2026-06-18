@@ -13,10 +13,11 @@ export const DEED_COLUMNS = (props) => ([
     { field: 'plotNumber', headerName: 'Plot No', width: 100 },
     { field: 'totalArea', headerName: 'Total Area', width: 100 },
     { field: 'totalPurchasedArea', headerName: 'Purchased Area', width: 120 },
+    { field: 'mutatedKhatianNo', headerName: 'Mutated Khatian No', width: 150 },
     // { field: 'balanceArea', headerName: 'Balance Area', width: 100 },
     { field: 'remainingArea', headerName: 'Balance Area', width: 120, renderCell: (params) => {
       const remainingArea = parseFloat(params.value);
-      if(!remainingArea) return "";
+      // if(!remainingArea) return "";
       const color = remainingArea > 0 ? "success" : remainingArea === 0 ? "default" : "error";
       return <Chip size="small" label={params.value} color={color} />;
       // return <div style={{color: color}}> {params.value} </div>

@@ -69,6 +69,7 @@ postRoutes.forEach(route => createRoute('post', route.path, ...route.handlers));
 const getRoutes = [
     { path: '/deed/fetch', handlers: [basicAuth, deedController.read] },
     { path: '/deed/search', handlers: [basicAuth, deedController.searchDeeds] },
+    { path: '/deed/summary', handlers: [basicAuth, deedController.getDeedAreaSummary] },
     // { path: '/deedmaster/fetchbyno', handlers: [basicAuth, deedController.readDeedMaster] },
     { path: '/deed/fetchby/:id', handlers: [basicAuth, deedController.readById] },
     { path: '/dept/fetch', handlers: [basicAuth, deptController.read] },

@@ -96,6 +96,100 @@ export const searchDeeds = async (req, res) => {
 };
 
 
+const getDeedAreaSummary = async (req, res) => {
+    try {
+        const { groupBy } = req.query;
+
+        let groupField;
+
+        if (groupBy === "purchaseInCompany") {
+            groupField = "$purchaseInCompany";
+        } else if (groupBy === "nameOfMouza") {
+            groupField = "$nameOfMouza";
+        } else {
+            return res.status(400).json({
+                message: "groupBy must be purchaseInCompany or nameOfMouza"
+            });
+        }
+
+        const result = await deedModel.aggregate([
+            {
+                $match: {
+                    status: { $ne: "Inactive" }
+                }
+            },
+            {
+                $group: {
+                    _id: groupField,
+
+                    totalArea: {
+                        $sum: {
+                            $convert: {
+                                input: "$totalArea",
+                                to: "double",
+                                onError: 0,
+                                onNull: 0
+                            }
+                        }
+                    },
+
+                    totalPurchasedArea: {
+                        $sum: {
+                            $convert: {
+                                input: "$totalPurchasedArea",
+                                to: "double",
+                                onError: 0,
+                                onNull: 0
+                            }
+                        }
+                    },
+
+                    remainingArea: {
+                        $sum: {
+                            $convert: {
+                                input: "$remainingArea",
+                                to: "double",
+                                onError: 0,
+                                onNull: 0
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    [groupBy]: "$_id",
+                    totalArea: { $round: ["$totalArea", 2] },
+                    totalPurchasedArea: { $round: ["$totalPurchasedArea", 2] },
+                    remainingArea: { $round: ["$remainingArea", 2] }
+                }
+            },
+            {
+                $sort: {
+                    [groupBy]: 1
+                }
+            }
+        ]);
+
+    const data = result.map((item, index) => ({
+    _id: index,
+    ...item,
+    }));
+    return res.status(200).json({
+      success: true,
+      data: data,
+    });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+};
+
+
 export const getAllDeedDetails = async (filter) => {
     try {
         const matchQuery = {};
@@ -105,6 +199,7 @@ export const getAllDeedDetails = async (filter) => {
         if (filter?.deedNo?.trim()) matchQuery.deedNo = { $regex: filter.deedNo.trim(), $options: "i" };
         if (filter?.nameOfMouza?.trim()) matchQuery["plot.nameOfMouza"] = { $regex: filter.nameOfMouza.trim(), $options: "i" };
         if (filter?.plotNo?.trim()) matchQuery["plot.plotNo"] = { $regex: filter.plotNo.trim(), $options: "i" };
+        if (filter?.mutatedKhatianNo?.trim()) matchQuery.mutatedKhatianNo = { $regex: filter.mutatedKhatianNo.trim(), $options: "i" };
         if (filter?.nameOfSeller?.trim()) matchQuery.nameOfSeller = { $regex: filter.nameOfSeller.trim(), $options: "i" };
         if (filter?.nameOfPurchaser?.trim()) matchQuery.nameOfPurchaser = { $regex: filter.nameOfPurchaser.trim(), $options: "i" };
 
@@ -401,6 +496,7 @@ const remove = async (req, res) => {
 }
 
 export default {
+    getDeedAreaSummary,
     searchDeeds,
     create,
     read,
