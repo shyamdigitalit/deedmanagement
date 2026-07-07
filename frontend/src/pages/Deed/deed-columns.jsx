@@ -1,5 +1,5 @@
 import { Chip, IconButton, Tooltip } from "@mui/material";
-import { Download, EditSquare } from "@mui/icons-material";
+import { Delete, DeleteOutline, Download, EditSquare, Remove } from "@mui/icons-material";
 import { Link } from "react-router";
 import moment from "moment";
 
@@ -13,7 +13,6 @@ export const DEED_COLUMNS = (props) => ([
     { field: 'plotNumber', headerName: 'Plot No', width: 100 },
     { field: 'totalArea', headerName: 'Total Area', width: 100 },
     { field: 'totalPurchasedArea', headerName: 'Purchased Area', width: 120 },
-    { field: 'mutatedKhatianNo', headerName: 'Mutated Khatian No', width: 150 },
     // { field: 'balanceArea', headerName: 'Balance Area', width: 100 },
     { field: 'remainingArea', headerName: 'Balance Area', width: 120, renderCell: (params) => {
       const remainingArea = parseFloat(params.value);
@@ -23,6 +22,7 @@ export const DEED_COLUMNS = (props) => ([
       // return <div style={{color: color}}> {params.value} </div>
 
     } },
+    { field: 'mutatedKhatianNo', headerName: 'Mutated Khatian No', width: 150 },
     { field: 'totalMutatedArea', headerName: 'Mutated', width: 100, renderCell: (params) => {
       const totalMutatedArea = parseFloat(params.value);
       return totalMutatedArea ? "YES" : "NO";
@@ -46,7 +46,7 @@ export const DEED_COLUMNS = (props) => ([
     { field: 'createdAtITC', headerName: 'Created At', width: 120, renderCell: (params) => moment(params.value, 'DD-MM-YYYY').format('DD-MM-YYYY')},
     { field: 'updatedAtITC', headerName: 'Updated At', width: 120, renderCell: params => moment(params.value, 'DD-MM-YYYY').format('DD-MM-YYYY') },
 
-    { field: 'action', headerName: 'Actions', type: 'number',
+    { field: 'action', headerName: 'Actions', width: 150, type: 'number',
       renderCell: (params) => {
         
         return (
@@ -56,6 +56,9 @@ export const DEED_COLUMNS = (props) => ([
               </Tooltip>
               <Tooltip title="Edit" arrow onClick={() => props.onEdit(params.row)}> 
                 <IconButton> <EditSquare /> </IconButton> 
+              </Tooltip>
+              <Tooltip title="Delete" arrow onClick={() => props.onDelete(params.row)}> 
+                <IconButton> <Delete /> </IconButton> 
               </Tooltip>
           </div>
         );

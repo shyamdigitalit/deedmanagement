@@ -30,11 +30,12 @@ const create = async (req, res) => {
 const read = async (req, res) => {
     const { plotNo } = req.query;
     const query = { status: { $ne: "Inactive" } };
-    if (plotNo?.trim()) query.plotNo = { $regex: `^${plotNo.trim()}$`, $options: "i" };
+    if (plotNo?.trim()) query.plotNo = { $regex: `^${plotNo.trim()}`, $options: "i" };
 
 
     try {
         const pipeline = [
+            { $match: query },
             { $lookup: { from: 'accounts', localField: 'createdby', foreignField: '_id', as: 'createdby' } },
             { $unwind: { path: '$createdby', preserveNullAndEmptyArrays: true } },
             { $lookup: { from: 'accounts', localField: 'updatedby', foreignField: '_id', as: 'updatedby' } },

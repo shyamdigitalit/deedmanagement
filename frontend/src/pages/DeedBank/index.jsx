@@ -53,7 +53,7 @@ export default function DeedBank() {
 
   const downloadFile = async (file) => {
     try {
-      const response = await axiosInstance.get(`/file/download/${file.filId}`, {responseType: "blob"});
+      const response = await axiosInstance.get(`/uploads/deed/${file.filId}`, {responseType: "blob"});
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.setAttribute("href", url);
@@ -71,7 +71,7 @@ export default function DeedBank() {
   const viewFile = async (file) => {
     const { accessToken } = store.getState().auth;
     try {
-      window.open( `${axiosInstance.defaults.baseURL}/file/view/${file.filId}?accessToken=${accessToken}`, "_blank" );
+      window.open( `${axiosInstance.defaults.baseURL}/uploads/deed/${file.filId}`, "_blank" );
     } catch (error) {
       console.error("Error viewing document:", error);
     }

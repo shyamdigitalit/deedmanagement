@@ -2,6 +2,7 @@ import mongoose, { isValidObjectId } from 'mongoose';
 import deedModel from '../../models/deedhandlers/deedModel.js';
 import deedMasterModel from '../../models/deedhandlers/deedMasterModel.js';
 import { uploadFile, deleteFile } from '../../utilities/fileOperations.js';
+import fs from "fs/promises";
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // =================================================================================================================================
@@ -24,43 +25,46 @@ export const uploadNewFiles = async (files, fileField, userId) => {
         ? files.filter(f => f.fieldname === fileField)
         : files[fileField] || [];
 
-    await Promise.allSettled(
-        fileList.map(async (file) => {
-            try {
-                const uploadedFile = await uploadFile(
-                    file.buffer,
-                    file.originalname,
-                    file.mimetype
-                );
-                results[fileField].push({
-                    filId: uploadedFile?.file?._id,
-                    filName: uploadedFile?.file?.filename,
-                    filContentType: uploadedFile?.file?.metadata?.contentType,
-                    filContentSize: uploadedFile?.file?.length,
-                    filUploadStatus: "Done",
-                    fileUploadedby: userId
-                });
-            } catch (err) {
-                if (err.message.includes("Duplicate file")) {
-                    duplicates[fileField].push(file.originalname);
-                } else {
-                    console.error("❌ Upload Error:", err.message);
-                }
-            }
-        })
-    );
+    for (const file of fileList) {
+        try {
+            results[fileField].push({
+                filId: file.filename, // unique identifier
+                filName: file.filename,
+                filOriginalName: file.originalname,
+                filPath: file.path,
+                filContentType: file.mimetype,
+                filContentSize: file.size,
+                filUploadStatus: "Done",
+                fileUploadedby: userId
+            });
+        } catch (err) {
+            console.error("❌ Upload Error:", err.message);
+        }
+    }
 
     return results;
 };
 
-export const removeFiles = async (files, fileIds) => {
+export const removeFiles = async (files) => {
     if (!files?.length) return;
-    
+    console.log(files)
     await Promise.allSettled(
-        files.map(file => deleteFile(file.filId).catch(err => console.error("❌ File Deletion Error:", err.message)))
+        files.map(async (file) => {
+            try {
+                if (file.filPath) {
+                    await fs.unlink(file.filPath);
+                }
+            } catch (err) {
+                if (err.code !== "ENOENT") {
+                    console.error(
+                        "❌ File Deletion Error:",
+                        err.message
+                    );
+                }
+            }
+        })
     );
 };
-
 
 export const searchDeeds = async (req, res) => {
   try {
@@ -113,11 +117,10 @@ const getDeedAreaSummary = async (req, res) => {
         }
 
         const result = await deedModel.aggregate([
-            {
-                $match: {
-                    status: { $ne: "Inactive" }
-                }
-            },
+            { $match: { status: { $ne: "Inactive" } } },
+            { $lookup: { from: 'plots', localField: 'plotNo', foreignField: '_id', as: 'plot' } },
+            { $unwind: { path: '$plot', preserveNullAndEmptyArrays: true } },
+            { $addFields: { nameOfMouza: "$plot.nameOfMouza" } },
             {
                 $group: {
                     _id: groupField,
@@ -453,36 +456,22 @@ const remove = async (req, res) => {
             return res.status(404).json({ message: "Deed details not found" });
         }
         else {
-            const deedType = deedDetails.deedType;
-            const deedRecord = await deedModel.find({ deedType });
-            if (deedRecord.length > 1) {
-                deedflg = 0;
-            }
-            else {
-                deedflg = 1;
-            }
             
             const fileField = 'deedDocs';
             const files = deedDetails[fileField] || [];
             for (const file of files) {
                 try {
-                    await deleteFile(file.filId);
+                    await deleteFile(file.filPath);
                 } catch (err) {
                     console.error("❌ File Deletion Error:", err.message);
                 }
             }
-            const deletedDeed = await deedModel.findByIdAndDelete(deed._id);
-            if (deletedDeed && deedflg === 0) {
+            const deletedDeed = await deedModel.findByIdAndDelete(deedDetails._id);
+            if (deletedDeed) {
                 res.status(200).json({
+                    statuscode: 200,
                     message: "All Deed details and associated files deleted successfully",
                     data: deletedDeed
-                });
-            }
-            else if (deletedDeed && deedflg === 1) {
-                const deedMasterDeleted = await deedMasterModel.findByIdAndDelete(deedType);
-                res.status(200).json({
-                    message: "Deed details and associated Deed Master deleted successfully",
-                    data: deedMasterDeleted
                 });
             }
             else {

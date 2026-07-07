@@ -4,6 +4,8 @@ import { GridFSBucket } from "mongodb";
 import archiver from "archiver";
 import crypto from "crypto";
 import { PassThrough, Readable } from "stream";
+import fs from "fs/promises";
+import path from "path";
 
 let gfs;
 
@@ -75,39 +77,38 @@ export const getFileStream = async (fileId) => {
 /* ------------------------------------------------------------------
   ✅ 4. Get ZIP stream for multiple files
 ------------------------------------------------------------------ */
+
 export const getZipStream = async (fileIds) => {
-  if (!gfs) throw new Error("GridFS not initialized");
-  if (!Array.isArray(fileIds) || !fileIds.length)
-    throw new Error("No file IDs provided");
+    if (!Array.isArray(fileIds) || !fileIds.length) throw new Error("No file IDs provided");
 
-  const archive = archiver("zip", { zlib: { level: 9 } });
+    const archive = archiver("zip", { zlib: { level: 9 }, });
 
-  const filePromises = fileIds.map(async (fileId) => {
-    try {
-      const _id = new mongoose.Types.ObjectId(fileId);
-      const file = await gfs.find({ _id }).next();
-      if (!file) return;
-
-      const fileStream = gfs.openDownloadStream(_id);
-      archive.append(fileStream, { name: file.filename });
-    } catch (err) {
-      console.error(`Error processing file ${fileId}:`, err);
+    for (const fileId of fileIds) {
+        try {
+            const filePath = path.join(process.cwd(), "uploads", "deed", fileId);
+            if (!fs.existsSync(filePath)) {
+                console.warn(`File not found: ${filePath}`);
+                continue;
+            }
+            archive.file(filePath, { name: fileId, });
+        } catch (err) {
+            console.error(`Error processing file ${fileId}:`, err);
+        }
     }
-  });
 
-  await Promise.all(filePromises);
-  process.nextTick(() => archive.finalize());
+    process.nextTick(() => archive.finalize());
 
-  return archive;
+    return archive;
 };
-
 /* ------------------------------------------------------------------
   ✅ 5. Delete file by ID
 ------------------------------------------------------------------ */
-export const deleteFile = async (fileId) => {
-  if (!gfs) throw new Error("GridFS not initialized");
 
-  const _id = new mongoose.Types.ObjectId(fileId);
-  await gfs.delete(_id);
-  return { message: "File deleted successfully", _id };
+export const deleteFile = async (filePath) => {
+  try {
+    await fs.unlink(filePath);
+    return { message: "File deleted successfully", };
+  } catch (err) {
+    if (err.code !== "ENOENT") throw err;
+  }
 };

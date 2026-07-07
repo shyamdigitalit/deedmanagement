@@ -31,6 +31,7 @@ const DeedSchema = new Schema({
     deedDocs: [{
         filId: { type: String, trim: true, required: true },
         filName: { type: String, trim: true, required: true },
+        filPath: { type: String, trim: true, required: true },
         filContentType: { type: String, trim: true, required: true },
         filContentSize: { type: String, trim: true, required: true },
         filUploadStatus: { type: String, required: true, enum: ['Pending', 'Done'], default: 'Done' },

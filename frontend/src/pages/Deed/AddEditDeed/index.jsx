@@ -157,7 +157,6 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
       plantId: payload.plantId,
       nameOfSeller: payload.nameOfSeller,
       nameOfPurchaser: payload.nameOfPurchaser,
-      nameOfMouza: payload.nameOfMouza,
       correcterOfLand: payload.correcterOfLand,
       purchaseInCompany: payload.purchaseInCompany,
     };
@@ -169,6 +168,7 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
       deedNo: deed.deedNo,
       plotNo: deed.plotNo,
       plotNumber: deed.plotNumber,
+      nameOfMouza: deed.nameOfMouza,
 
       totalArea: deed.totalArea,
       totalPurchasedArea: deed.totalPurchasedArea,
@@ -192,6 +192,7 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
   ============================ */
 
   const onSubmit = async (data) => {
+    console.log("Before => ",data)
     const finalPayload = flattenDeedPayload(data);
     console.log(finalPayload);
     // return;
@@ -202,6 +203,7 @@ export default function AddEditDeed({ plantId, selectedDeed, handleClose }) {
   
   const saveDeed = async (data) => {
     console.log(data)
+    // return;
     if(!data.totalMutatedArea && data.mutatedKhatianNo)
     return dispatch( showSnackbar({ message: `Total Mutated Area is required for ${data.deedNo} / ${data.plotNumber} .`, severity: "error", }) );
     if(data.totalMutatedArea && !data.mutatedKhatianNo)

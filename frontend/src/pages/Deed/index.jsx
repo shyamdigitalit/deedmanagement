@@ -94,6 +94,23 @@ export default function Deed() {
     setSelectedDeed(row)
     handleClickOpen();
   }
+  
+  const onDelete = async (row) => {
+    const confirm = window.confirm(`Are you sure you want to delete deed ${row.deedNo}? This action cannot be undone.`);
+    if (!confirm) return;
+    console.log(row)
+    try {
+      const result = await axiosInstance.delete(`/deed/delete?id=${row._id}`).then(res => res.data)
+      console.log(result)
+      if(result.statuscode == 200) {
+        fetchDeeds(filters)
+      }
+    }
+    catch (error) {
+      console.error(error)
+    }
+    
+  }
 
   const downloadAllFiles = async (row) => {
     try {
@@ -292,7 +309,7 @@ export default function Deed() {
           {loading && <LinearProgress />}
 
           <Box height={450}>
-            <DataGrid rows={deedData} columns={DEED_COLUMNS({ onEdit, downloadAllFiles })} getRowId={(row) => row._id}
+            <DataGrid rows={deedData} columns={DEED_COLUMNS({ onEdit, onDelete, downloadAllFiles })} getRowId={(row) => row._id}
               pageSizeOptions={[5, 10, 15]} disableRowSelectionOnClick showToolbar
               sx={{
                 border: "none",
