@@ -1,6 +1,9 @@
 import React, { useRef } from "react";
+import axiosInstance from "../config/axiosInstance";
 
 export default function FileUploader({ files, setFiles, fileChanged, fileRemoved }) {
+  let url = axiosInstance.defaults.baseURL + "/uploads/deed/";
+
   const inputRef = useRef(null);
 
   const allowedTypes = [
@@ -173,6 +176,7 @@ export default function FileUploader({ files, setFiles, fileChanged, fileRemoved
             {renderPreview(file)}
 
             {/* FILE INFO */}
+            <a href={url + file.name} target="_blank"></a>
             <div style={{ flex: 1 }}>
               <div
                 style={{
