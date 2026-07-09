@@ -176,7 +176,7 @@ export default function FileUploader({ files, setFiles, fileChanged, fileRemoved
             {renderPreview(file)}
 
             {/* FILE INFO */}
-            <a href={url + file.name} target="_blank">
+            <a href={url + file.id} target="_blank">
               <div style={{ flex: 1 }}>
                 <div
                   style={{
