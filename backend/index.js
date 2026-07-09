@@ -82,7 +82,7 @@ else {
 
   if (apienv === 'live') {
     // static frontend
-    const distPath = path.join(__dirname, '..', 'app', 'dist');
+    const distPath = path.join(__dirname, '..', 'frontend', 'dist');
     console.log("Serving frontend from:", distPath);
     app.use(express.static(distPath));
 
