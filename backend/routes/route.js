@@ -22,6 +22,7 @@ import deptController from '../controllers/masters/accsetups/deptController.js';
 import desigController from '../controllers/masters/accsetups/desigController.js';
 import plotController from '../controllers/masters/deedsetups/plotController.js';
 import locationController from '../controllers/masters/admin/locationController.js';
+import { handleUploadErrors, uploadDocuments } from '../middlewares/upload.middleware.js';
 
 // Utility function to create routes
 const createRoute = (method, path, ...handlers) => {
@@ -38,9 +39,11 @@ const postRoutes = [
         path: '/deed/create',
         handlers: [
             jwtHybrdProtect,
-            fileUpload.fields([
-                { name: "deedDocs", maxCount: 10 }
-            ]),
+            uploadDocuments,
+            handleUploadErrors,
+            // fileUpload.fields([
+            //     { name: "deedDocs", maxCount: 10 }
+            // ]),
             deedController.create
         ]
     },
@@ -104,9 +107,11 @@ const patchRoutes = [
         path: '/deed/update',
         handlers: [
             jwtHybrdProtect,
-            fileUpload.fields([
-                { name: "deedDocs", maxCount: 10 }
-            ]),
+            uploadDocuments,
+            handleUploadErrors,
+            // fileUpload.fields([
+            //     { name: "deedDocs", maxCount: 10 }
+            // ]),
             deedController.update
         ]
     },

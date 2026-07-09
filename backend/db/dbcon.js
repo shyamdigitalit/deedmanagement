@@ -19,9 +19,9 @@ const mongoConn = async () => {
             dbName: dbnm,
             retryWrites: true,
             w: 'majority',
-            ssl: true,
-            maxPoolSize: 1, // Keep per-worker connections low
-            minPoolSize: 1
+            // ssl: true,
+            // maxPoolSize: 1, // Keep per-worker connections low
+            // minPoolSize: 1
         });
         console.log(`Worker ${process.pid}: DB Successfully Connected...`);
     } catch (error) {

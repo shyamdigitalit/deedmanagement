@@ -139,6 +139,7 @@ const FieldForm = ({ fields, index, control, errors, remove, setValue }) => {
   const [loadingPlots, setLoadingPlots] = React.useState(false);
 
   const plotNo = useWatch({ control, name: `deeds.${index}.plotNo` });
+  const totalArea = useWatch({ control, name: `deeds.${index}.totalArea` });
 
   React.useEffect(() => {
     if (plotNo) searchPlots(plotNo);
@@ -149,6 +150,7 @@ const FieldForm = ({ fields, index, control, errors, remove, setValue }) => {
     try {
       setLoadingPlots(true);
       const res = await axiosInstance.get(`/plot/fetch?plotNo=${searchText}`);
+      console.log(res.data.data)
       setPlotOptions(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -193,7 +195,7 @@ const FieldForm = ({ fields, index, control, errors, remove, setValue }) => {
               setValue(`deeds.${index}.totalArea`, selectedPlot?.totalArea || "");
             }}
             renderInput={(params) => (
-              <TextField {...params} label="Plot No" error={!!errors?.deeds?.[index]?.plotNo}
+              <TextField {...params} label={`Plot No (${totalArea ? "Area - " + totalArea : ""})`} error={!!errors?.deeds?.[index]?.plotNo}
                 helperText={errors?.deeds?.[index]?.plotNo?.message}
               />
             )}
