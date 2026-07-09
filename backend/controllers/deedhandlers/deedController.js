@@ -29,8 +29,8 @@ export const uploadNewFiles = async (files, fileField, userId) => {
         try {
             results[fileField].push({
                 filId: file.filename, // unique identifier
-                filName: file.filename,
-                filOriginalName: file.originalname,
+                filName: file.originalname,
+                // filOriginalName: file.originalname,
                 filPath: file.path,
                 filContentType: file.mimetype,
                 filContentSize: file.size,
