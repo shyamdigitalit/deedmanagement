@@ -176,22 +176,23 @@ export default function FileUploader({ files, setFiles, fileChanged, fileRemoved
             {renderPreview(file)}
 
             {/* FILE INFO */}
-            <a href={url + file.name} target="_blank"></a>
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  color: "#0f172a",
-                }}
-              >
-                {file.name}
+            <a href={url + file.name} target="_blank">
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    color: "#0f172a",
+                  }}
+                >
+                  {file.name}
+                </div>
+                <div style={{ fontSize: "12px", color: "#64748b" }}>
+                  {(file.size / 1024).toFixed(1)} KB
+                  {file.isExisting && " • Uploaded"}
+                </div>
               </div>
-              <div style={{ fontSize: "12px", color: "#64748b" }}>
-                {(file.size / 1024).toFixed(1)} KB
-                {file.isExisting && " • Uploaded"}
-              </div>
-            </div>
+            </a>
 
             {/* REMOVE */}
             <button
