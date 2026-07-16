@@ -18,8 +18,8 @@ export const SUMMARY_COLUMNS = (props) => ([
       const remainingArea = parseFloat(params.value);
       return params.value
     } },
-    { field: 'totalMutatedArea', headerName: 'Total Muted Area', width: 150 },
-    { field: 'nonMutatedArea', headerName: 'Non Muted Area', width: 150 },
+    { field: 'totalMutatedArea', headerName: 'Total Mutated Area', width: 150 },
+    { field: 'nonMutatedArea', headerName: 'Non Mutated Area', width: 150 },
     // { field: 'remarks', headerName: 'Remarks', width: 180 },
 
     // { field: 'action', headerName: 'Actions', type: 'number',
