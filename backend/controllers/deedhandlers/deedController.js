@@ -110,9 +110,13 @@ const getDeedAreaSummary = async (req, res) => {
             groupField = "$purchaseInCompany";
         } else if (groupBy === "nameOfMouza") {
             groupField = "$nameOfMouza";
+        } else if (groupBy === "locationName") {
+            groupField = "$locationName";
+        } else if (groupBy === "mutatedKhatianNo") {
+            groupField = "$mutatedKhatianNo";
         } else {
             return res.status(400).json({
-                message: "groupBy must be purchaseInCompany or nameOfMouza"
+                message: "groupBy must be purchaseInCompany, nameOfMouza, locationName or mutatedKhatianNo"
             });
         }
 
@@ -120,43 +124,17 @@ const getDeedAreaSummary = async (req, res) => {
             { $match: { status: { $ne: "Inactive" } } },
             { $lookup: { from: 'plots', localField: 'plotNo', foreignField: '_id', as: 'plot' } },
             { $unwind: { path: '$plot', preserveNullAndEmptyArrays: true } },
-            { $addFields: { nameOfMouza: "$plot.nameOfMouza" } },
+            { $lookup: { from: 'locations', localField: 'plot.locationId', foreignField: '_id', as: 'location' } },
+            { $unwind: { path: '$location', preserveNullAndEmptyArrays: true } },
+            { $addFields: { nameOfMouza: "$plot.nameOfMouza", locationName: "$location.locationName" } },
             {
                 $group: {
                     _id: groupField,
-
-                    totalArea: {
-                        $sum: {
-                            $convert: {
-                                input: "$totalArea",
-                                to: "double",
-                                onError: 0,
-                                onNull: 0
-                            }
-                        }
-                    },
-
-                    totalPurchasedArea: {
-                        $sum: {
-                            $convert: {
-                                input: "$totalPurchasedArea",
-                                to: "double",
-                                onError: 0,
-                                onNull: 0
-                            }
-                        }
-                    },
-
-                    remainingArea: {
-                        $sum: {
-                            $convert: {
-                                input: "$remainingArea",
-                                to: "double",
-                                onError: 0,
-                                onNull: 0
-                            }
-                        }
-                    }
+                    totalArea: { $sum: { $convert: { input: "$totalArea", to: "double", onError: 0, onNull: 0 } } },
+                    totalPurchasedArea: { $sum: { $convert: { input: "$totalPurchasedArea", to: "double", onError: 0, onNull: 0 } } },
+                    remainingArea: { $sum: { $convert: { input: "$remainingArea", to: "double", onError: 0, onNull: 0 } } },
+                    totalMutatedArea: { $sum: { $convert: { input: "$totalMutatedArea", to: "double", onError: 0, onNull: 0 } } },
+                    nonMutatedArea: { $sum: { $convert: { input: "$nonMutatedArea", to: "double", onError: 0, onNull: 0 } } }
                 }
             },
             {
@@ -165,7 +143,9 @@ const getDeedAreaSummary = async (req, res) => {
                     [groupBy]: "$_id",
                     totalArea: { $round: ["$totalArea", 2] },
                     totalPurchasedArea: { $round: ["$totalPurchasedArea", 2] },
-                    remainingArea: { $round: ["$remainingArea", 2] }
+                    remainingArea: { $round: ["$remainingArea", 2] },
+                    totalMutatedArea: { $round: ["$totalMutatedArea", 2] },
+                    nonMutatedArea: { $round: ["$nonMutatedArea", 2] }
                 }
             },
             {

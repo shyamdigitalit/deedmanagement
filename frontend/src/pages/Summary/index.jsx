@@ -43,6 +43,8 @@ export default function DeedSummary() {
         <Tabs value={groupValue} onChange={(_, value) => setGroupValue(value)} >
             <Tab label="Company Wise" value="purchaseInCompany" />
             <Tab label="Mouza Wise" value="nameOfMouza" />
+            <Tab label="Location" value="locationName" />
+            <Tab label="Khatian" value="mutatedKhatianNo" />
         </Tabs>
 
         {/* Header */}
