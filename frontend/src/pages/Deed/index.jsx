@@ -112,22 +112,38 @@ export default function Deed() {
     
   }
 
+  
   const downloadAllFiles = async (row) => {
     try {
-      const response = await axiosInstance.get(`/file/downloadall?files=${row.deedDocs.map(doc => doc.filId).join(",")}`, {
-        responseType: "blob",
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `Deed_${row.deedNo}_Docs.zip`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+        const response = await axiosInstance.get(
+            `/file/downloadall?deedId=${row._id}`,
+            {
+                responseType: "blob",
+            }
+        );
+
+        const url = window.URL.createObjectURL(
+            new Blob([response.data], {
+                type: "application/zip",
+            })
+        );
+
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = `Deed_${row.deedNo}_Docs.zip`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.URL.revokeObjectURL(url);
+
     } catch (error) {
-      console.error("Error downloading documents:", error);
-    } 
-  }
+        console.error("Error downloading documents:", error);
+    }
+  };
+
 
   return (
     <Box className="module-container" p={3}>

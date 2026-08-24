@@ -4,7 +4,7 @@ import { GridFSBucket } from "mongodb";
 import archiver from "archiver";
 import crypto from "crypto";
 import { PassThrough, Readable } from "stream";
-import fs from "fs/promises";
+import fs from "fs";
 import path from "path";
 
 let gfs;
@@ -77,26 +77,67 @@ export const getFileStream = async (fileId) => {
 /* ------------------------------------------------------------------
   ✅ 4. Get ZIP stream for multiple files
 ------------------------------------------------------------------ */
+export const getZipStream = async (deedDocs) => {
+    if (!Array.isArray(deedDocs) || !deedDocs.length) {
+        throw new Error("No files provided");
+    }
 
-export const getZipStream = async (fileIds) => {
-    if (!Array.isArray(fileIds) || !fileIds.length) throw new Error("No file IDs provided");
+    const archive = archiver("zip", {
+        zlib: { level: 9 },
+    });
 
-    const archive = archiver("zip", { zlib: { level: 9 }, });
+    let filesAdded = 0;
 
-    for (const fileId of fileIds) {
+    for (const file of deedDocs) {
         try {
-            const filePath = path.join(process.cwd(), "uploads", "deed", fileId);
-            if (!fs.existsSync(filePath)) {
-                console.warn(`File not found: ${filePath}`);
+            console.log("=================================");
+            console.log("File:", file.filName);
+            console.log("filPath:", file.filPath);
+            console.log("Exists:", fs.existsSync(file.filPath));
+
+            if (!file.filPath) {
+                console.warn("Missing filPath");
                 continue;
             }
-            archive.file(filePath, { name: fileId, });
+
+            if (!fs.existsSync(file.filPath)) {
+                console.warn("FILE DOES NOT EXIST:", file.filPath);
+                continue;
+            }
+
+            archive.file(file.filPath, {
+                name: file.filName,
+            });
+
+            filesAdded++;
+
+            console.log("Added to ZIP:", file.filName);
+
         } catch (err) {
-            console.error(`Error processing file ${fileId}:`, err);
+            console.error(
+                `Error processing ${file.filName}:`,
+                err
+            );
         }
     }
 
-    process.nextTick(() => archive.finalize());
+    console.log("Total files added:", filesAdded);
+
+    if (filesAdded === 0) {
+        throw new Error("No files could be found to add to ZIP");
+    }
+
+    archive.on("warning", (err) => {
+        console.warn("ARCHIVER WARNING:", err);
+    });
+
+    archive.on("error", (err) => {
+        console.error("ARCHIVER ERROR:", err);
+    });
+
+    process.nextTick(() => {
+        archive.finalize();
+    });
 
     return archive;
 };

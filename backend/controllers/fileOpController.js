@@ -1,3 +1,4 @@
+import deedModel from "../models/deedhandlers/deedModel.js";
 import {
   uploadFile,
   getAllFiles,
@@ -98,20 +99,58 @@ const viewHandler = async (req, res) => {
 };
 
 // Download multiple as ZIP
+// import Deed from "../models/Deed.model.js";
+
 const downloadAllHandler = async (req, res) => {
-  try {
-    const fileIds = req.query.files ? req.query.files.split(",") : [];
-    const zipStream = await getZipStream(fileIds);
+    try {
+        const { deedId } = req.query;
 
-    res.set({
-      "Content-Type": "application/zip",
-      "Content-Disposition": `attachment; filename="AllDocs_${Date.now()}.zip"`,
-    });
+        if (!deedId) return res.status(400).json({ message: "Deed ID is required", });
 
-    zipStream.pipe(res);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+        const deed = await deedModel.findById(deedId).lean();
+
+        if (!deed) {
+            return res.status(404).json({
+                message: "Deed not found",
+            });
+        }
+
+        if (!deed.deedDocs?.length) {
+            return res.status(404).json({
+                message: "No documents found for this deed",
+            });
+        }
+
+        const zipStream = await getZipStream(deed.deedDocs);
+
+        res.set({
+            "Content-Type": "application/zip",
+            "Content-Disposition": `attachment; filename="Deed_${deed.deedNo}_Docs.zip"`,
+        });
+
+        zipStream.on("error", (err) => {
+            console.error("ZIP stream error:", err);
+
+            if (!res.headersSent) {
+                res.status(500).json({
+                    message: "Error creating ZIP file",
+                });
+            } else {
+                res.end();
+            }
+        });
+
+        zipStream.pipe(res);
+
+    } catch (err) {
+        console.error("Download all error:", err);
+
+        if (!res.headersSent) {
+            res.status(500).json({
+                message: err.message,
+            });
+        }
+    }
 };
 
 // Delete file
