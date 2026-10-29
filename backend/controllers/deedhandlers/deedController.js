@@ -130,6 +130,11 @@ const getDeedAreaSummary = async (req, res) => {
             { $unwind: { path: "$location", preserveNullAndEmptyArrays: true } },
 
             { $addFields: {
+                purchaseInCompany: {
+                    $trim: {
+                        input: { $ifNull: ["$purchaseInCompany", ""] }
+                    }
+                },
                 nameOfMouza: "$plot.nameOfMouza",
                 locationName: "$location.locationName"
             }},
