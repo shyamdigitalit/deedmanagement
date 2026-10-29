@@ -131,8 +131,14 @@ const getDeedAreaSummary = async (req, res) => {
 
             { $addFields: {
                 purchaseInCompany: {
-                    $trim: {
-                        input: { $ifNull: ["$purchaseInCompany", ""] }
+                    $regexReplace: {
+                        input: {
+                            $trim: {
+                                input: { $ifNull: ["$purchaseInCompany", ""] }
+                            }
+                        },
+                        regex: "\\s+",
+                        replacement: " "
                     }
                 },
                 nameOfMouza: "$plot.nameOfMouza",
