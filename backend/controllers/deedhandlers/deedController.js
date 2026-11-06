@@ -194,7 +194,7 @@ const getDeedAreaSummary = async (req, res) => {
 };
 
 
-export const getAllDeedDetails = async (filter) => {
+export const getAllDeedDetails = async (filter, pagination = null) => {
     try {
         const matchQuery = {};
 
@@ -202,7 +202,7 @@ export const getAllDeedDetails = async (filter) => {
         if (filter?.plantId) matchQuery.plantId = new mongoose.Types.ObjectId(filter.plantId);
         if (filter?.deedNo?.trim()) matchQuery.deedNo = { $regex: filter.deedNo.trim(), $options: "i" };
         if (filter?.nameOfMouza?.trim()) matchQuery["plot.nameOfMouza"] = { $regex: filter.nameOfMouza.trim(), $options: "i" };
-        if (filter?.plotNo?.trim()) matchQuery["plot.plotNo"] = { $regex: filter.plotNo.trim(), $options: "i" };
+        if (filter?.plotNo?.trim()) matchQuery["plot.plotNo"] = filter.plotNo.trim();
         if (filter?.mutatedKhatianNo?.trim()) matchQuery.mutatedKhatianNo = { $regex: filter.mutatedKhatianNo.trim(), $options: "i" };
         if (filter?.nameOfSeller?.trim()) matchQuery.nameOfSeller = { $regex: filter.nameOfSeller.trim(), $options: "i" };
         if (filter?.nameOfPurchaser?.trim()) matchQuery.nameOfPurchaser = { $regex: filter.nameOfPurchaser.trim(), $options: "i" };
@@ -271,8 +271,39 @@ export const getAllDeedDetails = async (filter) => {
                     }
                 }
             },
-            { $sort: { updatedAt: -1 } },
+            { $sort: { updatedAt: -1, _id: 1 } },
         ]
+
+        // Paginated mode: page data, total count and area totals come from the same filtered pipeline
+        if (pagination) {
+            const { page, limit } = pagination;
+            const toNumber = (field) => ({ $convert: { input: field, to: "double", onError: 0, onNull: 0 } });
+            const [result] = await deedModel.aggregate([
+                ...pipeline,
+                {
+                    $facet: {
+                        data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+                        count: [{ $count: 'count' }],
+                        totals: [
+                            {
+                                $group: {
+                                    _id: null,
+                                    totalPurchasedArea: { $sum: toNumber('$totalPurchasedArea') },
+                                    totalMutatedArea: { $sum: toNumber('$totalMutatedArea') }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]);
+            return {
+                deedRecords: result.data,
+                totalCount: result.count[0]?.count || 0,
+                totalPurchasedArea: Number((result.totals[0]?.totalPurchasedArea || 0).toFixed(2)),
+                totalMutatedArea: Number((result.totals[0]?.totalMutatedArea || 0).toFixed(2))
+            };
+        }
+
         const deedRecords = await deedModel.aggregate(pipeline)
 
         return deedRecords
@@ -348,11 +379,17 @@ const create = async (req, res) => {
 
 const read = async (req, res) => {
     try {
-        const deedRecords = await getAllDeedDetails(req.query)
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
+        const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
+        const { deedRecords, totalCount, totalPurchasedArea, totalMutatedArea } =
+            await getAllDeedDetails(req.query, { page, limit })
 
         res.status(200).json({
             message: "Deed details retrieved successfully",
-            data: deedRecords
+            data: deedRecords,
+            totalCount,
+            totalPurchasedArea,
+            totalMutatedArea
         });
     } catch (error) {
         console.error("Error retrieving Deed details:", error);

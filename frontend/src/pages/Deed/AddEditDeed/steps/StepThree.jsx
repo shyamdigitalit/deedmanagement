@@ -135,7 +135,7 @@ const DeedReviewTab = ({ index, control, errors, setValue, totalTabs, remove }) 
         
         <Controller name="purchaseInCompany" control={control}
           render={({field: controllerField,}) => (
-            <TextField {...controllerField} label="Purchase In Company"
+            <TextField {...controllerField} label="Mutated In Company"
               variant="outlined" fullWidth size="small" disabled={true}
             />
           )}
@@ -147,9 +147,9 @@ const DeedReviewTab = ({ index, control, errors, setValue, totalTabs, remove }) 
       {/* FILE UPLOADER */}
       <Box mt={3}>
 
-        <Controller name={`deeds.${index}.remarks`} control={control} rules={{ required: "Remarks is Required" }}
+        <Controller name={`deeds.${index}.remarks`} control={control} rules={{ required: "File No is Required" }}
           render={({ field }) => (
-            <TextField {...field} multiline rows={5} fullWidth label="Remarks" placeholder="Enter remarks" 
+            <TextField {...field} multiline rows={5} fullWidth label="File No" placeholder="Enter file no" 
               error={!!errors?.remarks} helperText={errors?.remarks?.message}
             />
           )}

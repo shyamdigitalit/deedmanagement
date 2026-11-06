@@ -50,7 +50,7 @@ export default function DeedSummary() {
         {/* Header */}
         <Box style={{position: "relative"}}>
             <Typography variant="h5" fontWeight={600} style={{position: "absolute", left: "10px",top: "15px", zIndex: 10}}> 
-                {/* {groupValue === "purchaseInCompany" ? "Purchase In Company":"Mouza"} Summary  */}
+                {/* {groupValue === "purchaseInCompany" ? "Mutated In Company":"Mouza"} Summary  */}
             </Typography>
 
             <DataGrid rows={deedData} columns={SUMMARY_COLUMNS({ groupValue })} getRowId={(row) => row._id}

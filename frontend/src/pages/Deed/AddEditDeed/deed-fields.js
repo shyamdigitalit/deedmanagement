@@ -31,8 +31,8 @@ export const stepOneFieldsArray = [
   {
     section: "deed",
     name: "purchaseInCompany",
-    label: "Purchase In Company",
-    placeholder: "Enter purchase in company",
+    label: "Mutated In Company",
+    placeholder: "Enter mutated in company",
     rules: { required: "Required" },
   },
   // {

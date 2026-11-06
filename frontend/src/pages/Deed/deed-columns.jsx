@@ -23,14 +23,14 @@ export const DEED_COLUMNS = (props) => ([
 
     } },
     { field: 'mutatedKhatianNo', headerName: 'Mutated Khatian No', width: 150 },
-    { field: 'totalMutatedArea', headerName: 'Mutated', width: 100, renderCell: (params) => {
+    { field: 'totalMutatedArea', headerName: 'Mutated Area', width: 120, renderCell: (params) => {
       const totalMutatedArea = parseFloat(params.value);
-      return totalMutatedArea ? "YES" : "NO";
+      return totalMutatedArea;
     } },
     { field: 'nameOfSeller', headerName: 'Seller', width: 150 },
     { field: 'nameOfPurchaser', headerName: 'Purchaser', width: 180 },
-    { field: 'purchaseInCompany', headerName: 'Purchase In Company', width: 180 },
-    { field: 'remarks', headerName: 'Remarks', width: 180 },
+    { field: 'purchaseInCompany', headerName: 'Mutated In Company', width: 180 },
+    { field: 'remarks', headerName: 'File No', width: 180 },
     // { field: 'shift', headerName: 'Shift', width: 100, renderCell: (params) => params.row?.shift?.shft_name },
     // { field: 'material', headerName: 'Material', width: 180, renderCell: (params) => params.row?.material?.matrl_name},
     // { field: "status", headerName: "Status", width: 80,
@@ -57,9 +57,9 @@ export const DEED_COLUMNS = (props) => ([
               <Tooltip title="Edit" arrow onClick={() => props.onEdit(params.row)}> 
                 <IconButton> <EditSquare /> </IconButton> 
               </Tooltip>
-              <Tooltip title="Delete" arrow onClick={() => props.onDelete(params.row)}> 
+              {/* <Tooltip title="Delete" arrow onClick={() => props.onDelete(params.row)}> 
                 <IconButton> <Delete /> </IconButton> 
-              </Tooltip>
+              </Tooltip> */}
           </div>
         );
       }

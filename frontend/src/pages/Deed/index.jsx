@@ -32,6 +32,9 @@ export default function Deed() {
   const [selectedDeed, setSelectedDeed] = React.useState(null);
   const [plantList, setPlantList] = React.useState([])
   const [filters, setFilters] = React.useState({...defaultFilters, plantId: queryPlantId});
+  const [paginationModel, setPaginationModel] = React.useState({ page: 0, pageSize: 10 });
+  const [totalCount, setTotalCount] = React.useState(0);
+  const [areaTotals, setAreaTotals] = React.useState({ totalPurchasedArea: 0, totalMutatedArea: 0 });
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -49,12 +52,14 @@ export default function Deed() {
   React.useEffect(() => {
     const timer = setTimeout(() => fetchDeeds(filters), 500);
     return () => clearTimeout(timer);
-  }, [filters]);
+  }, [filters, paginationModel]);
 
   const fetchDeeds = async (customFilters = filters) => {
     try {
       setLoading(true);
       const queryParams = new URLSearchParams();
+      queryParams.append("page", paginationModel.page + 1);
+      queryParams.append("limit", paginationModel.pageSize);
 
       Object.entries(customFilters).forEach(([key, value]) => {
         if (value) queryParams.append(key, value);
@@ -62,6 +67,11 @@ export default function Deed() {
 
       const res = await axiosInstance.get( `/deed/fetch?${queryParams.toString()}` );
       setDeedData(res.data.data || []);
+      setTotalCount(res.data.totalCount || 0);
+      setAreaTotals({
+        totalPurchasedArea: res.data.totalPurchasedArea || 0,
+        totalMutatedArea: res.data.totalMutatedArea || 0,
+      });
 
     } catch (err) {
       console.error(err);
@@ -86,6 +96,12 @@ export default function Deed() {
 
   const handleFilterChange = (field, value) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
+    setPaginationModel((prev) => ({ ...prev, page: 0 }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters(defaultFilters);
+    setPaginationModel((prev) => ({ ...prev, page: 0 }));
   };
 
 
@@ -318,15 +334,25 @@ export default function Deed() {
                 }}
               />
 
-              <Button onClick={() => setFilters(defaultFilters)}> <Close /> Clear Filter </Button>
+              <Button onClick={handleClearFilters}> <Close /> Clear Filter </Button>
             </Box>
           </Box>
 
           {loading && <LinearProgress />}
 
+          <Box display="flex" gap={4} mb={1}>
+            <Typography fontWeight={600}>
+              Total Purchased Area: {areaTotals.totalPurchasedArea.toLocaleString()}
+            </Typography>
+            <Typography fontWeight={600}>
+              Total Mutated Area: {areaTotals.totalMutatedArea.toLocaleString()}
+            </Typography>
+          </Box>
+
           <Box height={450}>
             <DataGrid rows={deedData} columns={DEED_COLUMNS({ onEdit, onDelete, downloadAllFiles })} getRowId={(row) => row._id}
-              pageSizeOptions={[5, 10, 15]} disableRowSelectionOnClick showToolbar
+              paginationMode="server" rowCount={totalCount} paginationModel={paginationModel} onPaginationModelChange={setPaginationModel}
+              pageSizeOptions={[5, 10, 15, 25]} disableRowSelectionOnClick showToolbar
               sx={{
                 border: "none",
                 "& .MuiDataGrid-columnHeaders": {

@@ -111,7 +111,12 @@ const StepOne = ({ control, errors, setValue }) => {
           </Box>
 
           <Button type="button" size="small" variant="contained" startIcon={<Add />}
-            onClick={() => append({ deedDate: deeds?.[deeds.length - 1]?.deedDate || "", deedNo: "", plotNo: "", totalArea: "" }) }
+            onClick={() => append({ 
+              deedDate: deeds?.[deeds.length - 1]?.deedDate || "", 
+              deedNo: deeds?.[deeds.length - 1]?.deedNo || "", 
+              plotNo: "", 
+              totalArea: "" 
+            }) }
           >
             Add
           </Button>

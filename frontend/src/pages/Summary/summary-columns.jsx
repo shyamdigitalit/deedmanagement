@@ -4,7 +4,7 @@ import { Link } from "react-router";
 import moment from "moment";
 
 let headerObj = {
-  "purchaseInCompany": "Purchase In Company",
+  "purchaseInCompany": "Mutated In Company",
   "nameOfMouza": "Mouza Name",
   "locationName": "Location Name",
   "mutatedKhatianNo": "Mutated Khatian No"
@@ -20,7 +20,7 @@ export const SUMMARY_COLUMNS = (props) => ([
     } },
     { field: 'totalMutatedArea', headerName: 'Total Mutated Area', width: 150 },
     { field: 'nonMutatedArea', headerName: 'Non Mutated Area', width: 150 },
-    // { field: 'remarks', headerName: 'Remarks', width: 180 },
+    // { field: 'remarks', headerName: 'File No', width: 180 },
 
     // { field: 'action', headerName: 'Actions', type: 'number',
     //   renderCell: (params) => {
