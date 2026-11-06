@@ -117,14 +117,16 @@ export default function DeedBank() {
             {owners.length === 0 ? (
               <div>No Owners Selected</div>
             ) : (
-              owners.map((owner, index) => (
-                <div className="owner-row" key={index}>
-                  <span>{owner.nameOfSeller}</span>
-                  <button className="folder-btn" onClick={() => handleFolderClick(owner)} >
-                    Go to folder
-                  </button>
-                </div>
-              ))
+              <div style={{ height: "200px", overflowY: "auto" }}>
+                {owners.map((owner, index) => (
+                  <div className="owner-row" key={index}>
+                    <span>{owner.nameOfSeller}</span>
+                    <button className="folder-btn" onClick={() => handleFolderClick(owner)} >
+                      Go to folder
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
