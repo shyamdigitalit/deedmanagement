@@ -8,6 +8,7 @@ import Loader from '../components/loader'
 const Layout = lazy(() => import('../components/Layout'))
 
 const Home = lazy(() => import('../pages/Home'))
+const Dashboard = lazy(() => import('../pages/Dashboard'))
 const Login = lazy(() => import('../pages/Login'))
 
 const Accounts = lazy(() => import('../pages/Masters/Accounts'));
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to="/home" replace /> },
       { path: '/login', element: <Login /> },
       { path: '/home', element: <ProtectedRoute> <Home /> </ProtectedRoute>  },
+      { path: '/dashboard', element: <ProtectedRoute> <Dashboard /> </ProtectedRoute> },
       { path: '/deed', element: <ProtectedRoute> <Deed /> </ProtectedRoute> },
       { path: '/plot', element: <ProtectedRoute> <Plot /> </ProtectedRoute> },
       { path: '/bank', element: <ProtectedRoute> <DeedBank /> </ProtectedRoute> },

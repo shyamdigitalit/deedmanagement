@@ -17,6 +17,7 @@ import DomainIcon from '@mui/icons-material/Domain';
 export const SIDE_MENU = [
     // { title: 'Form Builder', icon: <Handyman className='icn' />, path: '/' },
     { title: 'Home', path: "/home", icon: <Home className='sidebar-icon' /> },
+    { title: 'Dashboard', path: "/dashboard", icon: <Dashboard className='sidebar-icon' /> },
     { title: 'Land Management', path: "/deed", icon: <Description className='sidebar-icon' /> },
     { title: 'Summary', path: "/summary", icon: <Summarize className='sidebar-icon' /> },
     // { title: 'Plot Wise', path: "/plot", icon: <FmdGood className='sidebar-icon' /> },
@@ -74,4 +75,4 @@ export const ADMIN_MENU = [
     //   ],
     // },
     // { title: 'Help', icon: <HelpCenterIcon className='icn' />, path: '/' }, // Another simple item
-  ];  
+  ];

@@ -1,0 +1,146 @@
+.dash {
+    --dash-blue: #2563eb;
+    --dash-green: #16a34a;
+    --dash-orange: #f59e0b;
+    --dash-red: #dc2626;
+    --dash-grey: #c9ced6;
+    --dash-track: #e8ebf0;
+    --dash-text: #111827;
+    --dash-muted: #6b7280;
+    --dash-border: #e5e8ef;
+    --dash-link: #d9480f;
+
+    padding: 24px;
+    background: #f4f6fa;
+    min-height: 100%;
+    color: var(--dash-text);
+    font-size: 13px;
+}
+
+/* ---------- header ---------- */
+.dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.dash-title { font-size: 22px; font-weight: 700; margin: 0; }
+.dash-subtitle { color: var(--dash-muted); margin: 2px 0 0; font-size: 13px; }
+.dash-header-actions { display: flex; gap: 10px; align-items: center; }
+.dash-search { width: 240px; background: #fff; }
+.dash-export.MuiButton-root {
+    text-transform: none;
+    font-weight: 600;
+    border-radius: 8px;
+    color: var(--dash-text);
+    border-color: var(--dash-border);
+    background: #fff;
+}
+
+/* ---------- layout ---------- */
+.dash-body { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 16px; align-items: start; }
+.dash-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.dash-rail { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.dash-two-col { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; }
+
+.dash-card {
+    background: #fff;
+    border: 1px solid var(--dash-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    min-width: 0;
+}
+.dash-card-title { font-size: 15px; font-weight: 700; margin: 0; }
+.dash-card-sub { color: var(--dash-muted); font-size: 12px; margin-left: 8px; font-weight: 400; }
+.dash-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+
+.dash-link {
+    color: var(--dash-link);
+    font-weight: 600;
+    cursor: pointer;
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: inherit;
+}
+.dash-link:hover { text-decoration: underline; }
+
+/* ---------- land position / mutation ---------- */
+.dash-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 14px; }
+.dash-metrics.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dash-metric-label { display: flex; align-items: center; gap: 6px; color: var(--dash-muted); font-size: 12px; }
+.dash-dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+.dash-metric-value { font-size: 22px; font-weight: 700; margin: 4px 0 2px; }
+.dash-metric-value.red { color: var(--dash-red); }
+.dash-metric-note { color: var(--dash-muted); font-size: 12px; }
+
+.dash-bar { display: flex; height: 10px; border-radius: 6px; background: var(--dash-track); overflow: hidden; }
+.dash-bar > span { display: block; height: 100%; }
+.dash-bar-caption { color: var(--dash-muted); font-size: 12px; margin-top: 6px; }
+.dash-bar-captions { display: flex; justify-content: space-between; color: var(--dash-muted); font-size: 12px; margin-top: 6px; }
+
+.dash-stats { display: flex; gap: 28px; flex-wrap: wrap; border-top: 1px solid var(--dash-border); margin-top: 14px; padding-top: 12px; }
+.dash-stats b { font-size: 14px; margin-right: 4px; }
+.dash-stats span { color: var(--dash-muted); }
+
+.dash-pill { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+.dash-pill.green { background: #dcfce7; color: #15803d; }
+.dash-pill.amber { background: #fef3c7; color: #b45309; }
+
+/* ---------- tabs ---------- */
+.dash-tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--dash-border); margin-bottom: 10px; }
+.dash-tab {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 6px 0;
+    margin-bottom: -1px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--dash-muted);
+    cursor: pointer;
+}
+.dash-tab.active { color: var(--dash-text); border-bottom-color: var(--dash-blue); }
+
+.dash-legend { display: flex; gap: 14px; color: var(--dash-muted); font-size: 12px; }
+.dash-legend span { display: flex; align-items: center; gap: 5px; }
+
+/* ---------- bar list (pending mutation) ---------- */
+.dash-bars { display: flex; flex-direction: column; gap: 9px; margin-top: 6px; }
+.dash-bars-row { display: flex; align-items: center; gap: 10px; }
+.dash-bars-label { width: 92px; flex-shrink: 0; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-bars-track { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.dash-bars-fill { height: 9px; background: var(--dash-orange); border-radius: 2px; flex-shrink: 0; }
+.dash-bars-value { font-size: 12px; font-weight: 600; }
+
+/* ---------- pending by company ---------- */
+.dash-company { margin-bottom: 14px; }
+.dash-company-head { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; margin-bottom: 5px; }
+.dash-company-head b { white-space: nowrap; }
+.dash-company-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- filters ---------- */
+.dash-filters-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.dash-filter-label { font-size: 12px; color: var(--dash-muted); margin: 10px 0 4px; display: block; }
+.dash-note { color: var(--dash-muted); font-size: 11px; margin-top: 12px; }
+.dash-updated { color: var(--dash-muted); font-size: 11px; }
+
+/* ---------- table ---------- */
+.dash-table .MuiTableCell-root { font-size: 12.5px; padding: 10px 12px; border-bottom: 1px solid var(--dash-border); }
+.dash-table .MuiTableCell-head { color: var(--dash-muted); font-weight: 600; background: #fafbfc; }
+.dash-table .MuiTableCell-root.num { text-align: right; font-weight: 600; }
+.dash-table-search { width: 220px; }
+.dash-empty { text-align: center; color: var(--dash-muted); padding: 24px 0; }
+
+@media (max-width: 1100px) {
+    .dash-body { grid-template-columns: minmax(0, 1fr); }
+    .dash-rail { position: static; order: -1; }
+    .dash-two-col { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 700px) {
+    .dash { padding: 12px; }
+    .dash-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

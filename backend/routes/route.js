@@ -4,6 +4,7 @@ const router = express.Router();
 import fileUpload from '../middlewares/fileUpload.js';
 
 import deedController from '../controllers/deedhandlers/deedController.js';
+import dashboardController from '../controllers/deedhandlers/dashboardController.js';
 
 import acctypController from '../controllers/masters/accsetups/acctypController.js';
 import cmpnyController from '../controllers/masters/admin/cmpnyController.js';
@@ -75,6 +76,11 @@ const getRoutes = [
     { path: '/deed/summary', handlers: [basicAuth, deedController.getDeedAreaSummary] },
     // { path: '/deedmaster/fetchbyno', handlers: [basicAuth, deedController.readDeedMaster] },
     { path: '/deed/fetchby/:id', handlers: [basicAuth, deedController.readById] },
+    { path: '/dashboard/filters', handlers: [basicAuth, dashboardController.getFilterOptions] },
+    { path: '/dashboard/summary', handlers: [basicAuth, dashboardController.getSummary] },
+    { path: '/dashboard/plot-vs-purchased', handlers: [basicAuth, dashboardController.getPlotVsPurchased] },
+    { path: '/dashboard/pending-mutation', handlers: [basicAuth, dashboardController.getPendingMutation] },
+    { path: '/dashboard/pending-plots', handlers: [basicAuth, dashboardController.getPendingPlots] },
     { path: '/dept/fetch', handlers: [basicAuth, deptController.read] },
     { path: '/plot/fetch', handlers: [basicAuth, plotController.read] },
     { path: '/desig/fetch', handlers: [basicAuth, desigController.read] },
